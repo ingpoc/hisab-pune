@@ -5,6 +5,7 @@ import { MapPage } from './pages/MapPage';
 import { LocalitiesPage } from './pages/LocalitiesPage';
 import { LocalityPage } from './pages/LocalityPage';
 import { HowPage } from './pages/HowPage';
+import { WardsPage } from './pages/WardsPage';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/map" element={<MapPage />} />
         <Route path="/localities" element={<LocalitiesPage />} />
+        <Route path="/wards" element={<WardsPage />} />
         <Route path="/locality/:id" element={<LocalityPage />} />
         <Route path="/how" element={<HowPage />} />
       </Routes>
