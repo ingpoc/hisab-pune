@@ -1,53 +1,74 @@
+import { useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Hero } from '../components/Hero';
 import { localities } from '../data/localities';
 import { electoralWards } from '../data/electoralWards';
 import { seedReports } from '../data/seedReports';
 import './HomePage.css';
 
+gsap.registerPlugin(ScrollTrigger);
+
 export function HomePage() {
   const open = seedReports.filter((r) => r.status !== 'resolved').length;
   const corporators = electoralWards.reduce((n, w) => n + w.corporators.length, 0);
+  const proofRef = useRef<HTMLElement>(null);
+  const whyRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from('.home-proof__stat', {
+        scrollTrigger: { trigger: proofRef.current, start: 'top 85%' },
+        y: 22,
+        opacity: 0,
+        duration: 0.55,
+        stagger: 0.1,
+        ease: 'power2.out',
+      });
+
+      gsap.from('.home-why__copy > *', {
+        scrollTrigger: { trigger: whyRef.current, start: 'top 80%' },
+        y: 16,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.08,
+        ease: 'power2.out',
+      });
+
+      gsap.from('.home-why__stack span', {
+        scrollTrigger: { trigger: whyRef.current, start: 'top 75%' },
+        x: 24,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.12,
+        ease: 'power3.out',
+      });
+    });
+
+    return () => ctx.revert();
+  }, []);
 
   return (
     <main>
       <Hero />
 
-      <section className="home-proof">
-        <motion.div
-          className="home-proof__stat"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45 }}
-        >
+      <section className="home-proof" ref={proofRef}>
+        <div className="home-proof__stat">
           <strong>{localities.length}</strong>
           <span>localities mapped</span>
-        </motion.div>
-        <motion.div
-          className="home-proof__stat"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45, delay: 0.08 }}
-        >
+        </div>
+        <div className="home-proof__stat">
           <strong>{corporators}</strong>
           <span>corporators from 2026 poll</span>
-        </motion.div>
-        <motion.div
-          className="home-proof__stat"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45, delay: 0.16 }}
-        >
+        </div>
+        <div className="home-proof__stat">
           <strong>{open}</strong>
           <span>demo open reports</span>
-        </motion.div>
+        </div>
       </section>
 
-      <section className="home-why">
+      <section className="home-why" ref={whyRef}>
         <div className="home-why__copy">
           <p className="eyebrow">The problem</p>
           <h2>Elected and appointed people stay invisible when streets fail.</h2>
@@ -79,9 +100,7 @@ export function HomePage() {
             <li key={loc.id}>
               <Link to={`/locality/${loc.id}`}>
                 <strong>{loc.name}</strong>
-                <span>
-                  {loc.nameMr} · Ward {loc.electoralWardId}
-                </span>
+                <span>Ward {loc.electoralWardId}</span>
               </Link>
             </li>
           ))}

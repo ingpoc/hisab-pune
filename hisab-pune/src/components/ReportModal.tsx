@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { localities, nearestLocality, localityForWard } from '../data/localities';
 import type { Report } from '../data/types';
+import { createReport, fetchHere } from '../lib/api';
 import { saveUserReport } from '../lib/storage';
-import { loadWardGeoJSON, wardIdAt } from '../lib/wardsGeo';
 import './ReportModal.css';
 
 interface Props {
@@ -18,8 +18,10 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
   const [resolved, setResolved] = useState<{
     localityId: string;
     wardId: number | null;
+    wardName?: string;
   } | null>(null);
   const [locating, setLocating] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,16 +32,26 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
     let cancelled = false;
     (async () => {
       try {
-        const fc = await loadWardGeoJSON();
-        const wardId = wardIdAt(coords.lng, coords.lat, fc);
-        const loc =
-          (wardId != null ? localityForWard(wardId, coords.lat, coords.lng) : null) ??
-          nearestLocality(coords.lat, coords.lng);
-        if (!cancelled) setResolved({ localityId: loc.id, wardId });
-      } catch {
-        const loc = nearestLocality(coords.lat, coords.lng);
+        const here = await fetchHere(coords.lat, coords.lng);
         if (!cancelled) {
-          setResolved({ localityId: loc.id, wardId: loc.electoralWardId });
+          setResolved({
+            localityId: here.locality.id,
+            wardId: here.ward.id,
+            wardName: here.ward.name,
+          });
+        }
+      } catch {
+        const loc =
+          localityForWard(
+            nearestLocality(coords.lat, coords.lng).electoralWardId,
+            coords.lat,
+            coords.lng,
+          ) ?? nearestLocality(coords.lat, coords.lng);
+        if (!cancelled) {
+          setResolved({
+            localityId: loc.id,
+            wardId: loc.electoralWardId,
+          });
         }
       }
     })();
@@ -84,7 +96,7 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
     reader.readAsDataURL(file);
   }
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!coords || !locality) {
       setError('Locate yourself first.');
@@ -94,24 +106,47 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
       setError('Add a short description.');
       return;
     }
-    const report: Report = {
-      id: `user-${Date.now()}`,
-      localityId: locality.id,
-      lat: coords.lat,
-      lng: coords.lng,
-      note: note.trim(),
-      status: 'open',
-      createdAt: new Date().toISOString(),
-      photoDataUrl,
-      source: 'user',
-    };
-    saveUserReport(report);
-    onCreated(report);
-    setNote('');
-    setPhotoDataUrl(undefined);
-    setCoords(null);
-    setResolved(null);
-    onClose();
+    setSubmitting(true);
+    setError(null);
+    try {
+      const { report } = await createReport({
+        lat: coords.lat,
+        lng: coords.lng,
+        note: note.trim(),
+        localityId: locality.id,
+      });
+      const withPhoto = { ...report, photoDataUrl };
+      saveUserReport(withPhoto);
+      onCreated(withPhoto);
+      setNote('');
+      setPhotoDataUrl(undefined);
+      setCoords(null);
+      setResolved(null);
+      onClose();
+    } catch (err) {
+      // Offline / API down — keep local fallback
+      const report: Report = {
+        id: `user-${Date.now()}`,
+        localityId: locality.id,
+        lat: coords.lat,
+        lng: coords.lng,
+        note: note.trim(),
+        status: 'open',
+        createdAt: new Date().toISOString(),
+        photoDataUrl,
+        source: 'user',
+      };
+      saveUserReport(report);
+      onCreated(report);
+      setNote('');
+      setPhotoDataUrl(undefined);
+      setCoords(null);
+      setResolved(null);
+      onClose();
+      console.warn('API create failed, saved locally', err);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -151,12 +186,13 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
             <p className="modal__loc">
               Matched: <strong>{locality.name}</strong> · Ward{' '}
               {resolved?.wardId ?? locality.electoralWardId}
+              {resolved?.wardName ? ` (${resolved.wardName})` : ''}
             </p>
           )}
         </div>
 
         <label className="modal__field">
-          <span>What&apos;s wrong?</span>
+          <span>What is wrong?</span>
           <textarea
             rows={3}
             value={note}
@@ -172,8 +208,8 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
           <button type="button" className="btn btn--ghost-dark" onClick={onClose}>
             Cancel
           </button>
-          <button type="submit" className="btn btn--alert">
-            Pin &amp; show escalation
+          <button type="submit" className="btn btn--alert" disabled={submitting}>
+            {submitting ? 'Saving…' : 'Pin & show escalation'}
           </button>
         </div>
       </form>

@@ -47,7 +47,6 @@ export interface WardOffice {
 export interface Locality {
   id: string;
   name: string;
-  nameMr: string;
   electoralWardId: number;
   wardOfficeId: string;
   zone: string;

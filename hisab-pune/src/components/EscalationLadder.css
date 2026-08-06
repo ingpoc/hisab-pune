@@ -27,16 +27,6 @@
   font-size: clamp(1.6rem, 3vw, 2.2rem);
   font-weight: 800;
   letter-spacing: -0.03em;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.55rem;
-}
-
-.ladder__title span {
-  font-size: 0.55em;
-  font-weight: 600;
-  color: var(--mist);
 }
 
 .ladder__meta {

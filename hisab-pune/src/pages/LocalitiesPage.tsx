@@ -26,7 +26,6 @@ export function LocalitiesPage() {
               <Link to={`/locality/${loc.id}`}>
                 <div>
                   <strong>{loc.name}</strong>
-                  <span className="locs__mr">{loc.nameMr}</span>
                 </div>
                 <p>
                   Ward {loc.electoralWardId}

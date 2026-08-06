@@ -261,7 +261,7 @@ Live Activity        reads same snapshot
 
 ```json
 {
-  "locality": { "id": "baner", "name": "Baner", "nameMr": "बाणेर" },
+  "locality": { "id": "baner", "name": "Baner" },
   "ward": { "id": 9, "name": "Sus–Baner–Pashan" },
   "escalation": [
     { "role": "ward_officer", "name": "…", "shortTitle": "Ward office" },

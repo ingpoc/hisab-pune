@@ -37,4 +37,4 @@ Vite + React + TypeScript · MapLibre GL · Framer Motion · `localStorage` repo
 
 ## Brand
 
-**Hisab** (हिसाब) — reckoning. Who answers for your street?
+**Hisab** — reckoning. Who answers for your street?

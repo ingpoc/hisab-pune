@@ -53,13 +53,6 @@
   letter-spacing: -0.02em;
 }
 
-.locs__mr {
-  margin-left: 0.45rem;
-  font-size: 0.9rem;
-  color: var(--mist);
-  font-weight: 500;
-}
-
 .locs__list p {
   margin: 0;
   font-size: 0.88rem;

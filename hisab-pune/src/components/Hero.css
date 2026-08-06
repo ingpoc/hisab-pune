@@ -156,8 +156,6 @@
   font-weight: 600;
   font-size: 1.05rem;
   backdrop-filter: blur(8px);
-  animation: stepIn 0.7s ease both;
-  animation-delay: calc(0.45s + var(--i) * 0.08s);
 }
 
 .hero__step span {

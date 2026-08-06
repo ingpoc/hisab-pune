@@ -8,7 +8,6 @@ export const localities: Locality[] = [
   {
     id: 'baner',
     name: 'Baner',
-    nameMr: 'बाणेर',
     electoralWardId: 9,
     wardOfficeId: 'aundh-baner',
     zone: 'West',
@@ -20,7 +19,6 @@ export const localities: Locality[] = [
   {
     id: 'balewadi',
     name: 'Balewadi',
-    nameMr: 'बाळेवाडी',
     electoralWardId: 9,
     wardOfficeId: 'aundh-baner',
     zone: 'West',
@@ -32,7 +30,6 @@ export const localities: Locality[] = [
   {
     id: 'pashan',
     name: 'Pashan',
-    nameMr: 'पाषाण',
     electoralWardId: 9,
     wardOfficeId: 'aundh-baner',
     zone: 'West',
@@ -44,7 +41,6 @@ export const localities: Locality[] = [
   {
     id: 'aundh',
     name: 'Aundh',
-    nameMr: 'औंध',
     electoralWardId: 8,
     wardOfficeId: 'aundh-baner',
     zone: 'North-West',
@@ -56,7 +52,6 @@ export const localities: Locality[] = [
   {
     id: 'kothrud',
     name: 'Kothrud',
-    nameMr: 'कोथरूड',
     electoralWardId: 31,
     wardOfficeId: 'kothrud-bavdhan',
     zone: 'West',
@@ -68,7 +63,6 @@ export const localities: Locality[] = [
   {
     id: 'bavdhan',
     name: 'Bavdhan',
-    nameMr: 'बावधन',
     electoralWardId: 10,
     wardOfficeId: 'kothrud-bavdhan',
     zone: 'West',
@@ -80,7 +74,6 @@ export const localities: Locality[] = [
   {
     id: 'shivajinagar',
     name: 'Shivajinagar',
-    nameMr: 'शिवाजीनगर',
     electoralWardId: 12,
     wardOfficeId: 'ghole-road',
     zone: 'Central',
@@ -92,7 +85,6 @@ export const localities: Locality[] = [
   {
     id: 'deccan',
     name: 'Deccan Gymkhana',
-    nameMr: 'डेक्कन',
     electoralWardId: 29,
     wardOfficeId: 'ghole-road',
     zone: 'Central',
@@ -104,7 +96,6 @@ export const localities: Locality[] = [
   {
     id: 'viman-nagar',
     name: 'Viman Nagar',
-    nameMr: 'विमान नगर',
     electoralWardId: 3,
     wardOfficeId: 'nagar-road-kalas',
     zone: 'East',
@@ -116,7 +107,6 @@ export const localities: Locality[] = [
   {
     id: 'kharadi',
     name: 'Kharadi',
-    nameMr: 'खराडी',
     electoralWardId: 4,
     wardOfficeId: 'yerwada-viman-wagholi',
     zone: 'East',
@@ -128,7 +118,6 @@ export const localities: Locality[] = [
   {
     id: 'vadgaon-sheri',
     name: 'Vadgaon Sheri',
-    nameMr: 'वडगाव शेरी',
     electoralWardId: 5,
     wardOfficeId: 'yerwada-viman-wagholi',
     zone: 'East',
@@ -140,7 +129,6 @@ export const localities: Locality[] = [
   {
     id: 'yerwada',
     name: 'Yerwada',
-    nameMr: 'येरवडा',
     electoralWardId: 6,
     wardOfficeId: 'yerwada-viman-wagholi',
     zone: 'North-East',
@@ -152,7 +140,6 @@ export const localities: Locality[] = [
   {
     id: 'hadapsar',
     name: 'Hadapsar',
-    nameMr: 'हडपसर',
     electoralWardId: 16,
     wardOfficeId: 'hadapsar-manjari',
     zone: 'East',
@@ -164,7 +151,6 @@ export const localities: Locality[] = [
   {
     id: 'mundhwa',
     name: 'Mundhwa',
-    nameMr: 'मुंढवा',
     electoralWardId: 14,
     wardOfficeId: 'dhole-patil',
     zone: 'East',
@@ -176,7 +162,6 @@ export const localities: Locality[] = [
   {
     id: 'kondhwa',
     name: 'Kondhwa Budruk',
-    nameMr: 'कोंढवा बुद्रुक',
     electoralWardId: 40,
     wardOfficeId: 'kondhwa-undri',
     zone: 'South-East',
@@ -188,7 +173,6 @@ export const localities: Locality[] = [
   {
     id: 'kondhwa-khurd',
     name: 'Kondhwa Khurd',
-    nameMr: 'कोंढवा खुर्द',
     electoralWardId: 19,
     wardOfficeId: 'wanawadi-ramtekdi',
     zone: 'South-East',
@@ -200,7 +184,6 @@ export const localities: Locality[] = [
   {
     id: 'wanowrie',
     name: 'Wanowrie',
-    nameMr: 'वानवडी',
     electoralWardId: 18,
     wardOfficeId: 'wanawadi-ramtekdi',
     zone: 'South-East',
@@ -212,7 +195,6 @@ export const localities: Locality[] = [
   {
     id: 'warje',
     name: 'Warje',
-    nameMr: 'वारजे',
     electoralWardId: 32,
     wardOfficeId: 'warje-karvenagar',
     zone: 'South-West',
@@ -224,7 +206,6 @@ export const localities: Locality[] = [
   {
     id: 'karvenagar',
     name: 'Karvenagar',
-    nameMr: 'कार्वेनगर',
     electoralWardId: 30,
     wardOfficeId: 'warje-karvenagar',
     zone: 'South-West',
@@ -236,7 +217,6 @@ export const localities: Locality[] = [
   {
     id: 'sinhagad-road',
     name: 'Sinhagad Road',
-    nameMr: 'सिंहगड रोड',
     electoralWardId: 35,
     wardOfficeId: 'sinhgad',
     zone: 'South-West',
@@ -248,7 +228,6 @@ export const localities: Locality[] = [
   {
     id: 'dhayari',
     name: 'Dhayari',
-    nameMr: 'धायरी',
     electoralWardId: 33,
     wardOfficeId: 'sinhgad',
     zone: 'South-West',
@@ -260,7 +239,6 @@ export const localities: Locality[] = [
   {
     id: 'swargate',
     name: 'Swargate / Parvati',
-    nameMr: 'स्वारगेट / पर्वती',
     electoralWardId: 27,
     wardOfficeId: 'vishrambagwada',
     zone: 'South',
@@ -272,7 +250,6 @@ export const localities: Locality[] = [
   {
     id: 'sahakarnagar',
     name: 'Sahakarnagar',
-    nameMr: 'सहकारनगर',
     electoralWardId: 36,
     wardOfficeId: 'dhankawadi-ambegaon',
     zone: 'South',
@@ -284,7 +261,6 @@ export const localities: Locality[] = [
   {
     id: 'katraj',
     name: 'Katraj',
-    nameMr: 'कात्रज',
     electoralWardId: 38,
     wardOfficeId: 'dhankawadi-ambegaon',
     zone: 'South',
@@ -296,7 +272,6 @@ export const localities: Locality[] = [
   {
     id: 'camp',
     name: 'Camp / Koregaon Park fringe',
-    nameMr: 'कॅम्प',
     electoralWardId: 14,
     wardOfficeId: 'dhole-patil',
     zone: 'East-Central',
@@ -308,7 +283,6 @@ export const localities: Locality[] = [
   {
     id: 'station',
     name: 'Pune Station',
-    nameMr: 'पुणे स्टेशन',
     electoralWardId: 13,
     wardOfficeId: 'dhole-patil',
     zone: 'Central',
@@ -320,7 +294,6 @@ export const localities: Locality[] = [
   {
     id: 'kasba-peth',
     name: 'Kasba Peth',
-    nameMr: 'कसब पेठ',
     electoralWardId: 24,
     wardOfficeId: 'kasba-peth',
     zone: 'Old City',
@@ -332,7 +305,6 @@ export const localities: Locality[] = [
   {
     id: 'shaniwar-peth',
     name: 'Shaniwar Peth',
-    nameMr: 'शनिवार पेठ',
     electoralWardId: 25,
     wardOfficeId: 'vishrambagwada',
     zone: 'Old City',
@@ -344,7 +316,6 @@ export const localities: Locality[] = [
   {
     id: 'bibwewadi',
     name: 'Bibwewadi',
-    nameMr: 'बिबवेवाडी',
     electoralWardId: 20,
     wardOfficeId: 'bibwewadi',
     zone: 'South',
@@ -356,7 +327,6 @@ export const localities: Locality[] = [
   {
     id: 'dhanori',
     name: 'Dhanori / Kalas',
-    nameMr: 'धनोरी / काळस',
     electoralWardId: 1,
     wardOfficeId: 'nagar-road-kalas',
     zone: 'North-East',

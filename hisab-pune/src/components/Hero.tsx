@@ -1,86 +1,75 @@
-import type { CSSProperties } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import gsap from 'gsap';
 import './Hero.css';
 
 export function Hero() {
+  const rootRef = useRef<HTMLElement>(null);
+
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      tl.from('.hero__city', { y: 14, opacity: 0, duration: 0.45 })
+        .from('.hero__brand', { y: 36, opacity: 0, duration: 0.7 }, '-=0.15')
+        .from('.hero__line', { y: 20, opacity: 0, duration: 0.5 }, '-=0.35')
+        .from('.hero__sub', { opacity: 0, duration: 0.45 }, '-=0.2')
+        .from('.hero__actions', { y: 12, opacity: 0, duration: 0.4 }, '-=0.2')
+        .from(
+          '.hero__step',
+          { x: 28, opacity: 0, duration: 0.45, stagger: 0.07 },
+          '-=0.45',
+        );
+
+      gsap.to('.hero__grid', {
+        backgroundPosition: '48px 48px',
+        duration: 18,
+        ease: 'none',
+        repeat: -1,
+      });
+    }, root);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="hero">
+    <section className="hero" ref={rootRef}>
       <div className="hero__bg" aria-hidden>
         <div className="hero__wash" />
         <div className="hero__grid" />
       </div>
 
       <div className="hero__inner">
-        <motion.p
-          className="hero__city"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55 }}
-        >
-          Pune · पुणे
-        </motion.p>
-
-        <motion.h1
-          className="hero__brand"
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.08 }}
-        >
-          Hisab
-        </motion.h1>
-
-        <motion.p
-          className="hero__line"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.18 }}
-        >
-          Who answers for your street?
-        </motion.p>
-
-        <motion.p
-          className="hero__sub"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.32 }}
-        >
+        <p className="hero__city">Pune</p>
+        <h1 className="hero__brand">Hisab</h1>
+        <p className="hero__line">Who answers for your street?</p>
+        <p className="hero__sub">
           Every locality maps to a clear escalation route — sanitation desk,
           ward officer, corporator, MLA, mayor, commissioner — then public
           pressure on X.
-        </motion.p>
-
-        <motion.div
-          className="hero__actions"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.42 }}
-        >
+        </p>
+        <div className="hero__actions">
           <Link to="/map?report=1" className="btn btn--signal">
             Report a blackspot
           </Link>
           <Link to="/localities" className="btn btn--ghost">
             See who is responsible
           </Link>
-        </motion.div>
+        </div>
       </div>
 
-      <motion.div
-        className="hero__ladder-preview"
-        initial={{ opacity: 0, x: 40 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8, delay: 0.35 }}
-        aria-hidden
-      >
-        {['SWM desk', 'Ward AMC', 'Corporators', 'MLA', 'Commissioner'].map(
+      <div className="hero__ladder-preview" aria-hidden>
+        {['SWM desk', 'Ward office', 'Corporators', 'MLA', 'Commissioner'].map(
           (step, i) => (
-            <div key={step} className="hero__step" style={{ '--i': i } as CSSProperties}>
+            <div key={step} className="hero__step">
               <span>{String(i + 1).padStart(2, '0')}</span>
               {step}
             </div>
           ),
         )}
-      </motion.div>
+      </div>
     </section>
   );
 }

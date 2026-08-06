@@ -6,6 +6,7 @@ import { EscalationLadder } from '../components/EscalationLadder';
 import { localities, getLocality } from '../data/localities';
 import type { Report } from '../data/types';
 import { loadReportsWithOverrides, updateReportStatus } from '../lib/storage';
+import { fetchReports } from '../lib/api';
 import { escalationChain } from '../lib/escalation';
 import { buildEscalationTweet, xIntentUrl } from '../lib/twitter';
 import './MapPage.css';
@@ -16,6 +17,25 @@ export function MapPage() {
   const [selectedId, setSelectedId] = useState<string | null>(params.get('loc'));
   const [activeReportId, setActiveReportId] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(params.get('report') === '1');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchReports()
+      .then((apiReports) => {
+        if (cancelled) return;
+        const local = loadReportsWithOverrides().filter((r) => r.source === 'user');
+        const byId = new Map<string, Report>();
+        for (const r of apiReports) byId.set(r.id, r);
+        for (const r of local) byId.set(r.id, r);
+        setReports([...byId.values()]);
+      })
+      .catch(() => {
+        /* keep local/seed fallback */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (params.get('report') === '1') setReportOpen(true);
@@ -41,7 +61,11 @@ export function MapPage() {
   }, [setParams]);
 
   function onCreated(report: Report) {
-    setReports(loadReportsWithOverrides());
+    setReports((prev) => {
+      const map = new Map(prev.map((r) => [r.id, r]));
+      map.set(report.id, report);
+      return [...map.values()];
+    });
     setSelectedId(report.localityId);
     setActiveReportId(report.id);
     setParams((prev) => {
