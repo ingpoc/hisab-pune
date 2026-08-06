@@ -1,21 +1,21 @@
 import type { Official } from './types';
 
 /**
- * City-wide PMC leadership + SWM desk.
- * Commissioner: Hindustan Times / Pune Pulse (Naval Kishore Ram, active 2026).
- * Mayor / Dy Mayor: PTI / Business Standard Feb 2026.
- * SWM Dy Commissioner: PMC Contact Us directory (Ajeet Deshmukh).
+ * City leadership verified in 2026 reporting only.
+ * SWM: TOI / Punekar News (Mar 2026) — Avinash Sakpal heads SWM.
+ * Mayor / Dy Mayor: PTI Feb 2026.
+ * Commissioner: HT / Pune Pulse 2026 — Naval Kishore Ram.
  */
 export const cityOfficials: Official[] = [
   {
     id: 'swm-dc',
-    name: 'Shri. Ajeet Deshmukh',
+    name: 'Avinash Sakpal',
     role: 'sanitation',
-    title: 'Deputy Commissioner — Solid Waste Management, PMC',
-    phone: '9867797017',
-    email: 'ajeet.deshmukh@punecorporation.org',
-    note: 'City SWM desk. Helpline 1800-103-0222 · Dept 020-25501401 · swm@punecorporation.org',
-    source: 'PMC Contact Us directory',
+    title: 'Deputy Commissioner & Head — Solid Waste Management, PMC',
+    phone: '1800-103-0222',
+    email: 'swm@punecorporation.org',
+    note: 'City SWM head (reported Mar 2026). Helpline 1800-103-0222 · Tag @PMCPune.',
+    source: 'Times of India / Punekar News, Mar 2026',
     xHandle: 'PMCPune',
   },
   {
@@ -44,11 +44,12 @@ export const cityOfficials: Official[] = [
     title: 'Municipal Commissioner, PMC',
     xHandle: 'PMCPune',
     phone: '020-25501100',
-    note: 'Executive head. Tag @PMCPune for official grievances.',
+    note: 'Executive head (active 2026). Tag @PMCPune for official grievances.',
     source: 'Hindustan Times / Pune Pulse, 2026',
   },
 ];
 
+/** Sitting MLAs for Pune city seats (15th Maharashtra Assembly, elected 2024 — current as of 2026). */
 export const mlas: Record<string, Official> = {
   'mla-kothrud': {
     id: 'mla-kothrud',
@@ -57,7 +58,7 @@ export const mlas: Record<string, Official> = {
     title: 'MLA — Kothrud',
     party: 'BJP',
     xHandle: 'ChDadaPatil',
-    source: 'Maharashtra Assembly election 2024 · X @ChDadaPatil',
+    source: 'Maharashtra Assembly 2024 (sitting) · X @ChDadaPatil',
   },
   'mla-shivaji': {
     id: 'mla-shivaji',
@@ -66,7 +67,7 @@ export const mlas: Record<string, Official> = {
     title: 'MLA — Shivajinagar',
     party: 'BJP',
     xHandle: 'SidShirole',
-    source: 'Maharashtra Assembly election 2024 · X @SidShirole',
+    source: 'Maharashtra Assembly 2024 (sitting) · X @SidShirole',
   },
   'mla-vadgaon': {
     id: 'mla-vadgaon',
@@ -75,7 +76,7 @@ export const mlas: Record<string, Official> = {
     title: 'MLA — Vadgaon Sheri',
     party: 'NCP (SP)',
     xHandle: 'IamBapuPathare',
-    source: 'Maharashtra Assembly election 2024 · X @IamBapuPathare',
+    source: 'Maharashtra Assembly 2024 (sitting) · X @IamBapuPathare',
   },
   'mla-parvati': {
     id: 'mla-parvati',
@@ -84,7 +85,7 @@ export const mlas: Record<string, Official> = {
     title: 'MLA — Parvati · MoS Urban Development',
     party: 'BJP',
     xHandle: 'madhurimisal',
-    source: 'Maharashtra Assembly election 2024 · X @madhurimisal',
+    source: 'Maharashtra Assembly 2024 (sitting) · X @madhurimisal',
   },
   'mla-kasba': {
     id: 'mla-kasba',
@@ -92,7 +93,7 @@ export const mlas: Record<string, Official> = {
     role: 'mla',
     title: 'MLA — Kasba Peth',
     party: 'BJP',
-    source: 'Maharashtra Assembly election 2024 (Indian Express winners list)',
+    source: 'Maharashtra Assembly 2024 (sitting)',
   },
   'mla-cantonment': {
     id: 'mla-cantonment',
@@ -101,7 +102,7 @@ export const mlas: Record<string, Official> = {
     title: 'MLA — Pune Cantonment',
     party: 'BJP',
     xHandle: 'SunilKambleBJP',
-    source: 'Maharashtra Assembly election 2024 · tagged as @SunilKambleBJP',
+    source: 'Maharashtra Assembly 2024 (sitting) · X @SunilKambleBJP',
   },
   'mla-hadapsar': {
     id: 'mla-hadapsar',
@@ -109,7 +110,7 @@ export const mlas: Record<string, Official> = {
     role: 'mla',
     title: 'MLA — Hadapsar',
     party: 'NCP',
-    source: 'Maharashtra Assembly election 2024 (Hindustan Times)',
+    source: 'Maharashtra Assembly 2024 (sitting)',
   },
   'mla-khadakwasla': {
     id: 'mla-khadakwasla',
@@ -117,7 +118,7 @@ export const mlas: Record<string, Official> = {
     role: 'mla',
     title: 'MLA — Khadakwasla',
     party: 'BJP',
-    source: 'Maharashtra Assembly election 2024 (Hindustan Times)',
+    source: 'Maharashtra Assembly 2024 (sitting)',
   },
 };
 
@@ -128,12 +129,12 @@ export const mp: Official = {
   title: 'Member of Parliament — Pune Lok Sabha',
   party: 'BJP',
   xHandle: 'mohol_murlidhar',
-  source: 'Lok Sabha 2024 · X @mohol_murlidhar',
+  source: 'Lok Sabha 2024 (sitting) · X @mohol_murlidhar',
 };
 
 export const roleLabels: Record<Official['role'], string> = {
   sanitation: 'Solid waste desk',
-  ward_officer: 'Ward officer (AMC)',
+  ward_officer: 'Regional ward office',
   corporator: 'Corporator',
   mla: 'MLA',
   mayor: 'Mayor',

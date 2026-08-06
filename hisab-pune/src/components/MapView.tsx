@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { Map, Marker, NavigationControl } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Locality, Report } from '../data/types';
+import { localities as allLocalities } from '../data/localities';
+import { loadWardGeoJSON } from '../lib/wardsGeo';
 import './MapView.css';
 
 interface Props {
@@ -11,6 +13,7 @@ interface Props {
   onSelectLocality: (id: string) => void;
   onSelectReport?: (id: string) => void;
   focus?: { lat: number; lng: number } | null;
+  selectedWardId?: number | null;
 }
 
 const STATUS_COLOR: Record<Report['status'], string> = {
@@ -26,11 +29,14 @@ export function MapView({
   onSelectLocality,
   onSelectReport,
   focus,
+  selectedWardId,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const localityMarkersRef = useRef<Marker[]>([]);
+  const selectRef = useRef(onSelectLocality);
+  selectRef.current = onSelectLocality;
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -57,13 +63,76 @@ export function MapView({
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
     mapRef.current = map;
 
+    map.on('load', async () => {
+      try {
+        const fc = await loadWardGeoJSON();
+        if (!map.getSource('wards')) {
+          map.addSource('wards', { type: 'geojson', data: fc });
+          map.addLayer({
+            id: 'wards-fill',
+            type: 'fill',
+            source: 'wards',
+            paint: {
+              'fill-color': '#0c1a17',
+              'fill-opacity': 0.06,
+            },
+          });
+          map.addLayer({
+            id: 'wards-line',
+            type: 'line',
+            source: 'wards',
+            paint: {
+              'line-color': '#0c1a17',
+              'line-width': 1,
+              'line-opacity': 0.45,
+            },
+          });
+          map.addLayer({
+            id: 'wards-selected',
+            type: 'fill',
+            source: 'wards',
+            filter: ['==', ['get', 'wardId'], -1],
+            paint: {
+              'fill-color': '#f0a202',
+              'fill-opacity': 0.22,
+            },
+          });
+        }
+
+        map.on('click', 'wards-fill', (e) => {
+          const wid = e.features?.[0]?.properties?.wardId;
+          if (typeof wid !== 'number' && typeof wid !== 'string') return;
+          const wardId = Number(wid);
+          const match = allLocalities.find((l) => l.electoralWardId === wardId);
+          if (match) selectRef.current(match.id);
+        });
+        map.on('mouseenter', 'wards-fill', () => {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+        map.on('mouseleave', 'wards-fill', () => {
+          map.getCanvas().style.cursor = '';
+        });
+      } catch {
+        // Map still works with markers if GeoJSON fails to load
+      }
+    });
+
     return () => {
       markersRef.current.forEach((m) => m.remove());
       localityMarkersRef.current.forEach((m) => m.remove());
       map.remove();
       mapRef.current = null;
     };
+    // Map boot once; callbacks read latest via markers effects
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getLayer('wards-selected')) return;
+    const wid = selectedWardId ?? -1;
+    map.setFilter('wards-selected', ['==', ['get', 'wardId'], wid]);
+  }, [selectedWardId]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -131,6 +200,7 @@ export function MapView({
         <span>
           <i className="map-shell__dot" /> Locality
         </span>
+        <span>41 ward polygons (2026 election)</span>
       </div>
     </div>
   );

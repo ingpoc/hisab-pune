@@ -72,6 +72,7 @@ export function MapPage() {
           reports={reports}
           localities={localities}
           selectedId={selectedId}
+          selectedWardId={selected?.electoralWardId ?? null}
           onSelectLocality={onSelectLocality}
           onSelectReport={setActiveReportId}
           focus={focus}

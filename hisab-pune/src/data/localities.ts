@@ -58,7 +58,7 @@ export const localities: Locality[] = [
     name: 'Kothrud',
     nameMr: 'कोथरूड',
     electoralWardId: 31,
-    wardOfficeId: 'kothrud',
+    wardOfficeId: 'kothrud-bavdhan',
     zone: 'West',
     lat: 18.5074,
     lng: 73.8077,
@@ -70,7 +70,7 @@ export const localities: Locality[] = [
     name: 'Bavdhan',
     nameMr: 'बावधन',
     electoralWardId: 10,
-    wardOfficeId: 'kothrud',
+    wardOfficeId: 'kothrud-bavdhan',
     zone: 'West',
     lat: 18.515,
     lng: 73.778,
@@ -106,7 +106,7 @@ export const localities: Locality[] = [
     name: 'Viman Nagar',
     nameMr: 'विमान नगर',
     electoralWardId: 3,
-    wardOfficeId: 'nagar-road',
+    wardOfficeId: 'nagar-road-kalas',
     zone: 'East',
     lat: 18.5679,
     lng: 73.9143,
@@ -118,7 +118,7 @@ export const localities: Locality[] = [
     name: 'Kharadi',
     nameMr: 'खराडी',
     electoralWardId: 4,
-    wardOfficeId: 'nagar-road',
+    wardOfficeId: 'yerwada-viman-wagholi',
     zone: 'East',
     lat: 18.5516,
     lng: 73.937,
@@ -130,7 +130,7 @@ export const localities: Locality[] = [
     name: 'Vadgaon Sheri',
     nameMr: 'वडगाव शेरी',
     electoralWardId: 5,
-    wardOfficeId: 'nagar-road',
+    wardOfficeId: 'yerwada-viman-wagholi',
     zone: 'East',
     lat: 18.551,
     lng: 73.908,
@@ -142,7 +142,7 @@ export const localities: Locality[] = [
     name: 'Yerwada',
     nameMr: 'येरवडा',
     electoralWardId: 6,
-    wardOfficeId: 'yerawada',
+    wardOfficeId: 'yerwada-viman-wagholi',
     zone: 'North-East',
     lat: 18.552,
     lng: 73.879,
@@ -154,7 +154,7 @@ export const localities: Locality[] = [
     name: 'Hadapsar',
     nameMr: 'हडपसर',
     electoralWardId: 16,
-    wardOfficeId: 'hadapsar',
+    wardOfficeId: 'hadapsar-manjari',
     zone: 'East',
     lat: 18.5089,
     lng: 73.926,
@@ -166,7 +166,7 @@ export const localities: Locality[] = [
     name: 'Mundhwa',
     nameMr: 'मुंढवा',
     electoralWardId: 14,
-    wardOfficeId: 'hadapsar',
+    wardOfficeId: 'dhole-patil',
     zone: 'East',
     lat: 18.532,
     lng: 73.935,
@@ -178,7 +178,7 @@ export const localities: Locality[] = [
     name: 'Kondhwa Budruk',
     nameMr: 'कोंढवा बुद्रुक',
     electoralWardId: 40,
-    wardOfficeId: 'kondhwa',
+    wardOfficeId: 'kondhwa-undri',
     zone: 'South-East',
     lat: 18.464,
     lng: 73.889,
@@ -190,7 +190,7 @@ export const localities: Locality[] = [
     name: 'Kondhwa Khurd',
     nameMr: 'कोंढवा खुर्द',
     electoralWardId: 19,
-    wardOfficeId: 'kondhwa',
+    wardOfficeId: 'wanawadi-ramtekdi',
     zone: 'South-East',
     lat: 18.476,
     lng: 73.889,
@@ -202,7 +202,7 @@ export const localities: Locality[] = [
     name: 'Wanowrie',
     nameMr: 'वानवडी',
     electoralWardId: 18,
-    wardOfficeId: 'wanawadi',
+    wardOfficeId: 'wanawadi-ramtekdi',
     zone: 'South-East',
     lat: 18.492,
     lng: 73.901,
@@ -214,7 +214,7 @@ export const localities: Locality[] = [
     name: 'Warje',
     nameMr: 'वारजे',
     electoralWardId: 32,
-    wardOfficeId: 'warje',
+    wardOfficeId: 'warje-karvenagar',
     zone: 'South-West',
     lat: 18.4762,
     lng: 73.805,
@@ -226,7 +226,7 @@ export const localities: Locality[] = [
     name: 'Karvenagar',
     nameMr: 'कार्वेनगर',
     electoralWardId: 30,
-    wardOfficeId: 'warje',
+    wardOfficeId: 'warje-karvenagar',
     zone: 'South-West',
     lat: 18.488,
     lng: 73.818,
@@ -262,7 +262,7 @@ export const localities: Locality[] = [
     name: 'Swargate / Parvati',
     nameMr: 'स्वारगेट / पर्वती',
     electoralWardId: 27,
-    wardOfficeId: 'kasaba',
+    wardOfficeId: 'vishrambagwada',
     zone: 'South',
     lat: 18.501,
     lng: 73.861,
@@ -274,7 +274,7 @@ export const localities: Locality[] = [
     name: 'Sahakarnagar',
     nameMr: 'सहकारनगर',
     electoralWardId: 36,
-    wardOfficeId: 'dhankawadi',
+    wardOfficeId: 'dhankawadi-ambegaon',
     zone: 'South',
     lat: 18.486,
     lng: 73.852,
@@ -286,7 +286,7 @@ export const localities: Locality[] = [
     name: 'Katraj',
     nameMr: 'कात्रज',
     electoralWardId: 38,
-    wardOfficeId: 'dhankawadi',
+    wardOfficeId: 'dhankawadi-ambegaon',
     zone: 'South',
     lat: 18.457,
     lng: 73.861,
@@ -322,7 +322,7 @@ export const localities: Locality[] = [
     name: 'Kasba Peth',
     nameMr: 'कसब पेठ',
     electoralWardId: 24,
-    wardOfficeId: 'kasaba',
+    wardOfficeId: 'kasba-peth',
     zone: 'Old City',
     lat: 18.519,
     lng: 73.855,
@@ -334,7 +334,7 @@ export const localities: Locality[] = [
     name: 'Shaniwar Peth',
     nameMr: 'शनिवार पेठ',
     electoralWardId: 25,
-    wardOfficeId: 'kasaba',
+    wardOfficeId: 'vishrambagwada',
     zone: 'Old City',
     lat: 18.5195,
     lng: 73.8555,
@@ -358,7 +358,7 @@ export const localities: Locality[] = [
     name: 'Dhanori / Kalas',
     nameMr: 'धनोरी / काळस',
     electoralWardId: 1,
-    wardOfficeId: 'yerawada',
+    wardOfficeId: 'nagar-road-kalas',
     zone: 'North-East',
     lat: 18.592,
     lng: 73.895,
@@ -375,6 +375,22 @@ export function nearestLocality(lat: number, lng: number): Locality {
   let best = localities[0];
   let bestD = Infinity;
   for (const loc of localities) {
+    const d = (loc.lat - lat) ** 2 + (loc.lng - lng) ** 2;
+    if (d < bestD) {
+      bestD = d;
+      best = loc;
+    }
+  }
+  return best;
+}
+
+/** Prefer a locality in the matched electoral ward; fall back to nearest overall. */
+export function localityForWard(wardId: number, lat: number, lng: number): Locality | null {
+  const inWard = localities.filter((l) => l.electoralWardId === wardId);
+  if (inWard.length === 0) return null;
+  let best = inWard[0];
+  let bestD = Infinity;
+  for (const loc of inWard) {
     const d = (loc.lat - lat) ** 2 + (loc.lng - lng) ** 2;
     if (d < bestD) {
       bestD = d;

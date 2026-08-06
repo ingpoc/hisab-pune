@@ -36,12 +36,12 @@ export interface ElectoralWard {
 export interface WardOffice {
   id: string;
   name: string;
-  amcName: string;
-  email?: string;
-  phone?: string;
-  mobile?: string;
-  sanitationControlRoom?: string;
+  /** Electoral wards attached under the Jan 2026 ward-committee order */
+  electoralWardIds: number[];
   zone: number;
+  phone?: string;
+  email?: string;
+  note?: string;
 }
 
 export interface Locality {

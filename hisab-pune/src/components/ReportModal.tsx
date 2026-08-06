@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { nearestLocality } from '../data/localities';
+import { useEffect, useState } from 'react';
+import { localities, nearestLocality, localityForWard } from '../data/localities';
 import type { Report } from '../data/types';
 import { saveUserReport } from '../lib/storage';
+import { loadWardGeoJSON, wardIdAt } from '../lib/wardsGeo';
 import './ReportModal.css';
 
 interface Props {
@@ -14,20 +15,51 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
   const [note, setNote] = useState('');
   const [photoDataUrl, setPhotoDataUrl] = useState<string | undefined>();
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [resolved, setResolved] = useState<{
+    localityId: string;
+    wardId: number | null;
+  } | null>(null);
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!coords) {
+      setResolved(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const fc = await loadWardGeoJSON();
+        const wardId = wardIdAt(coords.lng, coords.lat, fc);
+        const loc =
+          (wardId != null ? localityForWard(wardId, coords.lat, coords.lng) : null) ??
+          nearestLocality(coords.lat, coords.lng);
+        if (!cancelled) setResolved({ localityId: loc.id, wardId });
+      } catch {
+        const loc = nearestLocality(coords.lat, coords.lng);
+        if (!cancelled) {
+          setResolved({ localityId: loc.id, wardId: loc.electoralWardId });
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [coords]);
+
   if (!open) return null;
 
-  const locality = coords ? nearestLocality(coords.lat, coords.lng) : null;
+  const locality = resolved
+    ? (localities.find((l) => l.id === resolved.localityId) ?? null)
+    : null;
 
   function locate() {
     setLocating(true);
     setError(null);
     if (!navigator.geolocation) {
-      setError('Geolocation not supported. Drop a pin near your area on the map instead.');
+      setError('Geolocation not supported in this browser.');
       setLocating(false);
-      // Fallback: Pune center
       setCoords({ lat: 18.5204, lng: 73.8567 });
       return;
     }
@@ -37,7 +69,7 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
         setLocating(false);
       },
       () => {
-        setError('Could not read GPS. Using Pune centre — adjust after submit if needed.');
+        setError('Could not read GPS. Using Pune centre — adjust if needed.');
         setCoords({ lat: 18.5204, lng: 73.8567 });
         setLocating(false);
       },
@@ -78,6 +110,7 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
     setNote('');
     setPhotoDataUrl(undefined);
     setCoords(null);
+    setResolved(null);
     onClose();
   }
 
@@ -93,8 +126,8 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
         </header>
 
         <p className="modal__lead">
-          Photo + location → we pin the locality and show who must answer.
-          No login required for this MVP.
+          Photo + location → matched to the 2026 electoral ward polygon, then the
+          escalation ladder. No login required for this MVP.
         </p>
 
         <label className="modal__field">
@@ -116,7 +149,8 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
           </button>
           {locality && (
             <p className="modal__loc">
-              Nearest: <strong>{locality.name}</strong> · Ward {locality.electoralWardId}
+              Matched: <strong>{locality.name}</strong> · Ward{' '}
+              {resolved?.wardId ?? locality.electoralWardId}
             </p>
           )}
         </div>

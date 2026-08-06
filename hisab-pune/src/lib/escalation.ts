@@ -10,29 +10,33 @@ export function escalationChain(locality: Locality): Official[] {
   const ward = getElectoralWard(locality.electoralWardId);
 
   const swm = cityOfficials.find((o) => o.role === 'sanitation');
-  if (swm && office) {
+  if (swm) {
     chain.push({
       ...swm,
       id: `san-${locality.id}`,
-      title: `Solid Waste · ${office.name}`,
-      phone: office.sanitationControlRoom ?? swm.phone,
-      note: `Local control room ${office.sanitationControlRoom ?? 'via ward office'}. City SWM: ${swm.name}. Helpline 1800-103-0222.`,
+      title: office
+        ? `Solid Waste · via ${office.name}`
+        : swm.title,
+      note: office
+        ? `${swm.note ?? ''} Regional office covers wards ${office.electoralWardIds.join(', ')}.`
+        : swm.note,
     });
-  } else if (swm) {
-    chain.push(swm);
   }
 
   if (office) {
     chain.push({
       id: `wo-${office.id}`,
-      name: office.amcName,
+      name: office.name,
       role: 'ward_officer',
-      title: `Assistant Municipal Commissioner · ${office.name}`,
+      title: `Regional ward office (AMC) · Circle ${office.zone}`,
       phone: office.phone,
       email: office.email,
-      note: office.mobile ? `Mobile ${office.mobile}` : undefined,
+      note:
+        office.note ??
+        'Named AMC postings issued separately after the Jan 2026 ward-committee order.',
       xHandle: 'PMCPune',
-      source: 'PMC Ward Offices contact directory',
+      source:
+        'PMC ward-committee order (post Jan 2026 election) — TheKarbhari report',
     });
   }
 
@@ -74,7 +78,9 @@ export function initials(name: string): string {
     .filter(
       (p) =>
         p &&
-        !/^(ias|ips|of|the|pmc|ward|office|deputy|municipal|commissioner)$/i.test(p),
+        !/^(ias|ips|of|the|pmc|ward|office|deputy|municipal|commissioner|regional|circle)$/i.test(
+          p,
+        ),
     )
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase() ?? '')
