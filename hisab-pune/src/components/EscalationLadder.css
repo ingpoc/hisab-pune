@@ -1,0 +1,61 @@
+.ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.ladder__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.ladder__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--alert);
+}
+
+.ladder__title {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+
+.ladder__title span {
+  font-size: 0.55em;
+  font-weight: 600;
+  color: var(--mist);
+}
+
+.ladder__meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
+}
+
+.ladder__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ladder__connector {
+  width: 2px;
+  height: 0.85rem;
+  margin-left: 3.35rem;
+  background: linear-gradient(var(--signal), color-mix(in srgb, var(--signal) 20%, transparent));
+}

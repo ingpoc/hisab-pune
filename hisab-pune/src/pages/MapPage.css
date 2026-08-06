@@ -1,0 +1,134 @@
+.map-page {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  min-height: calc(100vh - var(--nav-h));
+}
+
+.map-page__map {
+  position: relative;
+  min-height: 50vh;
+}
+
+.map-page__map .map-shell {
+  height: 100%;
+  min-height: calc(100vh - var(--nav-h));
+  border-radius: 0;
+  border: 0;
+  border-right: 1px solid var(--line);
+}
+
+.map-page__fab {
+  position: absolute;
+  right: 1rem;
+  bottom: 1.25rem;
+  z-index: 3;
+  border: 0;
+  box-shadow: var(--shadow);
+}
+
+.map-page__side {
+  overflow: auto;
+  max-height: calc(100vh - var(--nav-h));
+  padding: 1.25rem clamp(1rem, 2vw, 1.5rem) 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background: var(--paper);
+}
+
+.map-page__empty h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  letter-spacing: -0.03em;
+}
+
+.map-page__empty > p {
+  margin: 0.6rem 0 1rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+.map-page__empty ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.map-page__empty li button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: var(--radius);
+  padding: 0.85rem 0.95rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.map-page__empty li button:hover {
+  border-color: var(--ink);
+}
+
+.map-page__empty li span {
+  font-size: 0.86rem;
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.map-page__report {
+  padding: 1rem;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.map-page__note {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.45;
+}
+
+.map-page__status {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.map-page__photo {
+  width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+.map-page__report .btn {
+  align-self: flex-start;
+  border: 0;
+}
+
+@media (max-width: 960px) {
+  .map-page {
+    grid-template-columns: 1fr;
+  }
+
+  .map-page__map .map-shell {
+    min-height: 48vh;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .map-page__side {
+    max-height: none;
+  }
+}

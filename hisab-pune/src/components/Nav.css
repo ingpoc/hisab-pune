@@ -1,0 +1,71 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0 clamp(1rem, 3vw, 2rem);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav__brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.nav__mark {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--alert);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--alert) 25%, transparent);
+}
+
+.nav__links {
+  display: flex;
+  gap: 1.1rem;
+  margin-left: auto;
+}
+
+.nav__links a {
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  opacity: 0.72;
+}
+
+.nav__links a.active,
+.nav__links a:hover {
+  opacity: 1;
+}
+
+.nav__cta {
+  text-decoration: none;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nav__cta:hover {
+  background: var(--ink-soft);
+}
+
+@media (max-width: 720px) {
+  .nav__links {
+    display: none;
+  }
+}

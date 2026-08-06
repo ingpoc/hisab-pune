@@ -1,0 +1,53 @@
+import type { Official } from '../data/types';
+import { avatarHue, initials } from '../lib/escalation';
+import { roleLabels } from '../data/officials';
+import { xProfileUrl } from '../lib/twitter';
+import './OfficialCard.css';
+
+interface Props {
+  official: Official;
+  step?: number;
+  compact?: boolean;
+}
+
+export function OfficialCard({ official, step, compact }: Props) {
+  const hue = avatarHue(official.id);
+  return (
+    <article className={`official ${compact ? 'official--compact' : ''}`}>
+      {typeof step === 'number' && (
+        <div className="official__step">{String(step).padStart(2, '0')}</div>
+      )}
+      <div
+        className="official__avatar"
+        style={{
+          background: `linear-gradient(145deg, hsl(${hue} 42% 32%), hsl(${(hue + 40) % 360} 35% 22%))`,
+        }}
+        aria-hidden
+      >
+        {initials(official.name)}
+      </div>
+      <div className="official__body">
+        <p className="official__role">{roleLabels[official.role]}</p>
+        <h3 className="official__name">{official.name}</h3>
+        <p className="official__title">{official.title}</p>
+        {(official.party || official.xHandle) && (
+          <div className="official__meta">
+            {official.party && <span>{official.party}</span>}
+            {official.xHandle && (
+              <a
+                href={xProfileUrl(official.xHandle)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                @{official.xHandle}
+              </a>
+            )}
+          </div>
+        )}
+        {official.note && !compact && (
+          <p className="official__note">{official.note}</p>
+        )}
+      </div>
+    </article>
+  );
+}

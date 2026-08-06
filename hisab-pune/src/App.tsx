@@ -1,0 +1,23 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Nav } from './components/Nav';
+import { HomePage } from './pages/HomePage';
+import { MapPage } from './pages/MapPage';
+import { LocalitiesPage } from './pages/LocalitiesPage';
+import { LocalityPage } from './pages/LocalityPage';
+import { HowPage } from './pages/HowPage';
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <div className="grain" aria-hidden />
+      <Nav />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/map" element={<MapPage />} />
+        <Route path="/localities" element={<LocalitiesPage />} />
+        <Route path="/locality/:id" element={<LocalityPage />} />
+        <Route path="/how" element={<HowPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}

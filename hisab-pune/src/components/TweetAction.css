@@ -1,0 +1,42 @@
+.tweet {
+  min-width: min(100%, 20rem);
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.tweet__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+.tweet__box {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.75rem;
+  background: white;
+  min-height: 4.5rem;
+}
+
+.tweet__preview {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  color: color-mix(in srgb, var(--ink) 60%, transparent);
+  background: var(--paper-2);
+  padding: 0.55rem 0.65rem;
+  border-radius: var(--radius);
+  max-height: 6rem;
+  overflow: auto;
+}
+
+.tweet__go {
+  align-self: flex-start;
+  margin-top: 0.2rem;
+}
