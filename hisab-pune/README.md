@@ -2,38 +2,33 @@
 
 Public transparency for who answers when a Pune street stays dirty.
 
-Inspired by [NammaKasa](https://www.nammakasa.in) (Bengaluru), Hisab focuses on:
-
-1. **Locality → escalation ladder** — SWM desk, ward-office AMC, all corporators, MLA, dy mayor, mayor, commissioner, MP  
-2. **Action on X** — one-tap drafts tagging public handles  
-3. **Visible ledger** — open / escalated / resolved reports on a city map  
+**Language:** English only (UI + data).
 
 ## Run
 
 ```bash
 cd hisab-pune
 npm install
-npm run dev
+npm run seed          # SQLite + 2026 roster / wards
+npm run dev           # web :5173 + API :8787
 ```
 
-## Data (filled from public sources)
-
-| Layer | Count / detail | Primary source |
-| --- | --- | --- |
-| Electoral wards | 41 | Wikipedia 2026 PMC election |
-| Corporators | 165 | Same (+ OpenCity SEC gazette) |
-| Ward offices / AMCs | 15 | PMC Contact Us directory |
-| Localities | 30 | Mapped to 2026 ward names |
-| MLA / MP / Mayor | City seats | 2024 Assembly + Feb 2026 mayor polls |
-| Commissioner | Naval Kishore Ram, IAS | HT / Pune Pulse 2026 |
-| SWM | Dy Commissioner Ajeet Deshmukh | PMC Contact Us |
-| X handles | Where publicly known | Linked from news / profiles |
-
-See in-app **How it works → Sources** for URLs.
+```bash
+npm run test:api
+npm run build
+```
 
 ## Stack
 
-Vite + React + TypeScript · MapLibre GL · Framer Motion · `localStorage` reports (MVP)
+- Web: Vite + React + TypeScript + MapLibre + **GSAP** (hero / ladder / page motion)
+- API: Hono + SQLite (Postgres-ready schema) — `GET /v1/here`, reports, freshness, SLA
+- iOS: SwiftUI + WidgetKit scaffold under `ios/` (build on Mac/Xcode)
+
+## Docs
+
+- `ARCHITECTURE.md` — product + system design
+- `IMPLEMENTATION.md` — phased build checklist
+- `ios/README.md` — widget / App Group notes
 
 ## Brand
 
