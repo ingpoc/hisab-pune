@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { localities } from '../data/localities';
-import { officials } from '../data/officials';
+import { getElectoralWard } from '../data/electoralWards';
+import { mlas } from '../data/cityOfficials';
 import './LocalitiesPage.css';
 
 export function LocalitiesPage() {
@@ -10,14 +11,16 @@ export function LocalitiesPage() {
         <p className="eyebrow">Directory</p>
         <h1>Every locality has a face and a ladder</h1>
         <p>
-          Tap through to see sanitation desk → ward officer → corporator → MLA →
-          mayor → commissioner → MP, with X handles where public.
+          Mapped to the 2026 PMC electoral ward, ward-office AMC, all corporators
+          for that ward, MLA, mayor, commissioner, and MP — with phones and X
+          handles where public.
         </p>
       </header>
 
       <ul className="locs__list">
         {localities.map((loc) => {
-          const mla = officials[loc.mlaId];
+          const mla = mlas[loc.assemblyId];
+          const ward = getElectoralWard(loc.electoralWardId);
           return (
             <li key={loc.id}>
               <Link to={`/locality/${loc.id}`}>
@@ -26,12 +29,18 @@ export function LocalitiesPage() {
                   <span className="locs__mr">{loc.nameMr}</span>
                 </div>
                 <p>
-                  Ward {loc.wardNo} · {loc.zone}
+                  Ward {loc.electoralWardId}
+                  {ward ? ` · ${ward.name}` : ''} · {loc.zone}
                 </p>
                 <p className="locs__mla">
                   MLA: {mla?.name ?? '—'}
                   {mla?.xHandle ? ` · @${mla.xHandle}` : ''}
                 </p>
+                {ward && (
+                  <p>
+                    {ward.corporators.length} corporators · {ward.corporators.map((c) => c.party).filter((p, i, a) => a.indexOf(p) === i).join('/')}
+                  </p>
+                )}
               </Link>
             </li>
           );

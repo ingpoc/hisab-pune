@@ -116,7 +116,7 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
           </button>
           {locality && (
             <p className="modal__loc">
-              Nearest: <strong>{locality.name}</strong> · Ward {locality.wardNo}
+              Nearest: <strong>{locality.name}</strong> · Ward {locality.electoralWardId}
             </p>
           )}
         </div>

@@ -72,7 +72,7 @@ export function Hero() {
         transition={{ duration: 0.8, delay: 0.35 }}
         aria-hidden
       >
-        {['Sanitation', 'Ward officer', 'Corporator', 'MLA', 'Commissioner'].map(
+        {['SWM desk', 'Ward AMC', 'Corporators', 'MLA', 'Commissioner'].map(
           (step, i) => (
             <div key={step} className="hero__step" style={{ '--i': i } as CSSProperties}>
               <span>{String(i + 1).padStart(2, '0')}</span>

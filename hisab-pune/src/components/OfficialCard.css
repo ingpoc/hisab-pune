@@ -95,3 +95,9 @@
   line-height: 1.45;
   color: color-mix(in srgb, var(--ink) 70%, transparent);
 }
+
+.official__source {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  color: var(--mist);
+}

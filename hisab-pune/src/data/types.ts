@@ -4,6 +4,7 @@ export type OfficialRole =
   | 'corporator'
   | 'mla'
   | 'mayor'
+  | 'deputy_mayor'
   | 'commissioner'
   | 'mp';
 
@@ -15,23 +16,45 @@ export interface Official {
   party?: string;
   xHandle?: string;
   phone?: string;
+  email?: string;
   note?: string;
+  source?: string;
+}
+
+export interface CorporatorSeat {
+  seat: string;
+  name: string;
+  party: string;
+}
+
+export interface ElectoralWard {
+  id: number;
+  name: string;
+  corporators: CorporatorSeat[];
+}
+
+export interface WardOffice {
+  id: string;
+  name: string;
+  amcName: string;
+  email?: string;
+  phone?: string;
+  mobile?: string;
+  sanitationControlRoom?: string;
+  zone: number;
 }
 
 export interface Locality {
   id: string;
   name: string;
   nameMr: string;
-  wardNo: number;
+  electoralWardId: number;
+  wardOfficeId: string;
   zone: string;
   lat: number;
   lng: number;
-  assembly: string;
-  mlaId: string;
+  assemblyId: string;
   mpId: string;
-  corporatorIds: string[];
-  wardOfficerId: string;
-  sanitationId: string;
 }
 
 export type ReportStatus = 'open' | 'escalated' | 'resolved';

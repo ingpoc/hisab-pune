@@ -85,3 +85,33 @@
   border: 0;
   display: inline-flex;
 }
+
+.how__note h2 + h2 {
+  margin-top: 1.35rem;
+}
+
+.how__sources {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.how__sources li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.9rem;
+}
+
+.how__sources a {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.how__sources span {
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
+  font-size: 0.84rem;
+}

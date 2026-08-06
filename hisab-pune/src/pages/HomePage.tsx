@@ -2,11 +2,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Hero } from '../components/Hero';
 import { localities } from '../data/localities';
+import { electoralWards } from '../data/electoralWards';
 import { seedReports } from '../data/seedReports';
 import './HomePage.css';
 
 export function HomePage() {
   const open = seedReports.filter((r) => r.status !== 'resolved').length;
+  const corporators = electoralWards.reduce((n, w) => n + w.corporators.length, 0);
 
   return (
     <main>
@@ -30,8 +32,8 @@ export function HomePage() {
           viewport={{ once: true }}
           transition={{ duration: 0.45, delay: 0.08 }}
         >
-          <strong>7</strong>
-          <span>rungs in every escalation</span>
+          <strong>{corporators}</strong>
+          <span>corporators from 2026 poll</span>
         </motion.div>
         <motion.div
           className="home-proof__stat"
@@ -78,7 +80,7 @@ export function HomePage() {
               <Link to={`/locality/${loc.id}`}>
                 <strong>{loc.name}</strong>
                 <span>
-                  {loc.nameMr} · MLA seat {loc.assembly}
+                  {loc.nameMr} · Ward {loc.electoralWardId}
                 </span>
               </Link>
             </li>

@@ -1,6 +1,6 @@
 import type { Official } from '../data/types';
 import { avatarHue, initials } from '../lib/escalation';
-import { roleLabels } from '../data/officials';
+import { roleLabels } from '../data/cityOfficials';
 import { xProfileUrl } from '../lib/twitter';
 import './OfficialCard.css';
 
@@ -30,22 +30,25 @@ export function OfficialCard({ official, step, compact }: Props) {
         <p className="official__role">{roleLabels[official.role]}</p>
         <h3 className="official__name">{official.name}</h3>
         <p className="official__title">{official.title}</p>
-        {(official.party || official.xHandle) && (
-          <div className="official__meta">
-            {official.party && <span>{official.party}</span>}
-            {official.xHandle && (
-              <a
-                href={xProfileUrl(official.xHandle)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                @{official.xHandle}
-              </a>
-            )}
-          </div>
-        )}
+        <div className="official__meta">
+          {official.party && <span>{official.party}</span>}
+          {official.xHandle && (
+            <a href={xProfileUrl(official.xHandle)} target="_blank" rel="noreferrer">
+              @{official.xHandle}
+            </a>
+          )}
+          {official.phone && (
+            <a href={`tel:${official.phone.replace(/\s/g, '')}`}>{official.phone}</a>
+          )}
+          {official.email && (
+            <a href={`mailto:${official.email}`}>{official.email}</a>
+          )}
+        </div>
         {official.note && !compact && (
           <p className="official__note">{official.note}</p>
+        )}
+        {official.source && !compact && (
+          <p className="official__source">Source: {official.source}</p>
         )}
       </div>
     </article>

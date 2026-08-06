@@ -1,0 +1,96 @@
+.wards {
+  padding: clamp(2rem, 5vh, 3.5rem) clamp(1rem, 3vw, 2.5rem)
+    clamp(3rem, 7vh, 5rem);
+  max-width: 1100px;
+}
+
+.wards__head h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  max-width: 18ch;
+}
+
+.wards__head > p:not(.eyebrow) {
+  margin: 0.85rem 0 0;
+  max-width: 52ch;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+.wards__list {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.85rem;
+}
+
+.wards__card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.05rem 1.1rem 1.15rem;
+}
+
+.wards__card h2 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.wards__card h2 span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--alert);
+}
+
+.wards__corps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.wards__corps li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.88rem;
+}
+
+.wards__corps strong {
+  font-weight: 600;
+}
+
+.wards__corps span {
+  color: var(--mist);
+  font-size: 0.8rem;
+}
+
+.wards__links {
+  margin: 0.85rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.wards__links a {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.wards__links--muted {
+  color: var(--mist);
+}

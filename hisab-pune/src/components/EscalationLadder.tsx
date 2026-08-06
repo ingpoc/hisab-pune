@@ -1,4 +1,6 @@
 import type { Locality } from '../data/types';
+import { getElectoralWard } from '../data/electoralWards';
+import { mlas } from '../data/cityOfficials';
 import { escalationChain } from '../lib/escalation';
 import { OfficialCard } from './OfficialCard';
 import { TweetAction } from './TweetAction';
@@ -11,6 +13,9 @@ interface Props {
 
 export function EscalationLadder({ locality, note }: Props) {
   const chain = escalationChain(locality);
+  const ward = getElectoralWard(locality.electoralWardId);
+  const mla = mlas[locality.assemblyId];
+  const assemblyLabel = mla?.title.replace(/^MLA — /, '') ?? locality.assemblyId;
 
   return (
     <section className="ladder">
@@ -22,7 +27,8 @@ export function EscalationLadder({ locality, note }: Props) {
             <span>{locality.nameMr}</span>
           </h2>
           <p className="ladder__meta">
-            Ward {locality.wardNo} · {locality.zone} · Assembly: {locality.assembly}
+            Electoral ward {locality.electoralWardId}
+            {ward ? ` · ${ward.name}` : ''} · {locality.zone} · Assembly: {assemblyLabel}
           </p>
         </div>
         <TweetAction locality={locality} officials={chain} note={note} />
