@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(**/*)",
+      "Write(docs/**/*)",
+      "Write(review.md)",
+      "Write(pr.diff)",
+      "Shell(grep)",
+      "Shell(find)",
+      "Shell(npm run lint)",
+      "Shell(npm run test:api)",
+      "Shell(npm run build)"
+    ],
+    "deny": [
+      "Shell(git)",
+      "Shell(gh)",
+      "Shell(rm)",
+      "Shell(sudo)",
+      "Write(.env*)",
+      "Write(**/.env*)",
+      "Write(package.json)",
+      "Write(**/package-lock.json)",
+      "Write(.github/workflows/**/*)"
+    ]
+  }
+}

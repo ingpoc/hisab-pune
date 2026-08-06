@@ -1,0 +1,75 @@
+name: Deploy
+
+# Builds the static web client on main and publishes an artifact.
+# Wire a real host (Cloudflare Pages, Vercel, S3, etc.) in the deploy step
+# once hosting secrets exist — keep deploy deterministic, not agent-driven.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  deploy:
+    name: Publish web artifact
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    defaults:
+      run:
+        working-directory: hisab-pune
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: hisab-pune/package-lock.json
+
+      - name: Install native build tools
+        working-directory: .
+        run: sudo apt-get update && sudo apt-get install -y python3 make g++
+
+      - name: Install & build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hisab-pune-web-${{ github.sha }}
+          path: hisab-pune/dist
+          if-no-files-found: error
+          retention-days: 30
+
+      # Placeholder: replace with your host once secrets are configured.
+      # Example (Cloudflare Pages):
+      # - name: Deploy to Cloudflare Pages
+      #   env:
+      #     CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      #     CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #   run: npx wrangler pages deploy dist --project-name=hisab-pune
+      - name: Deploy target
+        run: |
+          echo "Web build ready under hisab-pune/dist."
+          echo "Add host credentials (e.g. CLOUDFLARE_API_TOKEN) and uncomment the deploy step."

@@ -18,6 +18,20 @@ npm run test:api
 npm run build
 ```
 
+## CI/CD
+
+GitHub Actions (Cursor-aligned: deterministic gates, least privilege):
+
+| Workflow | Trigger | What it does |
+|----------|---------|--------------|
+| `CI` | PR + push to `main` | `lint` → `test:api` → `build`; cancels stale runs; uploads `dist` on `main` |
+| `Deploy` | After green CI on `main` | Rebuilds web artifact for the `production` environment (host step is a placeholder until secrets exist) |
+| Dependabot | Weekly | npm (`hisab-pune/`) + GitHub Actions |
+
+Optional: add repo secret `CURSOR_API_KEY` and enable the `cursor-review` job in `.github/workflows/ci.yml` (restricted via `.cursor/cli.json`). Prefer [Bugbot](https://cursor.com/docs/bugbot) on PRs for review.
+
+Branch protection on `main` requires the **Lint, test & build** check.
+
 ## Stack
 
 - Web: Vite + React + TypeScript + MapLibre + **GSAP** (hero / ladder / page motion)
