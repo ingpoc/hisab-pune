@@ -14,9 +14,11 @@
     "dev:web": "vite",
     "dev:api": "tsx server/src/index.ts",
     "seed": "tsx server/src/scripts/seed.ts",
+    "grade": "tsx graders/run.ts",
     "test:api": "tsx --test server/src/**/*.test.ts",
+    "test:e2e": "playwright test",
     "test": "npm run seed && npm run test:api",
-    "ci": "npm run lint && npm run test && npm run build"
+    "ci": "npm run lint && npm run grade && npm run test && npm run build"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.0",
@@ -37,6 +39,7 @@
     "@vitejs/plugin-react": "^6.0.4",
     "concurrently": "^10.0.4",
     "oxlint": "^1.75.0",
+    "@playwright/test": "^1.55.0",
     "tsx": "^4.23.9",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",

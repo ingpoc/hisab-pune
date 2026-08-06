@@ -15,6 +15,7 @@ Language: **English only** for names, UI, and API payloads.
 - [x] Vite proxy → API
 - [x] Map/report flows use API (with local fallback)
 - [x] GSAP motion (hero, scroll sections, escalation ladder, page enter)
+- [x] Deterministic graders + Playwright smoke for browser-QA regressions
 - [ ] Freshness page fully driven by `/v1/freshness` (How page still uses static sources list)
 
 ## Phase C — iOS scaffold
