@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: hisab-pune
+
+jobs:
+  quality:
+    name: Lint, test & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: hisab-pune/package-lock.json
+
+      - name: Install native build tools
+        # better-sqlite3 may need a compile fallback when prebuilds miss
+        working-directory: .
+        run: sudo apt-get update && sudo apt-get install -y python3 make g++
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Seed SQLite (gitignored; required for API tests)
+        run: npm run seed
+
+      - name: API tests
+        run: npm run test:api
+
+      - name: Typecheck & production build
+        run: npm run build
+
+      - name: Upload web dist
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: hisab-pune/dist
+          if-no-files-found: error
+          retention-days: 14
+
+  # Optional Cursor CLI assist — restricted autonomy (docs: cursor.com/docs/cli/github-actions)
+  # Enable by adding repo secret CURSOR_API_KEY, then re-run / uncomment the job gate.
+  cursor-review:
+    name: Cursor review (optional)
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Cursor CLI
+        run: |
+          curl https://cursor.com/install -fsS | bash
+          echo "$HOME/.cursor/bin" >> "$GITHUB_PATH"
+
+      - name: Generate review (restricted autonomy)
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+        run: |
+          git diff "origin/${{ github.base_ref }}...HEAD" > pr.diff
+          agent -p --force --output-format text \
+            "Review the diff in pr.diff. Focus on correctness, security, and missing tests. Write concise file-scoped feedback to review.md. Do NOT modify source files, run git, or use gh."
+
+      - name: Post review comment
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -f review.md ]; then
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file review.md
+          fi

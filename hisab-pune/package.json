@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "concurrently -k -n web,api -c cyan,magenta \"vite\" \"tsx server/src/index.ts\"",
     "build": "tsc -b && vite build",
@@ -11,7 +14,9 @@
     "dev:web": "vite",
     "dev:api": "tsx server/src/index.ts",
     "seed": "tsx server/src/scripts/seed.ts",
-    "test:api": "tsx --test server/src/**/*.test.ts"
+    "test:api": "tsx --test server/src/**/*.test.ts",
+    "test": "npm run seed && npm run test:api",
+    "ci": "npm run lint && npm run test && npm run build"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.0",
