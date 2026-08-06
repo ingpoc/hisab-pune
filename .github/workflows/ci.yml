@@ -44,6 +44,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Seed SQLite (gitignored; required for API tests)
+        run: npm run seed
+
       - name: API tests
         run: npm run test:api
 

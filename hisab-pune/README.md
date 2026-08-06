@@ -24,7 +24,7 @@ GitHub Actions (Cursor-aligned: deterministic gates, least privilege):
 
 | Workflow | Trigger | What it does |
 |----------|---------|--------------|
-| `CI` | PR + push to `main` | `lint` → `test:api` → `build`; cancels stale runs; uploads `dist` on `main` |
+| `CI` | PR + push to `main` | `lint` → `seed` → `test:api` → `build`; cancels stale runs; uploads `dist` on `main` |
 | `Deploy` | After green CI on `main` | Rebuilds web artifact for the `production` environment (host step is a placeholder until secrets exist) |
 | Dependabot | Weekly | npm (`hisab-pune/`) + GitHub Actions |
 
