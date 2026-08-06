@@ -1,0 +1,480 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		08E142F33DDFD74D68037687 /* HisabPuneWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 72EF5FC86258DEA5C173022E /* HisabPuneWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		14FF54C0FDA171C2E24DD681 /* HereSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E94AAA96970708D18DB17E6 /* HereSnapshot.swift */; };
+		2771D82D319DBA1657C4B6C3 /* ReportComposerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0353B5833D50AA959791065B /* ReportComposerView.swift */; };
+		2A32A4EB2EBBDDF8E46DC993 /* HereSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E94AAA96970708D18DB17E6 /* HereSnapshot.swift */; };
+		6107A17EDDD998B5BD158111 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A340AFB268457009BA7782EA /* RootTabView.swift */; };
+		65340D9DCC59B0C36A7D89BF /* HereView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9100D035E78D642E070F992 /* HereView.swift */; };
+		65627245B96A08EFF40E3764 /* HisabPuneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8042FCDB4A22F0DF809BEFA0 /* HisabPuneApp.swift */; };
+		844A81C105438BE06B79AD60 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 71D1CCB5D3D8E8993BAEB6AD /* Assets.xcassets */; };
+		92EE9FC4CBA77A98FCC17DDB /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E4CA54DA833D64390E4324 /* LocationModel.swift */; };
+		D23B6B9BD2F7A782CA16AFB4 /* HisabPuneWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0493B50FAF0BF40C9D8F9DA8 /* HisabPuneWidget.swift */; };
+		DA3BF94DF092D3D429787B54 /* AppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D5D9539FBC704A81736B16 /* AppSession.swift */; };
+		F6604510BC5CBAF45303A5D3 /* HisabAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 216AA0B8B89920D6CE105907 /* HisabAPIClient.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A3F3022ECD8FE8EFE4591558 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A85920AD3C91B23B3280DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5AEA418C4EAC871F7941FFEE;
+			remoteInfo = HisabPuneWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B36D3C460E0A38D04C65AB92 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				08E142F33DDFD74D68037687 /* HisabPuneWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0353B5833D50AA959791065B /* ReportComposerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportComposerView.swift; sourceTree = "<group>"; };
+		0493B50FAF0BF40C9D8F9DA8 /* HisabPuneWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisabPuneWidget.swift; sourceTree = "<group>"; };
+		1BD35008B7252BBFA057CA08 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		1E6F196A1895E35312629664 /* HisabPuneWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HisabPuneWidget.entitlements; sourceTree = "<group>"; };
+		216AA0B8B89920D6CE105907 /* HisabAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisabAPIClient.swift; sourceTree = "<group>"; };
+		27D5D9539FBC704A81736B16 /* AppSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSession.swift; sourceTree = "<group>"; };
+		4B404AC81899AEE94091AD93 /* HisabPune.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HisabPune.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4E94AAA96970708D18DB17E6 /* HereSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HereSnapshot.swift; sourceTree = "<group>"; };
+		71D1CCB5D3D8E8993BAEB6AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		72EF5FC86258DEA5C173022E /* HisabPuneWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = HisabPuneWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		78E4CA54DA833D64390E4324 /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
+		8042FCDB4A22F0DF809BEFA0 /* HisabPuneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisabPuneApp.swift; sourceTree = "<group>"; };
+		A321BEE7777FCAE948D36074 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A340AFB268457009BA7782EA /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		A9100D035E78D642E070F992 /* HereView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HereView.swift; sourceTree = "<group>"; };
+		BB6E2FB311C6A7A8A41681B3 /* HisabPune.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HisabPune.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		02A813BCF8D524BD2A8EB5F2 /* HisabPuneWidget */ = {
+			isa = PBXGroup;
+			children = (
+				1E6F196A1895E35312629664 /* HisabPuneWidget.entitlements */,
+				0493B50FAF0BF40C9D8F9DA8 /* HisabPuneWidget.swift */,
+				A321BEE7777FCAE948D36074 /* Info.plist */,
+			);
+			path = HisabPuneWidget;
+			sourceTree = "<group>";
+		};
+		1043A7962B6AD17BCCA622BD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4B404AC81899AEE94091AD93 /* HisabPune.app */,
+				72EF5FC86258DEA5C173022E /* HisabPuneWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		49E0C80F6BD263F32E419535 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				4E94AAA96970708D18DB17E6 /* HereSnapshot.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		DB41C9F2D4B711DECEAF06B6 /* HisabPune */ = {
+			isa = PBXGroup;
+			children = (
+				27D5D9539FBC704A81736B16 /* AppSession.swift */,
+				71D1CCB5D3D8E8993BAEB6AD /* Assets.xcassets */,
+				A9100D035E78D642E070F992 /* HereView.swift */,
+				216AA0B8B89920D6CE105907 /* HisabAPIClient.swift */,
+				BB6E2FB311C6A7A8A41681B3 /* HisabPune.entitlements */,
+				8042FCDB4A22F0DF809BEFA0 /* HisabPuneApp.swift */,
+				1BD35008B7252BBFA057CA08 /* Info.plist */,
+				78E4CA54DA833D64390E4324 /* LocationModel.swift */,
+				0353B5833D50AA959791065B /* ReportComposerView.swift */,
+				A340AFB268457009BA7782EA /* RootTabView.swift */,
+			);
+			path = HisabPune;
+			sourceTree = "<group>";
+		};
+		F11B8EF9212A46B66F04851D = {
+			isa = PBXGroup;
+			children = (
+				DB41C9F2D4B711DECEAF06B6 /* HisabPune */,
+				02A813BCF8D524BD2A8EB5F2 /* HisabPuneWidget */,
+				49E0C80F6BD263F32E419535 /* Shared */,
+				1043A7962B6AD17BCCA622BD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5AEA418C4EAC871F7941FFEE /* HisabPuneWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EA5628D8DC474CFBC1A18171 /* Build configuration list for PBXNativeTarget "HisabPuneWidget" */;
+			buildPhases = (
+				BC8B6A5170A5B89013C3E438 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HisabPuneWidget;
+			packageProductDependencies = (
+			);
+			productName = HisabPuneWidget;
+			productReference = 72EF5FC86258DEA5C173022E /* HisabPuneWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C41E8F38A3A95C7EC48BB863 /* HisabPune */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F8745BA155EDDC06CE630ECD /* Build configuration list for PBXNativeTarget "HisabPune" */;
+			buildPhases = (
+				C768AC7086DED17E5828E188 /* Sources */,
+				88E7B507E1FEC083E2BC1CA3 /* Resources */,
+				B36D3C460E0A38D04C65AB92 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4FED0C0F53B94ADCC5CA98F4 /* PBXTargetDependency */,
+			);
+			name = HisabPune;
+			packageProductDependencies = (
+			);
+			productName = HisabPune;
+			productReference = 4B404AC81899AEE94091AD93 /* HisabPune.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		23A85920AD3C91B23B3280DF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					5AEA418C4EAC871F7941FFEE = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					C41E8F38A3A95C7EC48BB863 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 4B758E5B5685B095A3819073 /* Build configuration list for PBXProject "HisabPune" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = F11B8EF9212A46B66F04851D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 1043A7962B6AD17BCCA622BD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C41E8F38A3A95C7EC48BB863 /* HisabPune */,
+				5AEA418C4EAC871F7941FFEE /* HisabPuneWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		88E7B507E1FEC083E2BC1CA3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				844A81C105438BE06B79AD60 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BC8B6A5170A5B89013C3E438 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2A32A4EB2EBBDDF8E46DC993 /* HereSnapshot.swift in Sources */,
+				D23B6B9BD2F7A782CA16AFB4 /* HisabPuneWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C768AC7086DED17E5828E188 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA3BF94DF092D3D429787B54 /* AppSession.swift in Sources */,
+				14FF54C0FDA171C2E24DD681 /* HereSnapshot.swift in Sources */,
+				65340D9DCC59B0C36A7D89BF /* HereView.swift in Sources */,
+				F6604510BC5CBAF45303A5D3 /* HisabAPIClient.swift in Sources */,
+				65627245B96A08EFF40E3764 /* HisabPuneApp.swift in Sources */,
+				92EE9FC4CBA77A98FCC17DDB /* LocationModel.swift in Sources */,
+				2771D82D319DBA1657C4B6C3 /* ReportComposerView.swift in Sources */,
+				6107A17EDDD998B5BD158111 /* RootTabView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4FED0C0F53B94ADCC5CA98F4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5AEA418C4EAC871F7941FFEE /* HisabPuneWidget */;
+			targetProxy = A3F3022ECD8FE8EFE4591558 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0AE347EAE02C56D65680E577 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HisabPune/HisabPune.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HisabPune/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = in.hisab.pune;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0BB2B7AB4B74C3882C6DB208 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1EEB70C755EB9F84AEF3BE3B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		4ED90F4741067189BD98237C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HisabPuneWidget/HisabPuneWidget.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HisabPuneWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = in.hisab.pune.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6A53CCFE0D03C3C329538FA0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = HisabPune/HisabPune.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HisabPune/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = in.hisab.pune;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6A5E766E50090B75756A50EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = HisabPuneWidget/HisabPuneWidget.entitlements;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HisabPuneWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = in.hisab.pune.widget;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4B758E5B5685B095A3819073 /* Build configuration list for PBXProject "HisabPune" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0BB2B7AB4B74C3882C6DB208 /* Debug */,
+				1EEB70C755EB9F84AEF3BE3B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EA5628D8DC474CFBC1A18171 /* Build configuration list for PBXNativeTarget "HisabPuneWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6A5E766E50090B75756A50EE /* Debug */,
+				4ED90F4741067189BD98237C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F8745BA155EDDC06CE630ECD /* Build configuration list for PBXNativeTarget "HisabPune" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0AE347EAE02C56D65680E577 /* Debug */,
+				6A53CCFE0D03C3C329538FA0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 23A85920AD3C91B23B3280DF /* Project object */;
+}

@@ -9,6 +9,7 @@ public struct HereSnapshot: Codable, Equatable {
     }
 
     public var localityName: String
+    public var localityId: String
     public var wardId: Int
     public var people: [Person]
     public var resolvedAt: Date
@@ -50,6 +51,7 @@ public struct HereAPIClient {
         let decoded = try JSONDecoder().decode(APIHere.self, from: data)
         return HereSnapshot(
             localityName: decoded.widget.localityName,
+            localityId: decoded.locality.id,
             wardId: decoded.widget.wardId,
             people: decoded.widget.people.map {
                 .init(role: $0.role, shortTitle: $0.shortTitle, name: $0.name)
@@ -61,11 +63,16 @@ public struct HereAPIClient {
 }
 
 private struct APIHere: Decodable {
+    struct Locality: Decodable {
+        var id: String
+        var name: String
+    }
     struct Widget: Decodable {
         var localityName: String
         var wardId: Int
         var people: [HereSnapshot.Person]
     }
+    var locality: Locality
     var widget: Widget
     var resolvedAt: String
     var boundaryVersion: String

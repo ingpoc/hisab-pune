@@ -23,7 +23,7 @@ npm run build
 GitHub Actions (Cursor-aligned: deterministic gates, least privilege):
 
 | Workflow | Trigger | What it does |
-|----------|---------|--------------|
+| ---------- | --------- | -------------- |
 | `CI` | PR + push to `main` | `lint` → **`grade`** → `seed` → `test:api` → `build` → **Playwright smoke**; cancels stale runs; uploads `dist` on `main` |
 | `Deploy` | After green CI on `main` | Rebuilds web artifact for the `production` environment (host step is a placeholder until secrets exist) |
 | Dependabot | Weekly | npm (`hisab-pune/`) + GitHub Actions |
@@ -46,10 +46,11 @@ Branch protection on `main` requires the **Lint, test & build** check.
 
 - Web: Vite + React + TypeScript + MapLibre + **GSAP** (hero / ladder / page motion)
 - API: Hono + SQLite (Postgres-ready schema) — `GET /v1/here`, reports, freshness, SLA
-- iOS: SwiftUI + WidgetKit scaffold under `ios/` (build on Mac/Xcode)
+- iOS: SwiftUI + WidgetKit under `ios/` — `open ios/HisabPune.xcodeproj` (see `ios/README.md`)
 
 ## Docs
 
+- `DESIGN.md` — visual + disclosure language (always-visible vs progressive)
 - `ARCHITECTURE.md` — product + system design
 - `IMPLEMENTATION.md` — phased build checklist
 - `ios/README.md` — widget / App Group notes

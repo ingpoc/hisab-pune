@@ -28,6 +28,7 @@ struct SimpleEntry: TimelineEntry {
 extension HereSnapshot {
     static let placeholder = HereSnapshot(
         localityName: "Baner",
+        localityId: "baner",
         wardId: 9,
         people: [
             .init(role: "ward_officer", shortTitle: "Ward office", name: "Aundh-Baner Regional Office"),

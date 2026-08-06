@@ -1,21 +1,55 @@
-# HisabPune iOS (scaffold)
+# HisabPune iOS
 
-SwiftUI + WidgetKit project skeleton for Mac/Xcode.
+SwiftUI app + WidgetKit. English-only. Shares `GET /v1/here` via App Group `group.in.hisab.pune`.
 
-## Shared contract
+Requires API with `POST /v1/auth/session`, categories on reports, and `GET /v1/localities/:id/reports`.
 
-`Shared/HereSnapshot.swift` mirrors `GET /v1/here` widget payload (English fields only).
+## Layout
 
-## Targets (create in Xcode)
+| Path | Role |
+| ------ | ------ |
+| `project.yml` | XcodeGen project (source of truth) |
+| `HisabPune.xcodeproj` | Generated — open this in Xcode |
+| `Shared/HereSnapshot.swift` | Widget + app snapshot contract |
+| `HisabPune/` | Main app (Here, Report, session, location) |
+| `HisabPuneWidget/` | Home Screen small/medium widget |
 
-1. **HisabPune** — main app (location → `/v1/here` → App Group)
-2. **HisabPuneWidget** — medium Home Screen widget reading App Group
-3. Optional **HisabPuneTravel** Live Activity — Travel mode
+## Open / regenerate
 
-App Group id: `group.in.hisab.pune`
+```bash
+cd hisab-pune/ios
+xcodegen generate   # needs brew install xcodegen
+open HisabPune.xcodeproj
+```
 
-## Run
+Simulator build (no Apple team required):
 
-Open this folder on a Mac with Xcode 16+, create an iOS App project, add these sources, enable App Groups + Location When In Use.
+```bash
+cd hisab-pune/ios
+xcodegen generate
+xcodebuild -scheme HisabPune \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  -derivedDataPath /tmp/HisabPuneDerived \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
 
-This Linux cloud agent cannot compile iOS binaries.
+## Run against local API
+
+1. `npm run seed && npm run dev` in `hisab-pune/` (API `:8787`).
+2. Run **HisabPune** on Simulator — default base URL is `http://127.0.0.1:8787`.
+3. Physical device: set API URL in **About** to your Mac’s LAN IP (`http://192.168.x.x:8787`).
+
+## Behaviour (MVP)
+
+- Session via `POST /v1/auth/session` → stable **anonymous posting id**.
+- **Here** tab: GPS → `/v1/here` → escalation people + locality issue feed; writes App Group for widget.
+- **Report** tab: category + note at current GPS (Baner fallback until fix) → `POST /v1/reports`.
+- Widget reads last `HereSnapshot` from App Group.
+
+## Not in this slice
+
+- Phone OTP UI (session stub only)
+- PhotoPicker → object storage
+- Live Activity travel mode
+- App Store signing / Team ID (set `DEVELOPMENT_TEAM` in Xcode)
