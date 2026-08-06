@@ -200,23 +200,102 @@ Accountability without memory is noise. Memory without fairness is weaponisation
 ## 9. Suggested build sequence
 
 1. **Now (MVP)** — static roster (2026-verified only) + map + citizen local reports + citizen-owned X intent.  
-2. **Backend v1** — Postgres/PostGIS, photo store, moderation queue, versioned roster.  
+2. **Backend v1** — Postgres/PostGIS, photo store, moderation queue, versioned roster + **`GET /v1/here`**.  
 3. **SLA engine** — timers + curator dashboard.  
 4. **@HisabPune digests** — batched, rate-limited, templated.  
-5. **Scorecards + CSV** — public analytics.  
-6. **Election pack** — incumbent cards, freeze rules, press kit.
+5. **iOS app + Home Screen widget** — App Group + significant-location refresh.  
+6. **Optional Live Activity “Travel mode”** — while moving across the city.  
+7. **Scorecards + CSV** — public analytics.  
+8. **Election pack** — incumbent cards, freeze rules, press kit.
 
 ---
 
 ## 10. Stack recommendation
 
 - Web: Vite/React (current) or Next.js if SSR/SEO for ward pages matters  
+- iOS: SwiftUI + WidgetKit (+ ActivityKit for travel mode)  
 - DB: Postgres + PostGIS  
 - Auth: magic link for curators; optional phone OTP for citizens later  
 - Jobs: cron (digest, freshness flags)  
 - Storage: R2/S3 + CDN  
 - Moderation: Vision SafeSearch + human queue  
 - X: official API for @HisabPune only; citizens use intent URLs  
+
+---
+
+## 11. iOS app + location widget
+
+Goal: while moving through Pune, glance at **current locality + who answers here** without opening the app.
+
+### Hard iOS constraint (design around it)
+
+Home Screen / Lock Screen **widgets do not get continuous GPS**.  
+WidgetKit refreshes on a budget (often tens of minutes). Treating a widget like live Maps will fail App Review and drain battery.
+
+So Hisab uses **two surfaces**:
+
+| Surface | When | Update model |
+| --- | --- | --- |
+| **Home Screen widget** (default) | Always on | Shows *last resolved* locality + escalation; refreshes on significant location change / app open / timeline reload |
+| **Live Activity “Travel mode”** (opt-in) | User starts “I’m travelling” | Updates more often while the session runs (Dynamic Island / Lock Screen) |
+
+Do not promise second-by-second widget updates. Promise: **when your area changes meaningfully, the names update**.
+
+### Architecture
+
+```text
+Core Location (app process)
+  significant-change / visits  ──or──  Travel-mode updates
+        ↓
+Point-in-polygon → electoral ward (on-device cache of boundaries)
+        ↓
+GET /v1/here?lat=&lng=   →  locality, ward, escalation chain (CDN-cacheable)
+        ↓
+App Group container (shared UserDefaults / SQLite)
+        ↓
+WidgetKit timeline  reads snapshot
+Live Activity        reads same snapshot
+```
+
+**API contract (minimal):**
+
+```json
+{
+  "locality": { "id": "baner", "name": "Baner", "nameMr": "बाणेर" },
+  "ward": { "id": 9, "name": "Sus–Baner–Pashan" },
+  "escalation": [
+    { "role": "ward_officer", "name": "…", "shortTitle": "Ward office" },
+    { "role": "corporator", "name": "…", "shortTitle": "Corporator A" },
+    { "role": "mla", "name": "…", "shortTitle": "MLA" },
+    { "role": "commissioner", "name": "…", "shortTitle": "Commissioner" }
+  ],
+  "resolvedAt": "2026-08-06T07:55:00Z",
+  "boundaryVersion": "2025-final-41"
+}
+```
+
+Widget UI shows **locality name** + **3–5 short names** (not the full 8-rung ladder — too dense for a medium widget). Tap opens the full ladder in-app.
+
+### Location policy (privacy + battery)
+
+- Permission: **When In Use** first; **Always** only if user enables Travel mode / background significant-change for the widget.
+- Purpose string: civic accountability lookup only — not ads, not tracking trail.
+- Default: do **not** upload a breadcrumb trail. Resolve ward, then forget precise coordinates (or keep last point only on-device).
+- On-device boundary cache so `/v1/here` can be skipped when offline (stale roster OK for a few days; show “roster as of …”).
+- Debounce: only re-resolve when moved ~300–500 m or crossed a ward polygon.
+
+### Widget layouts
+
+- **Small:** locality name + MLA (or top responsible role)
+- **Medium:** locality + ward number + 3 names (Ward office · Corporator · MLA)
+- **Large:** locality + compact ladder (5 rows) + “Open report” deep link
+- **Lock Screen circular/inline:** locality short name only / MLA surname
+
+### Why this fits accountability
+
+The widget is **orientation**, not escalation.  
+It answers “whose patch am I on?” while walking/driving.  
+Reporting, X digests, and SLA pressure stay in the main app / web — so travelling does not become silent surveillance of the user or spam of officials.
 
 ---
 
@@ -230,3 +309,5 @@ Accountability without memory is noise. Memory without fairness is weaponisation
 | App X account | @HisabPune digests only; never per-report spam |
 | Accountability style | SLA → batch → scorecard; praise closures too |
 | Election role | Performance memory for voters, not a campaign tool |
+| iOS widget | Snapshot via App Group; significant-location refresh; Live Activity for travel mode |
+| iOS location | Debounced ward resolve; no breadcrumb trail by default |
