@@ -17,17 +17,20 @@ struct HereView: View {
                     if let snapshot {
                         Text(snapshot.localityName)
                             .font(.title2.weight(.bold))
+                            .accessibilityIdentifier("here.localityName")
                         Text("Ward \(snapshot.wardId)")
                             .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("here.ward")
                         ForEach(snapshot.people.prefix(4), id: \.name) { person in
-                            HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 Text(person.shortTitle)
+                                    .font(.caption)
                                     .foregroundStyle(.secondary)
-                                    .frame(width: 88, alignment: .leading)
                                 Text(person.name)
+                                    .font(.subheadline)
                                     .lineLimit(2)
                             }
-                            .font(.subheadline)
+                            .padding(.vertical, 2)
                         }
                         if location.usingFallback {
                             Text("Using Baner fallback until GPS arrives.")
@@ -44,6 +47,7 @@ struct HereView: View {
                         location.request()
                         Task { await refresh() }
                     }
+                    .accessibilityIdentifier("here.useLocation")
                 }
 
                 if let snapshot {
@@ -75,7 +79,10 @@ struct HereView: View {
 
                 if let errorText {
                     Section {
-                        Text(errorText).foregroundStyle(.red)
+                        Text(errorText)
+                            .foregroundStyle(.red)
+                            .accessibilityIdentifier("here.error")
+                            .accessibilityLabel(errorText)
                     }
                 }
 
@@ -83,10 +90,13 @@ struct HereView: View {
                     Section("You post as") {
                         Text(anon)
                             .font(.body.monospaced())
+                            .accessibilityIdentifier("here.anonymousId")
+                            .accessibilityLabel(anon)
                     }
                 }
             }
             .navigationTitle("Here")
+            .accessibilityIdentifier("here.screen")
             .refreshable { await refresh() }
             .task {
                 location.request()

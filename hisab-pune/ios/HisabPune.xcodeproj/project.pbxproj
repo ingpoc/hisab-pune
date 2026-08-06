@@ -18,10 +18,18 @@
 		92EE9FC4CBA77A98FCC17DDB /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E4CA54DA833D64390E4324 /* LocationModel.swift */; };
 		D23B6B9BD2F7A782CA16AFB4 /* HisabPuneWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0493B50FAF0BF40C9D8F9DA8 /* HisabPuneWidget.swift */; };
 		DA3BF94DF092D3D429787B54 /* AppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D5D9539FBC704A81736B16 /* AppSession.swift */; };
+		E9AE4D8FAB6D1912A12A064E /* HisabPuneUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693D994CF170294349BA761A /* HisabPuneUITests.swift */; };
 		F6604510BC5CBAF45303A5D3 /* HisabAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 216AA0B8B89920D6CE105907 /* HisabAPIClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1D96DC18CC77CE61B50F11CA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 23A85920AD3C91B23B3280DF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C41E8F38A3A95C7EC48BB863;
+			remoteInfo = HisabPune;
+		};
 		A3F3022ECD8FE8EFE4591558 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 23A85920AD3C91B23B3280DF /* Project object */;
@@ -52,8 +60,10 @@
 		1E6F196A1895E35312629664 /* HisabPuneWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HisabPuneWidget.entitlements; sourceTree = "<group>"; };
 		216AA0B8B89920D6CE105907 /* HisabAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisabAPIClient.swift; sourceTree = "<group>"; };
 		27D5D9539FBC704A81736B16 /* AppSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSession.swift; sourceTree = "<group>"; };
+		2A223F60117F855C9EE6B2D2 /* HisabPuneUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HisabPuneUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B404AC81899AEE94091AD93 /* HisabPune.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HisabPune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E94AAA96970708D18DB17E6 /* HereSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HereSnapshot.swift; sourceTree = "<group>"; };
+		693D994CF170294349BA761A /* HisabPuneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisabPuneUITests.swift; sourceTree = "<group>"; };
 		71D1CCB5D3D8E8993BAEB6AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		72EF5FC86258DEA5C173022E /* HisabPuneWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = HisabPuneWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		78E4CA54DA833D64390E4324 /* LocationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationModel.swift; sourceTree = "<group>"; };
@@ -79,9 +89,18 @@
 			isa = PBXGroup;
 			children = (
 				4B404AC81899AEE94091AD93 /* HisabPune.app */,
+				2A223F60117F855C9EE6B2D2 /* HisabPuneUITests.xctest */,
 				72EF5FC86258DEA5C173022E /* HisabPuneWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		2AE687FD4429974764DB3B03 /* HisabPuneUITests */ = {
+			isa = PBXGroup;
+			children = (
+				693D994CF170294349BA761A /* HisabPuneUITests.swift */,
+			);
+			path = HisabPuneUITests;
 			sourceTree = "<group>";
 		};
 		49E0C80F6BD263F32E419535 /* Shared */ = {
@@ -113,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				DB41C9F2D4B711DECEAF06B6 /* HisabPune */,
+				2AE687FD4429974764DB3B03 /* HisabPuneUITests */,
 				02A813BCF8D524BD2A8EB5F2 /* HisabPuneWidget */,
 				49E0C80F6BD263F32E419535 /* Shared */,
 				1043A7962B6AD17BCCA622BD /* Products */,
@@ -122,6 +142,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		02C1837B8C186A71FC630E64 /* HisabPuneUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF6D816D67A3C62EE2608C2C /* Build configuration list for PBXNativeTarget "HisabPuneUITests" */;
+			buildPhases = (
+				3BB7085B00921EF724EFA5CC /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				07D6E8DA2C4769E044D9B01E /* PBXTargetDependency */,
+			);
+			name = HisabPuneUITests;
+			packageProductDependencies = (
+			);
+			productName = HisabPuneUITests;
+			productReference = 2A223F60117F855C9EE6B2D2 /* HisabPuneUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		5AEA418C4EAC871F7941FFEE /* HisabPuneWidget */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EA5628D8DC474CFBC1A18171 /* Build configuration list for PBXNativeTarget "HisabPuneWidget" */;
@@ -168,12 +206,17 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					02C1837B8C186A71FC630E64 = {
+						DevelopmentTeam = 9UPQL479Z5;
+						ProvisioningStyle = Automatic;
+						TestTargetID = C41E8F38A3A95C7EC48BB863;
+					};
 					5AEA418C4EAC871F7941FFEE = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 9UPQL479Z5;
 						ProvisioningStyle = Automatic;
 					};
 					C41E8F38A3A95C7EC48BB863 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 9UPQL479Z5;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -193,6 +236,7 @@
 			projectRoot = "";
 			targets = (
 				C41E8F38A3A95C7EC48BB863 /* HisabPune */,
+				02C1837B8C186A71FC630E64 /* HisabPuneUITests */,
 				5AEA418C4EAC871F7941FFEE /* HisabPuneWidget */,
 			);
 		};
@@ -210,6 +254,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3BB7085B00921EF724EFA5CC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9AE4D8FAB6D1912A12A064E /* HisabPuneUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		BC8B6A5170A5B89013C3E438 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -237,6 +289,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		07D6E8DA2C4769E044D9B01E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C41E8F38A3A95C7EC48BB863 /* HisabPune */;
+			targetProxy = 1D96DC18CC77CE61B50F11CA /* PBXContainerItemProxy */;
+		};
 		4FED0C0F53B94ADCC5CA98F4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 5AEA418C4EAC871F7941FFEE /* HisabPuneWidget */;
@@ -245,6 +302,23 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0430FCB66A4565A7EFEE2C3A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = in.hisab.pune.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = HisabPune;
+			};
+			name = Release;
+		};
 		0AE347EAE02C56D65680E577 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -300,7 +374,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9UPQL479Z5;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -368,7 +442,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9UPQL479Z5;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -444,6 +518,23 @@
 			};
 			name = Debug;
 		};
+		9A8D0671B6F3F8617FA7A406 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = in.hisab.pune.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = HisabPune;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -452,6 +543,15 @@
 			buildConfigurations = (
 				0BB2B7AB4B74C3882C6DB208 /* Debug */,
 				1EEB70C755EB9F84AEF3BE3B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DF6D816D67A3C62EE2608C2C /* Build configuration list for PBXNativeTarget "HisabPuneUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A8D0671B6F3F8617FA7A406 /* Debug */,
+				0430FCB66A4565A7EFEE2C3A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

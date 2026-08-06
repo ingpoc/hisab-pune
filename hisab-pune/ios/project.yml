@@ -12,7 +12,7 @@ settings:
     TARGETED_DEVICE_FAMILY: "1,2"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: "9UPQL479Z5"
     CODE_SIGN_STYLE: Automatic
 targets:
   HisabPune:
@@ -28,8 +28,7 @@ targets:
         CODE_SIGN_ENTITLEMENTS: HisabPune/HisabPune.entitlements
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: false
-    entitlements:
-      path: HisabPune/HisabPune.entitlements
+    # Entitlements file is source-owned; do not let XcodeGen rewrite it empty.
     dependencies:
       - target: HisabPuneWidget
         embed: true
@@ -63,8 +62,6 @@ targets:
           - "$(inherited)"
           - "@executable_path/Frameworks"
           - "@executable_path/../../Frameworks"
-    entitlements:
-      path: HisabPuneWidget/HisabPuneWidget.entitlements
     info:
       path: HisabPuneWidget/Info.plist
       properties:
@@ -74,16 +71,32 @@ targets:
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
 
+  HisabPuneUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: HisabPuneUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: in.hisab.pune.uitests
+        GENERATE_INFOPLIST_FILE: true
+        TEST_TARGET_NAME: HisabPune
+    dependencies:
+      - target: HisabPune
+
 schemes:
   HisabPune:
     build:
       targets:
         HisabPune: all
         HisabPuneWidget: all
+        HisabPuneUITests: [test]
     run:
       config: Debug
     test:
       config: Debug
+      targets:
+        - HisabPuneUITests
     profile:
       config: Release
     archive:

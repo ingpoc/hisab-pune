@@ -18,16 +18,19 @@ struct ReportComposerView: View {
                     if let resolvedLocality {
                         Text(resolvedLocality)
                             .font(.body.weight(.medium))
+                            .accessibilityIdentifier("report.place")
                     } else {
                         Text(location.usingFallback
                             ? "Baner (fallback until GPS)"
                             : "Resolving locality…")
                             .foregroundStyle(.secondary)
+                            .accessibilityIdentifier("report.place")
                     }
                     Button("Refresh location") {
                         location.request()
                         Task { await resolvePlace() }
                     }
+                    .accessibilityIdentifier("report.refreshLocation")
                 }
 
                 Section("Type") {
@@ -36,11 +39,13 @@ struct ReportComposerView: View {
                             Text(cat.label).tag(cat)
                         }
                     }
+                    .accessibilityIdentifier("report.category")
                 }
 
                 Section("What is wrong?") {
                     TextField("Short factual note", text: $note, axis: .vertical)
                         .lineLimit(3...6)
+                        .accessibilityIdentifier("report.note")
                 }
 
                 Section {
@@ -50,7 +55,10 @@ struct ReportComposerView: View {
                 }
 
                 if let status {
-                    Section { Text(status) }
+                    Section {
+                        Text(status)
+                            .accessibilityIdentifier("report.status")
+                    }
                 }
 
                 Section {
@@ -58,9 +66,11 @@ struct ReportComposerView: View {
                         Task { await submit() }
                     }
                     .disabled(submitting || note.trimmingCharacters(in: .whitespacesAndNewlines).count < 3)
+                    .accessibilityIdentifier("report.submit")
                 }
             }
             .navigationTitle("Report")
+            .accessibilityIdentifier("report.screen")
             .task {
                 location.request()
                 try? await session.ensureSession(client: client)

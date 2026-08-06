@@ -46,7 +46,9 @@ public struct HereAPIClient {
         ]
         let (data, response) = try await URLSession.shared.data(from: comps.url!)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw URLError(.badServerResponse)
+            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
+            let body = String(data: data, encoding: .utf8)
+            throw HereAPIFailure(status: code, body: body)
         }
         let decoded = try JSONDecoder().decode(APIHere.self, from: data)
         return HereSnapshot(
@@ -59,6 +61,28 @@ public struct HereAPIClient {
             resolvedAt: ISO8601DateFormatter().date(from: decoded.resolvedAt) ?? Date(),
             boundaryVersion: decoded.boundaryVersion
         )
+    }
+}
+
+public struct HereAPIFailure: Error, LocalizedError, Sendable {
+    public var status: Int
+    public var body: String?
+
+    public init(status: Int, body: String?) {
+        self.status = status
+        self.body = body
+    }
+
+    public var errorDescription: String? {
+        if let body,
+           let data = body.data(using: .utf8),
+           let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let err = obj["error"] as? String
+        {
+            return err
+        }
+        if let body, !body.isEmpty { return body }
+        return "Here API failed (\(status))"
     }
 }
 

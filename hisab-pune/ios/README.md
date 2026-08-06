@@ -47,9 +47,23 @@ xcodebuild -scheme HisabPune \
 - **Report** tab: category + note at current GPS (Baner fallback until fix) → `POST /v1/reports`.
 - Widget reads last `HereSnapshot` from App Group.
 
+## Signing (Apple Developer)
+
+Owner: `project.yml` (`DEVELOPMENT_TEAM = 9UPQL479Z5`, Automatic).
+
+| Target | Bundle ID | Entitlements |
+| --- | --- | --- |
+| HisabPune | `in.hisab.pune` | App Group `group.in.hisab.pune` |
+| HisabPuneWidget | `in.hisab.pune.widget` | same App Group |
+| HisabPuneUITests | `in.hisab.pune.uitests` | none |
+
+Simulator/UITest lane does not require portal App ID registration. Device or
+TestFlight needs explicit App IDs + App Group on **both** App IDs (authorize
+portal mutation separately).
+
 ## Not in this slice
 
 - Phone OTP UI (session stub only)
 - PhotoPicker → object storage
 - Live Activity travel mode
-- App Store signing / Team ID (set `DEVELOPMENT_TEAM` in Xcode)
+- App Store / TestFlight upload
