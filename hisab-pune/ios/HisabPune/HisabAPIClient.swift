@@ -46,6 +46,33 @@ struct APIReport: Decodable, Identifiable {
     var gov_ticket_id: String?
 }
 
+struct APILocality: Decodable, Identifiable, Hashable {
+    var id: String
+    var name: String
+    var electoralWardId: Int
+    var wardOfficeId: String?
+    var assemblyId: String?
+    var lat: Double
+    var lng: Double
+    var zone: String?
+}
+
+struct APIEscalationPerson: Decodable, Identifiable, Hashable {
+    var id: String
+    var name: String
+    var role: String
+    var shortTitle: String
+    var title: String?
+    var xHandle: String?
+    var phone: String?
+    var email: String?
+}
+
+struct APICareLinks: Decodable {
+    var portal: String
+    var whatsapp: String
+}
+
 enum HisabAPIError: LocalizedError {
     case badStatus(Int, String?)
     case decoding
@@ -127,6 +154,62 @@ struct HisabAPIClient {
         } catch {
             throw HisabAPIError.decoding
         }
+    }
+
+    func listLocalities() async throws -> [APILocality] {
+        let req = URLRequest(url: baseURL.appendingPathComponent("v1/localities"))
+        let (data, response) = try await URLSession.shared.data(for: req)
+        try Self.throwIfNeeded(data: data, response: response, ok: 200..<300)
+        struct Wrap: Decodable { var localities: [APILocality] }
+        do {
+            return try JSONDecoder().decode(Wrap.self, from: data).localities
+        } catch {
+            throw HisabAPIError.decoding
+        }
+    }
+
+    func localityDetail(id: String) async throws -> (APILocality, [APIEscalationPerson]) {
+        let req = URLRequest(url: baseURL.appendingPathComponent("v1/localities/\(id)"))
+        let (data, response) = try await URLSession.shared.data(for: req)
+        try Self.throwIfNeeded(data: data, response: response, ok: 200..<300)
+        struct Wrap: Decodable {
+            var locality: APILocality
+            var escalation: [APIEscalationPerson]
+        }
+        do {
+            let decoded = try JSONDecoder().decode(Wrap.self, from: data)
+            return (decoded.locality, decoded.escalation)
+        } catch {
+            throw HisabAPIError.decoding
+        }
+    }
+
+    func careLinks(reportId: String) async throws -> APICareLinks {
+        var req = URLRequest(url: baseURL.appendingPathComponent("v1/reports/\(reportId)/escalate-gov"))
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = Data("{}".utf8)
+        let (data, response) = try await URLSession.shared.data(for: req)
+        try Self.throwIfNeeded(data: data, response: response, ok: 200..<300)
+        struct Wrap: Decodable { var care: APICareLinks }
+        do {
+            return try JSONDecoder().decode(Wrap.self, from: data).care
+        } catch {
+            throw HisabAPIError.decoding
+        }
+    }
+
+    func attachGovTicket(reportId: String, externalId: String, sessionToken: String) async throws {
+        var req = URLRequest(url: baseURL.appendingPathComponent("v1/reports/\(reportId)/gov-ticket"))
+        req.httpMethod = "POST"
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.setValue(sessionToken, forHTTPHeaderField: "X-Hisab-Session")
+        req.httpBody = try JSONSerialization.data(withJSONObject: [
+            "externalId": externalId,
+            "channel": "pmc_care",
+        ])
+        let (data, response) = try await URLSession.shared.data(for: req)
+        try Self.throwIfNeeded(data: data, response: response, ok: 200..<300)
     }
 
     private static func throwIfNeeded(data: Data, response: URLResponse, ok: Range<Int>) throws {

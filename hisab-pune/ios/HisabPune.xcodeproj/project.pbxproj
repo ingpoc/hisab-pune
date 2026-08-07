@@ -11,10 +11,13 @@
 		14FF54C0FDA171C2E24DD681 /* HereSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E94AAA96970708D18DB17E6 /* HereSnapshot.swift */; };
 		2771D82D319DBA1657C4B6C3 /* ReportComposerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0353B5833D50AA959791065B /* ReportComposerView.swift */; };
 		2A32A4EB2EBBDDF8E46DC993 /* HereSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E94AAA96970708D18DB17E6 /* HereSnapshot.swift */; };
+		5C76C0E7BEEDBA4A3D665B3F /* MapBrowseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51DEF104A6B889A989498431 /* MapBrowseView.swift */; };
 		6107A17EDDD998B5BD158111 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A340AFB268457009BA7782EA /* RootTabView.swift */; };
 		65340D9DCC59B0C36A7D89BF /* HereView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9100D035E78D642E070F992 /* HereView.swift */; };
 		65627245B96A08EFF40E3764 /* HisabPuneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8042FCDB4A22F0DF809BEFA0 /* HisabPuneApp.swift */; };
 		844A81C105438BE06B79AD60 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 71D1CCB5D3D8E8993BAEB6AD /* Assets.xcassets */; };
+		86819B3BF83765F8E9C9F471 /* HisabTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE966C2C4939E9F3EA174EC9 /* HisabTheme.swift */; };
+		88B92AF278154A8E50A8C879 /* IssueFlows.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BACD34464FE6199E8AA1CB /* IssueFlows.swift */; };
 		92EE9FC4CBA77A98FCC17DDB /* LocationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E4CA54DA833D64390E4324 /* LocationModel.swift */; };
 		D23B6B9BD2F7A782CA16AFB4 /* HisabPuneWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0493B50FAF0BF40C9D8F9DA8 /* HisabPuneWidget.swift */; };
 		DA3BF94DF092D3D429787B54 /* AppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D5D9539FBC704A81736B16 /* AppSession.swift */; };
@@ -63,6 +66,8 @@
 		2A223F60117F855C9EE6B2D2 /* HisabPuneUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HisabPuneUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B404AC81899AEE94091AD93 /* HisabPune.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = HisabPune.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4E94AAA96970708D18DB17E6 /* HereSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HereSnapshot.swift; sourceTree = "<group>"; };
+		51DEF104A6B889A989498431 /* MapBrowseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBrowseView.swift; sourceTree = "<group>"; };
+		58BACD34464FE6199E8AA1CB /* IssueFlows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueFlows.swift; sourceTree = "<group>"; };
 		693D994CF170294349BA761A /* HisabPuneUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisabPuneUITests.swift; sourceTree = "<group>"; };
 		71D1CCB5D3D8E8993BAEB6AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		72EF5FC86258DEA5C173022E /* HisabPuneWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = HisabPuneWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,6 +77,7 @@
 		A340AFB268457009BA7782EA /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		A9100D035E78D642E070F992 /* HereView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HereView.swift; sourceTree = "<group>"; };
 		BB6E2FB311C6A7A8A41681B3 /* HisabPune.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HisabPune.entitlements; sourceTree = "<group>"; };
+		BE966C2C4939E9F3EA174EC9 /* HisabTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HisabTheme.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -120,8 +126,11 @@
 				216AA0B8B89920D6CE105907 /* HisabAPIClient.swift */,
 				BB6E2FB311C6A7A8A41681B3 /* HisabPune.entitlements */,
 				8042FCDB4A22F0DF809BEFA0 /* HisabPuneApp.swift */,
+				BE966C2C4939E9F3EA174EC9 /* HisabTheme.swift */,
 				1BD35008B7252BBFA057CA08 /* Info.plist */,
+				58BACD34464FE6199E8AA1CB /* IssueFlows.swift */,
 				78E4CA54DA833D64390E4324 /* LocationModel.swift */,
+				51DEF104A6B889A989498431 /* MapBrowseView.swift */,
 				0353B5833D50AA959791065B /* ReportComposerView.swift */,
 				A340AFB268457009BA7782EA /* RootTabView.swift */,
 			);
@@ -280,7 +289,10 @@
 				65340D9DCC59B0C36A7D89BF /* HereView.swift in Sources */,
 				F6604510BC5CBAF45303A5D3 /* HisabAPIClient.swift in Sources */,
 				65627245B96A08EFF40E3764 /* HisabPuneApp.swift in Sources */,
+				86819B3BF83765F8E9C9F471 /* HisabTheme.swift in Sources */,
+				88B92AF278154A8E50A8C879 /* IssueFlows.swift in Sources */,
 				92EE9FC4CBA77A98FCC17DDB /* LocationModel.swift in Sources */,
+				5C76C0E7BEEDBA4A3D665B3F /* MapBrowseView.swift in Sources */,
 				2771D82D319DBA1657C4B6C3 /* ReportComposerView.swift in Sources */,
 				6107A17EDDD998B5BD158111 /* RootTabView.swift in Sources */,
 			);

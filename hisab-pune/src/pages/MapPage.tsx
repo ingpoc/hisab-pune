@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { MapView } from '../components/MapView';
 import { ReportModal } from '../components/ReportModal';
+import { LocalitySidePanel } from '../components/LocalitySidePanel';
 import { EscalationLadder } from '../components/EscalationLadder';
 import { localities, getLocality } from '../data/localities';
 import type { Report } from '../data/types';
@@ -17,6 +18,7 @@ export function MapPage() {
   const [selectedId, setSelectedId] = useState<string | null>(params.get('loc'));
   const [activeReportId, setActiveReportId] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(params.get('report') === '1');
+  const [escalationOpen, setEscalationOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,11 +40,27 @@ export function MapPage() {
   }, []);
 
   useEffect(() => {
-    if (params.get('report') === '1') setReportOpen(true);
+    setSelectedId(params.get('loc'));
+    setReportOpen(params.get('report') === '1');
   }, [params]);
+
+  useEffect(() => {
+    setEscalationOpen(false);
+  }, [selectedId]);
 
   const selected = selectedId ? getLocality(selectedId) : null;
   const activeReport = reports.find((r) => r.id === activeReportId);
+
+  useEffect(() => {
+    if (!activeReportId || !selectedId) return;
+    const r = reports.find((x) => x.id === activeReportId);
+    if (r && r.localityId !== selectedId) setActiveReportId(null);
+  }, [selectedId, activeReportId, reports]);
+
+  const localityReports = useMemo(
+    () => (selectedId ? reports.filter((r) => r.localityId === selectedId) : []),
+    [reports, selectedId],
+  );
 
   const focus = useMemo(() => {
     if (activeReport) return { lat: activeReport.lat, lng: activeReport.lng };
@@ -50,15 +68,21 @@ export function MapPage() {
     return null;
   }, [activeReport, selected]);
 
-  const onSelectLocality = useCallback((id: string) => {
-    setSelectedId(id);
-    setParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set('loc', id);
-      next.delete('report');
-      return next;
-    });
-  }, [setParams]);
+  const onSelectLocality = useCallback(
+    (id: string) => {
+      setSelectedId((prev) => {
+        if (prev !== id) setActiveReportId(null);
+        return id;
+      });
+      setParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set('loc', id);
+        next.delete('report');
+        return next;
+      });
+    },
+    [setParams],
+  );
 
   function onCreated(report: Report) {
     setReports((prev) => {
@@ -80,7 +104,10 @@ export function MapPage() {
     const loc = getLocality(report.localityId);
     if (!loc) return;
     updateReportStatus(report.id, 'escalated');
-    setReports(loadReportsWithOverrides());
+    setReports((prev) =>
+      prev.map((r) => (r.id === report.id ? { ...r, status: 'escalated' as const } : r)),
+    );
+    setEscalationOpen(true);
     const tweet = buildEscalationTweet({
       locality: loc,
       note: report.note,
@@ -90,7 +117,20 @@ export function MapPage() {
   }
 
   return (
-    <main className="map-page">
+    <main
+      className={`map-page${escalationOpen && selected ? ' map-page--escalating' : ''}`}
+    >
+      {escalationOpen && selected && (
+        <aside className="map-page__escalate" aria-label="Escalation route">
+          <EscalationLadder
+            locality={selected}
+            note={activeReport?.note}
+            variant="rail"
+            onClose={() => setEscalationOpen(false)}
+          />
+        </aside>
+      )}
+
       <div className="map-page__map">
         <MapView
           reports={reports}
@@ -101,53 +141,25 @@ export function MapPage() {
           onSelectReport={setActiveReportId}
           focus={focus}
         />
-        <button
-          type="button"
-          className="map-page__fab btn btn--alert"
-          onClick={() => setReportOpen(true)}
-        >
-          Report
-        </button>
       </div>
 
       <aside className="map-page__side">
         {selected ? (
-          <>
-            {activeReport && (
-              <article className="map-page__report">
-                <p className="eyebrow">Selected report</p>
-                <p className="map-page__note">{activeReport.note}</p>
-                <p className="map-page__status">
-                  Status: <strong>{activeReport.status}</strong>
-                </p>
-                {activeReport.photoDataUrl && (
-                  <img src={activeReport.photoDataUrl} alt="" className="map-page__photo" />
-                )}
-                {activeReport.status !== 'resolved' && (
-                  <button
-                    type="button"
-                    className="btn btn--signal"
-                    onClick={() => escalate(activeReport)}
-                  >
-                    Escalate on X
-                  </button>
-                )}
-              </article>
-            )}
-            <EscalationLadder
-              locality={selected}
-              note={activeReport?.note}
-            />
-            <Link className="text-link" to={`/locality/${selected.id}`}>
-              Open locality page →
-            </Link>
-          </>
+          <LocalitySidePanel
+            locality={selected}
+            reports={localityReports}
+            activeReportId={activeReportId}
+            onSelectReport={setActiveReportId}
+            onEscalate={escalate}
+            escalationOpen={escalationOpen}
+            onEscalationOpenChange={setEscalationOpen}
+          />
         ) : (
           <div className="map-page__empty">
             <h1>City map</h1>
             <p>
-              Tap a red pin or locality marker to see who is responsible — then
-              escalate on X with their handles prefilled.
+              Pick a locality to see open and closed issues — then escalate when
+              you need the ladder.
             </p>
             <ul>
               {reports
@@ -160,8 +172,14 @@ export function MapPage() {
                       <button
                         type="button"
                         onClick={() => {
+                          setSelectedId(r.localityId);
                           setActiveReportId(r.id);
-                          onSelectLocality(r.localityId);
+                          setParams((prev) => {
+                            const next = new URLSearchParams(prev);
+                            next.set('loc', r.localityId);
+                            next.delete('report');
+                            return next;
+                          });
                         }}
                       >
                         <strong>{loc?.name ?? r.localityId}</strong>
@@ -177,6 +195,7 @@ export function MapPage() {
 
       <ReportModal
         open={reportOpen}
+        preferredLocalityId={selectedId}
         onClose={() => {
           setReportOpen(false);
           setParams((prev) => {

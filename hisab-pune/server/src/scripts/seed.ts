@@ -246,10 +246,12 @@ function main() {
   const insertReport = db.prepare(`
     INSERT INTO reports (
       id, locality_id, ward_id, lat, lng, note, photo_path, status, moderation_state,
-      created_at, updated_at, sla_due_at, escalation_eligible_at, resolved_at
+      created_at, updated_at, sla_due_at, escalation_eligible_at, resolved_at,
+      category_id, publish_as, author_label
     ) VALUES (
       @id, @locality_id, @ward_id, @lat, @lng, @note, @photo_path, @status, @moderation_state,
-      @created_at, @updated_at, @sla_due_at, @escalation_eligible_at, @resolved_at
+      @created_at, @updated_at, @sla_due_at, @escalation_eligible_at, @resolved_at,
+      @category_id, @publish_as, @author_label
     )
   `);
   const insertEvent = db.prepare(`
@@ -273,7 +275,10 @@ function main() {
       updated_at: r.createdAt,
       sla_due_at: hoursFrom(r.createdAt, 48),
       escalation_eligible_at: hoursFrom(r.createdAt, 24 * 7),
-      resolved_at: r.status === 'resolved' ? r.createdAt : null,
+      resolved_at: null,
+      category_id: 'solid_waste',
+      publish_as: 'anonymous',
+      author_label: 'R-SEED',
     });
     insertEvent.run({
       id: `evt-${r.id}-created`,

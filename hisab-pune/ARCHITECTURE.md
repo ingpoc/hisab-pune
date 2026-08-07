@@ -10,51 +10,61 @@ This is the control document for how Hisab should evolve beyond the current stat
 
 | Is | Is not |
 | --- | --- |
-| A public ledger of civic failures mapped to **roles + names** | A pile-on / abuse channel |
-| Evidence-first (photo + place + time) | Rumour or political campaigning |
-| Escalation with **SLA and batching** | Auto-tagging every MLA on every report |
+| A public ledger of **multi-category civic issues** (API/table: `reports`; public copy may say “issues”) mapped to **roles + names** | A pile-on / abuse channel or single-issue blackspot-only tool |
+| Evidence-first (photo + place + time + category) | Rumour or political campaigning |
+| Escalation with **SLA and batching** (Hisab ladder primary; optional gov ticket sidecar) | Auto-tagging every MLA on every report; fake “integrated” PMC CARE writes |
 | Voter memory between elections | A substitute for RTI / courts / policing |
 
 North star metrics:
 
-1. **Resolution rate** by ward / MLA / corporator (with time-to-close)
+1. **Resolution rate** by ward / MLA / corporator / category (with time-to-close)
 2. **Roster freshness** (% officials with a cited source & effective date)
 3. **Election scorecards** published from the same ledger (not separate spin)
+4. **Crowd signal** as ward/category ledgers (counts, age, open/closed) — not vanity charts
 
 ---
 
 ## 2. Product loop
 
 ```text
-Citizen reports evidence
+Logged-in citizen reports evidence (category + photo + place)
         ↓
 Moderation (auto + human)
         ↓
-Public map + ward ledger (facts only)
+Public map + locality/ward ledger (facts; default author = anonymous_posting_id)
         ↓
-Private / official channel first (SLA clock starts)
+Hisab SLA ladder (T0–T4); optional gov ticket sidecar if adapter supports
         ↓
 If unresolved past SLA → batched public digest (app X + optional citizen share)
         ↓
 Close with proof OR mark stale / disputed
         ↓
-Aggregate → election scorecard
+Aggregate → crowd signal ledgers + election scorecard
 ```
 
-**Principle:** the platform speaks in **aggregates and ledgers**. Individuals speak for themselves when they choose to post.
+**Principle:** the platform speaks in **aggregates and ledgers**. Writes require login; **public authorship is anonymous by default** via a stable per-user anonymous posting id. Real/chosen identity appears only when the user opts in.
 
 ---
 
 ## 3. Who can upload / update what
 
-### Citizens (default: no login for report; optional account later)
+### Citizens (login required to create or comment)
+
+**Auth gate + public authorship**
+
+- Login is required to **create** a report and to **comment**.
+- At signup, each user is assigned a stable **`anonymous_posting_id`** (public pseudonym, e.g. `R-7K2M`). This is what the feed shows by default.
+- **`publish_as` defaults to `anonymous`** → public author = `anonymous_posting_id`.
+- **Opt-in only:** user may set `publish_as=identified` to show their chosen public id / handle instead. Never force real name.
+- Never expose `author_user_id`, email, phone, or session identifiers on public APIs, map payloads, or UI.
 
 **Allowed**
 
-- Live or recent photo of a blackspot (prefer camera capture)
+- Live or recent photo of a civic issue (prefer camera capture)
+- Flat **category** (see §5)
 - GPS / map pin
 - Short factual note (length-capped)
-- “Still there” / “Looks cleaned” follow-ups on an existing report
+- Comments and “Still there” / “Looks cleaned” follow-ups on an existing report
 - Optional: suggest a roster correction **with a source URL**
 
 **Forbidden**
@@ -64,6 +74,7 @@ Aggregate → election scorecard
 - Personal phone numbers not published as official contact
 - Uploading other people’s faces as the primary subject
 - Fake “resolved” without photo when claiming cleanup
+- Write without a logged-in account (login ≠ public identity; anonymity is the default *display*, not missing auth)
 
 ### Curators / trusted editors (small team + later RWAs)
 
@@ -72,13 +83,16 @@ Aggregate → election scorecard
 - Update roster rows (with source + effective dates)
 - Confirm resolutions
 - Pause escalation for a ward during verified cleanup drives
+- Process `manual_queue` gov-escalation stubs when adapters are unsupported
 
 ### System (automated)
 
 - Assign electoral ward from **current** boundary layer
-- Attach escalation chain from versioned roster
+- Attach Hisab escalation chain from versioned roster
+- Route category → department tip (hint only; not a hard gov write)
 - Deduplicate, virus/NSFW scan, EXIF sanity checks
 - Emit digests on schedule (not per-report spam)
+- Call EscalationAdapter fail-closed (unsupported → `manual_queue`)
 
 ---
 
@@ -109,6 +123,8 @@ Separate **three clocks** — never mix them:
 
 **Postgres + PostGIS** (Supabase or self-host). Object storage (S3/R2) for photos.
 
+Keep the table/API name **`reports`** (public copy may say “issues”). Do not rename the resource.
+
 Core tables (simplified):
 
 - `boundary_versions` — geo layers with effective dates  
@@ -116,11 +132,24 @@ Core tables (simplified):
 - `offices` — regional ward offices ↔ wards (many-to-many)  
 - `officials` — person records  
 - `official_roles` — role, ward/office/assembly scope, party, handles, phones, `effective_from/to`, source fields  
-- `reports` — geom, ward_id, status, moderation_state, photo_key, note, created_at  
-- `report_events` — append-only: created / escalated / reminded / resolved / disputed  
+- `users` — required for create/comment; curator vs citizen; **`anonymous_posting_id`** (unique, assigned once); optional `public_display_id` / handle for opt-in identified posts  
+- `reports` — geom, ward_id, **category**, status, moderation_state, note, `author_user_id` (internal), `publish_as` (`anonymous` default | `identified`), created_at  
+- `attachments` — photo/file keys linked to a report (object storage)  
+- `comments` — follow-ups; `author_user_id` internal; public author resolved from `publish_as` → `anonymous_posting_id` or opt-in display id  
+- `report_events` — append-only: created / escalated / reminded / resolved / disputed / gov_ticket_*  
+- `escalation_tickets` — optional gov sidecar (adapter status, external ref, `manual_queue` payload)  
 - `escalation_batches` — digests posted to X (who tagged, which reports, text, url)  
-- `scorecards` — materialized views by ward / role / election cycle  
-- `users` — optional; prefer anonymous reports + separate curator accounts  
+- `scorecards` — materialized views by ward / role / category / election cycle  
+
+**Category enum (flat):**
+
+`solid_waste` · `drainage_flood` · `roads_footpath` · `streetlight` · `water_supply` · `encroachment` · `parks_trees` · `stray_animals` · `other`
+
+**Privacy / public author DTO**
+
+- Default: `{ publish_as: "anonymous", author_label: "<anonymous_posting_id>" }`
+- Opt-in: `{ publish_as: "identified", author_label: "<public_display_id>" }`
+- Never include `author_user_id`, email, or phone. Same user posting anonymously always shows the same `anonymous_posting_id` (continuity without revealing login identity).
 
 **Important:** do not delete officials when they leave office — close the role row with `effective_to` so election scorecards stay honest.
 
@@ -140,7 +169,7 @@ Do **not** create fake “fan” accounts. Do **not** auto-DM officials.
 ### What @HisabPune posts
 
 1. **Daily / weekly digest** (not each report):  
-   “Ward 9 — 7 open blackspots, oldest 11 days. Corporators: … Regional office: …”
+   “Ward 9 — 7 open issues (solid waste 4, drainage 2, …), oldest 11 days. Corporators: … Regional office: …”
 2. **SLA breach digests** only after private window expires.
 3. **Resolution praise** when cleanup is verified (balance, not only blame).
 4. **Election scorecards** (scheduled, sourced, downloadable CSV).
@@ -150,20 +179,49 @@ Do **not** create fake “fan” accounts. Do **not** auto-DM officials.
 - Cap tags per official per day / week (e.g. ≤1 digest mention / day, ≤3 / week).
 - Batch many reports into one post.
 - Quiet hours (e.g. 22:00–08:00 IST) — no digests.
-- Language filter: factual Marathi/English templates only; block abuse terms.
-- Prefer tagging **@PMCPune** + relevant role for service issues first; elected reps appear in digests after SLA, not on minute-one.
+- Language filter: factual English templates only; block abuse terms.
+- Prefer tagging **@PMCPune** + role suggested by **category → department tip** first; elected reps appear in digests after SLA, not on minute-one.
 
-### Escalation ladder in product (not just UI copy)
+### Category → department tip (hint only)
+
+Map each flat category to a PMC-style department label for UI tips and digest wording (e.g. `solid_waste` → SWM, `drainage_flood` → Drainage, `streetlight` → Electrical). This is **not** a guarantee of an automated gov ticket — see §6a.
+
+### Dual escalation (Hisab primary + optional gov sidecar)
+
+**Hisab ladder (always on):**
 
 1. **T0** Report published on map (public facts, no auto-tags).  
-2. **T1 (0–48h)** Citizen can call / email ward office; app shows contacts.  
+2. **T1 (0–48h)** Citizen can call / email ward office; app shows contacts + dept tip.  
 3. **T2 (48–72h)** Optional single polite template the citizen may send themselves.  
 4. **T3 (after SLA, e.g. 7 days open)** Report enters next @HisabPune digest.  
 5. **T4 (14–30 days / clusters)** Ward-level or MLA-level weekly scorecard mention.
 
+**Gov ticket sidecar (optional):** `escalation_tickets` via EscalationAdapter when a channel is supported. Failure or unsupported → `manual_queue`. Hisab T0–T4 never depends on gov write success.
+
 This protects representatives from death-by-a-thousand-pings **and** protects the project from looking like a troll farm — which is how civic tools get crushed in India.
 
 ---
+
+## 6a. Government escalation adapters
+
+**EscalationAdapter** is fail-closed: unknown channel, missing credentials, or HTTP failure must not invent success.
+
+| Channel | Reality | MVP behaviour |
+| --- | --- | --- |
+| PMC CARE / similar | No public write API for third parties | `unsupported` stub → enqueue `manual_queue` for curator |
+| Future portal / email bridge | Only when a real write path exists | Implement adapter; store external ref on `escalation_tickets` |
+
+Hisab’s T0–T4 ladder and @HisabPune digests remain the **primary** accountability path. Gov tickets are a sidecar, never a blocking dependency for publish or SLA clocks.
+
+## 6b. Crowd signal
+
+Crowd signal is **ledgers and tables**, not chart junk:
+
+- Open / closed counts by ward and category  
+- Age of oldest open issue; median time-to-close  
+- Locality feed sorted by recency / SLA breach  
+
+Same underlying `reports` + events — no parallel analytics product surface.
 
 ## 7. Safety & political reality
 
@@ -171,7 +229,7 @@ Assume some actors will try to intimidate reporters or the operators.
 
 **Design responses**
 
-- Optional anonymous reporting (no public identity).
+- Anonymous-by-default via stable `anonymous_posting_id`; identified display is opt-in only.
 - Don’t publish reporter location beyond ward-level on the public map if risk flags rise.
 - Log only what’s needed; short retention for raw EXIF if sensitive.
 - Public method page: what we post, rate limits, appeal path for officials (“this was cleaned — upload proof”).
@@ -187,7 +245,7 @@ Assume some actors will try to intimidate reporters or the operators.
 Between elections Hisab is a **pressure + memory** system.  
 Near elections it becomes a **voter information** system:
 
-1. **Incumbent cards** — open days, median time-to-resolve, repeat blackspots, digest count.
+1. **Incumbent cards** — open days, median time-to-resolve, repeat issues by category, digest count.
 2. **Compare wards** under the same MLA / corporator panel.
 3. **Downloadable dataset** (CC-BY) for journalists and NGOs — same as NammaKasa’s instinct.
 4. Freeze campaigning features: no “vote for X” — only performance facts + sources.
@@ -199,14 +257,16 @@ Accountability without memory is noise. Memory without fairness is weaponisation
 
 ## 9. Suggested build sequence
 
-1. **Now (MVP)** — static roster (2026-verified only) + map + citizen local reports + citizen-owned X intent.  
-2. **Backend v1** — Postgres/PostGIS, photo store, moderation queue, versioned roster + **`GET /v1/here`**.  
-3. **SLA engine** — timers + curator dashboard.  
-4. **@HisabPune digests** — batched, rate-limited, templated.  
-5. **iOS app + Home Screen widget** — App Group + significant-location refresh.  
-6. **Optional Live Activity “Travel mode”** — while moving across the city.  
-7. **Scorecards + CSV** — public analytics.  
-8. **Election pack** — incumbent cards, freeze rules, press kit.
+1. **Shipped (Phases A–B core)** — roster + map + `GET /v1/here` + basic `reports` API.  
+2. **Phase E (multi-issue MVP)** — categories + report modal, locality feed, auth gate for create/comment, comments, EscalationAdapter + `manual_queue`, city/crowd signal ledgers.  
+3. **Backend harden** — Postgres/PostGIS port, photo store (`attachments`), moderation workers.  
+4. **SLA engine** — timers + curator dashboard (incl. `manual_queue`).  
+5. **@HisabPune digests** — batched, rate-limited, category-aware templates.  
+6. **iOS app + Home Screen widget** — App Group + significant-location refresh.  
+7. **Optional Live Activity “Travel mode”** — while moving across the city.  
+8. **Scorecards + CSV** — public analytics from the same ledgers.  
+9. **Election pack** — incumbent cards, freeze rules, press kit.  
+10. **Gov adapters beyond stub** — only when a real write path exists.
 
 ---
 
@@ -215,10 +275,11 @@ Accountability without memory is noise. Memory without fairness is weaponisation
 - Web: Vite/React (current) or Next.js if SSR/SEO for ward pages matters  
 - iOS: SwiftUI + WidgetKit (+ ActivityKit for travel mode)  
 - DB: Postgres + PostGIS  
-- Auth: magic link for curators; optional phone OTP for citizens later  
-- Jobs: cron (digest, freshness flags)  
+- Auth: magic link / phone OTP for citizens (required to create/comment); curator accounts separate  
+- Jobs: cron (digest, freshness flags, manual_queue alerts)  
 - Storage: R2/S3 + CDN  
 - Moderation: Vision SafeSearch + human queue  
+- Escalation: Hisab T0–T4 primary; EscalationAdapter fail-closed (`manual_queue` / unsupported stub for PMC CARE)  
 - X: official API for @HisabPune only; citizens use intent URLs  
 
 ---
@@ -303,11 +364,18 @@ Reporting, X digests, and SLA pressure stay in the main app / web — so travell
 
 | Question | Decision |
 | --- | --- |
-| Database | Postgres + PostGIS, append-only events, versioned roster |
+| Scope | Multi-category civic issues; keep `reports` API/table name; public copy may say “issues” |
+| Categories | Flat enum: solid_waste, drainage_flood, roads_footpath, streetlight, water_supply, encroachment, parks_trees, stray_animals, other |
+| Database | Postgres + PostGIS; `reports` + `comments` + `users` + `attachments` + `escalation_tickets`; append-only events; versioned roster |
+| Auth / privacy | Login required to create/comment; **anonymous by default** via assigned `anonymous_posting_id`; opt-in to show public display id; never leak author_user_id / email / phone |
 | Freshness | Source + date on every official field; citizens propose, curators publish |
-| User uploads | Evidence + follow-ups only; no private data; no abuse |
+| User uploads | Evidence + category + follow-ups only; no private data; no abuse |
+| Escalation | Hisab T0–T4 primary; optional gov ticket sidecar via fail-closed EscalationAdapter |
+| Gov adapters (MVP) | PMC CARE unsupported stub → `manual_queue`; no fake public write API |
+| Crowd signal | Ward/category ledgers and tables — not chart vanity |
 | App X account | @HisabPune digests only; never per-report spam |
 | Accountability style | SLA → batch → scorecard; praise closures too |
 | Election role | Performance memory for voters, not a campaign tool |
 | iOS widget | Snapshot via App Group; significant-location refresh; Live Activity for travel mode |
 | iOS location | Debounced ward resolve; no breadcrumb trail by default |
+| Doc surfaces | `ARCHITECTURE.md` + `IMPLEMENTATION.md` for system/build; `DESIGN.md` for visual + disclosure language (not a second architecture) |

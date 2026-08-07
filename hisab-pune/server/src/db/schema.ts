@@ -15,6 +15,28 @@ export function openDb(filename = DB_PATH): Database.Database {
   return db;
 }
 
+function ensureColumn(
+  db: Database.Database,
+  table: string,
+  column: string,
+  definition: string,
+): void {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>;
+  if (!cols.some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+
+/** Public anonymous posting id — not the login subject. */
+export function mintAnonymousPostingId(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = 'R-';
+  for (let i = 0; i < 4; i++) {
+    out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return out;
+}
+
 export function migrate(db: Database.Database): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS meta (
@@ -124,5 +146,50 @@ export function migrate(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_roles_active ON official_roles(role, effective_to);
     CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status, moderation_state);
     CREATE INDEX IF NOT EXISTS idx_localities_ward ON localities(ward_id);
+
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      session_token TEXT NOT NULL UNIQUE,
+      anonymous_posting_id TEXT NOT NULL UNIQUE,
+      public_display_id TEXT,
+      role TEXT NOT NULL DEFAULT 'citizen',
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS comments (
+      id TEXT PRIMARY KEY,
+      report_id TEXT NOT NULL,
+      author_user_id TEXT NOT NULL,
+      publish_as TEXT NOT NULL DEFAULT 'anonymous',
+      body TEXT NOT NULL,
+      moderation_state TEXT NOT NULL DEFAULT 'approved',
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (report_id) REFERENCES reports(id),
+      FOREIGN KEY (author_user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS escalation_tickets (
+      id TEXT PRIMARY KEY,
+      report_id TEXT NOT NULL,
+      adapter_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      external_id TEXT,
+      last_error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (report_id) REFERENCES reports(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_comments_report ON comments(report_id, created_at);
+    CREATE INDEX IF NOT EXISTS idx_tickets_report ON escalation_tickets(report_id);
   `);
+
+  ensureColumn(db, 'reports', 'category_id', `TEXT NOT NULL DEFAULT 'solid_waste'`);
+  ensureColumn(db, 'reports', 'author_user_id', 'TEXT');
+  ensureColumn(db, 'reports', 'publish_as', `TEXT NOT NULL DEFAULT 'anonymous'`);
+  ensureColumn(db, 'reports', 'author_label', 'TEXT');
+  ensureColumn(db, 'reports', 'gov_ticket_id', 'TEXT');
+
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_locality ON reports(locality_id, created_at)`);
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_category ON reports(category_id, status)`);
 }

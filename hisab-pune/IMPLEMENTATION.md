@@ -27,7 +27,8 @@ Do not add a third architecture surface (no `MULTI_ISSUE.md`).
 - [x] SwiftUI app sources (`ios/HisabPune/`) — Here / Report / anonymous session
 - [x] XcodeGen `ios/project.yml` + generated `HisabPune.xcodeproj` (Simulator build)
 - [x] Development Team `9UPQL479Z5` + App Group entitlements on app + widget
-- [ ] Portal App IDs / App Group registration (device & TestFlight)
+- [x] XCUITest suite (`HisabPuneUITests`) — Here / Report / About / outside-Pune / short-note
+- [ ] Portal App IDs / App Group registration (device & TestFlight; needs explicit authorize)
 - [ ] Travel-mode Live Activity
 
 ## Phase D — later

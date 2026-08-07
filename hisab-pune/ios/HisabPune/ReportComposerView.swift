@@ -8,68 +8,108 @@ struct ReportComposerView: View {
     @State private var resolvedLocality: String?
     @State private var status: String?
     @State private var submitting = false
+    @State private var saved = false
 
     private var client: HisabAPIClient { HisabAPIClient(baseURL: session.baseURL) }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("Place") {
-                    if let resolvedLocality {
-                        Text(resolvedLocality)
-                            .font(.body.weight(.medium))
-                            .accessibilityIdentifier("report.place")
-                    } else {
-                        Text(location.usingFallback
-                            ? "Baner (fallback until GPS)"
-                            : "Resolving locality…")
-                            .foregroundStyle(.secondary)
-                            .accessibilityIdentifier("report.place")
-                    }
-                    Button("Refresh location") {
-                        location.request()
-                        Task { await resolvePlace() }
-                    }
-                    .accessibilityIdentifier("report.refreshLocation")
-                }
-
-                Section("Type") {
-                    Picker("Issue type", selection: $category) {
-                        ForEach(IssueCategory.allCases) { cat in
-                            Text(cat.label).tag(cat)
-                        }
-                    }
-                    .accessibilityIdentifier("report.category")
-                }
-
-                Section("What is wrong?") {
-                    TextField("Short factual note", text: $note, axis: .vertical)
-                        .lineLimit(3...6)
-                        .accessibilityIdentifier("report.note")
-                }
-
-                Section {
-                    Text("Posted as \(session.anonymousPostingId ?? "…") by default.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-
-                if let status {
+                if saved, let status {
                     Section {
-                        Text(status)
-                            .accessibilityIdentifier("report.status")
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Issue pinned")
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(HisabTheme.ink)
+                            Text(status)
+                                .font(.subheadline)
+                                .foregroundStyle(HisabTheme.mist)
+                                .accessibilityIdentifier("report.status")
+                            Button("Report another") {
+                                saved = false
+                                self.status = nil
+                            }
+                            .buttonStyle(HisabPrimaryButtonStyle())
+                        }
+                        .padding(.vertical, 4)
+                        .listRowBackground(HisabTheme.paper)
                     }
-                }
+                } else {
+                    Section("Place") {
+                        if let resolvedLocality {
+                            Text(resolvedLocality)
+                                .font(.body.weight(.medium))
+                                .foregroundStyle(HisabTheme.ink)
+                                .accessibilityIdentifier("report.place")
+                        } else {
+                            Text(location.usingFallback
+                                ? "Baner (fallback until GPS)"
+                                : "Resolving locality…")
+                                .foregroundStyle(HisabTheme.mist)
+                                .accessibilityIdentifier("report.place")
+                        }
+                        Button("Refresh location") {
+                            location.request()
+                            Task { await resolvePlace() }
+                        }
+                        .foregroundStyle(HisabTheme.brand)
+                        .accessibilityIdentifier("report.refreshLocation")
+                    }
+                    .listRowBackground(HisabTheme.paperElevated)
 
-                Section {
-                    Button(submitting ? "Saving…" : "Pin issue") {
-                        Task { await submit() }
+                    Section("Type") {
+                        Picker("Issue type", selection: $category) {
+                            ForEach(IssueCategory.allCases) { cat in
+                                Text(cat.label).tag(cat)
+                            }
+                        }
+                        .accessibilityIdentifier("report.category")
                     }
-                    .disabled(submitting || note.trimmingCharacters(in: .whitespacesAndNewlines).count < 3)
-                    .accessibilityIdentifier("report.submit")
+                    .listRowBackground(HisabTheme.paperElevated)
+
+                    Section("What is wrong?") {
+                        TextField("Short factual note", text: $note, axis: .vertical)
+                            .lineLimit(3...6)
+                            .accessibilityIdentifier("report.note")
+                    }
+                    .listRowBackground(HisabTheme.paperElevated)
+
+                    Section {
+                        Text("Posted as \(session.anonymousPostingId ?? "…") by default.")
+                            .font(.footnote)
+                            .foregroundStyle(HisabTheme.mist)
+                    }
+                    .listRowBackground(HisabTheme.paper)
+
+                    if let status {
+                        Section {
+                            Text(status)
+                                .foregroundStyle(HisabTheme.brand)
+                                .accessibilityIdentifier("report.status")
+                        }
+                        .listRowBackground(HisabTheme.paper)
+                    }
+
+                    Section {
+                        Button(submitting ? "Saving…" : "Pin issue") {
+                            Task { await submit() }
+                        }
+                        .disabled(submitting || note.trimmingCharacters(in: .whitespacesAndNewlines).count < 3)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(
+                            note.trimmingCharacters(in: .whitespacesAndNewlines).count < 3
+                                ? HisabTheme.mist
+                                : HisabTheme.brand
+                        )
+                        .accessibilityIdentifier("report.submit")
+                    }
+                    .listRowBackground(HisabTheme.paperElevated)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .background(HisabTheme.paper.ignoresSafeArea())
             .navigationTitle("Report")
+            .toolbarBackground(HisabTheme.paper, for: .navigationBar)
             .accessibilityIdentifier("report.screen")
             .task {
                 location.request()
@@ -113,8 +153,10 @@ struct ReportComposerView: View {
             note = ""
             resolvedLocality = "\(snap.localityName) · Ward \(snap.wardId)"
             snap.saveToAppGroup()
+            saved = true
         } catch {
             status = error.localizedDescription
+            saved = false
         }
     }
 }

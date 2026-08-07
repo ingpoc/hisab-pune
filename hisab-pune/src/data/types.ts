@@ -58,6 +58,8 @@ export interface Locality {
 
 export type ReportStatus = 'open' | 'escalated' | 'resolved';
 
+export type PublishAs = 'anonymous' | 'identified';
+
 export interface Report {
   id: string;
   localityId: string;
@@ -68,4 +70,8 @@ export interface Report {
   createdAt: string;
   photoDataUrl?: string;
   source: 'seed' | 'user';
+  categoryId?: string;
+  authorLabel?: string;
+  publishAs?: PublishAs;
+  govTicketId?: string | null;
 }

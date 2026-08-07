@@ -6,6 +6,12 @@ public struct HereSnapshot: Codable, Equatable {
         public var role: String
         public var shortTitle: String
         public var name: String
+
+        public init(role: String, shortTitle: String, name: String) {
+            self.role = role
+            self.shortTitle = shortTitle
+            self.name = name
+        }
     }
 
     public var localityName: String

@@ -1,19 +1,21 @@
 :root {
-  --ink: #0c1a17;
+  --ink: #0e1c18;
   --ink-soft: #1a2f29;
-  --paper: #e6ebe8;
-  --paper-2: #d5ddd8;
-  --mist: #a8b5af;
-  --signal: #f0a202;
-  --alert: #e23d28;
-  --ok: #2a9d6e;
-  --line: rgba(12, 26, 23, 0.12);
-  --glass: rgba(230, 235, 232, 0.88);
-  --shadow: 0 24px 60px rgba(12, 26, 23, 0.18);
+  --paper: #f4f6f4;
+  --paper-2: #e8ece9;
+  --mist: #6b7a74;
+  --brand: #c62828;
+  --alert: #c62828;
+  --signal: #a67c00;
+  --ok: #2a7d5a;
+  --line: rgba(14, 28, 24, 0.12);
+  --glass: rgba(244, 246, 244, 0.92);
+  --shadow: 0 12px 32px rgba(14, 28, 24, 0.1);
   --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
   --font-body: 'IBM Plex Sans', system-ui, sans-serif;
-  --radius: 4px;
+  --radius: 6px;
   --nav-h: 64px;
+  --measure: 1200px;
 }
 
 *,
@@ -62,7 +64,7 @@ img {
   inset: 0;
   pointer-events: none;
   z-index: 50;
-  opacity: 0.04;
+  opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -75,4 +77,82 @@ img {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* Shared buttons — vermillion is the only filled action accent */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 0.85rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn--alert,
+.btn--signal {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+
+.btn--alert:hover,
+.btn--signal:hover {
+  background: color-mix(in srgb, var(--brand) 88%, #000);
+}
+
+.btn--ink {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--ink) 28%, transparent);
+  color: var(--ink);
+}
+
+.btn--ghost:hover {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+/* Outline status — never solid fills that fight brand */
+.pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.4rem;
+  border-radius: 3px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.pill--open {
+  border-color: color-mix(in srgb, var(--brand) 55%, var(--ink));
+  color: var(--brand);
+}
+
+.pill--escalated {
+  border-color: color-mix(in srgb, var(--signal) 70%, var(--ink));
+  color: color-mix(in srgb, var(--signal) 80%, var(--ink));
+}
+
+.pill--resolved {
+  border-color: color-mix(in srgb, var(--ok) 55%, var(--ink));
+  color: var(--ok);
 }
