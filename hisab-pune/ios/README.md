@@ -2,6 +2,8 @@
 
 SwiftUI app + WidgetKit. English-only. Shares `GET /v1/here` via App Group `group.in.hisab.pune`.
 
+Cursor router skill: `.cursor/skills/hisab-pune-ios/SKILL.md` (points here).
+
 Requires API with `POST /v1/auth/session`, categories on reports, and `GET /v1/localities/:id/reports`.
 
 ## Layout
@@ -22,16 +24,15 @@ xcodegen generate   # needs brew install xcodegen
 open HisabPune.xcodeproj
 ```
 
-Simulator build (no Apple team required):
+Simulator build + UI tests (team `9UPQL479Z5` in `project.yml`):
 
 ```bash
 cd hisab-pune/ios
-xcodegen generate
-xcodebuild -scheme HisabPune \
-  -destination 'platform=iOS Simulator,name=iPhone 16' \
-  -derivedDataPath /tmp/HisabPuneDerived \
-  CODE_SIGNING_ALLOWED=NO \
-  build
+xcodegen generate   # do not hand-edit .xcodeproj
+# API must be on :8787
+xcodebuild test -scheme HisabPune \
+  -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -only-testing:HisabPuneUITests
 ```
 
 ## Run against local API
@@ -50,6 +51,7 @@ xcodebuild -scheme HisabPune \
 ## Signing (Apple Developer)
 
 Owner: `project.yml` (`DEVELOPMENT_TEAM = 9UPQL479Z5`, Automatic).
+Cross-project signing doctrine: `~/.codex/skills/apple-developer`.
 
 | Target | Bundle ID | Entitlements |
 | --- | --- | --- |
@@ -60,6 +62,28 @@ Owner: `project.yml` (`DEVELOPMENT_TEAM = 9UPQL479Z5`, Automatic).
 Simulator/UITest lane does not require portal App ID registration. Device or
 TestFlight needs explicit App IDs + App Group on **both** App IDs (authorize
 portal mutation separately).
+
+## Agent traps (read before changing iOS)
+
+1. **Owner is `project.yml`.** Run `xcodegen generate`. Never hand-edit
+   `HisabPune.xcodeproj` as source of truth.
+2. **Do not re-add XcodeGen `entitlements:` target keys.** They wiped
+   `.entitlements` to empty `<dict/>` once. Keep App Groups in the plist files;
+   point `CODE_SIGN_ENTITLEMENTS` at them; `plutil -p` after generate.
+3. **API contract for the app:** working tree / Phase E API with
+   `POST /v1/auth/session`, `categoryId` on reports,
+   `GET /v1/localities/:id/reports`. Stock `main` without session will fail
+   create/session. Prove with `curl` `:8787/health` and session before UITests.
+4. **UITest location:** `HISAB_FORCE_LAT` / `HISAB_FORCE_LNG` via
+   `launchEnvironment` (see `LocationModel`). Do not use `Process`/`simctl`
+   inside the iOS UITest target.
+5. **Report → Here round-trip:** after pin + keyboard, cold relaunch the app;
+   do not rely on tab switch alone.
+6. **Simulator `codesign` empty entitlements** is a false negative — check
+   `*-Simulated.xcent` and App Group container runtime write
+   (`here.snapshot` / `group.in.hisab.pune`).
+7. **Portal / `-allowProvisioningUpdates`:** not authorized by Simulator work.
+   Ask before creating App IDs or profiles.
 
 ## Not in this slice
 
