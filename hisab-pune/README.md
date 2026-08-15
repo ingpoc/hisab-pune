@@ -50,9 +50,11 @@ Branch protection on `main` requires the **Lint, test & build** check.
 
 ## Docs
 
-- `DESIGN.md` — visual + disclosure language (always-visible vs progressive)
-- `ARCHITECTURE.md` — product + system design
-- `IMPLEMENTATION.md` — phased build checklist
+Owners live at the repo root (not in this package):
+
+- `../.session/docs/DESIGN.md` — visual + disclosure language
+- `../.session/docs/ARCHITECTURE.md` — product + system design
+- `../.session/checklist/checklist.json` — product-lead checklist
 - `ios/README.md` — widget / App Group notes
 
 ## Brand

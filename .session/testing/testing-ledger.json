@@ -1,0 +1,138 @@
+{
+  "schema_version": "testing-ledger.v1",
+  "generated_at": "2026-08-16T00:11:36+05:30",
+  "source_fingerprint": "f6f481f14a47076ad8a86ae541253a425aaff664127aa5b5008eb41bf3e1f43f",
+  "gate_owner": ".agents/skills/hisab-pune-testing/gates.json",
+  "checklist_links": [
+    {
+      "checklist_id": "G1",
+      "product_status": "testing",
+      "gates": [
+        {
+          "id": "G1-T1",
+          "title": "How page freshness",
+          "kind": "runtime",
+          "status_code": "passed",
+          "blocks_completion": true,
+          "criteria": [
+            "How page renders GET /v1/freshness sources and roster dates."
+          ],
+          "procedure": [
+            "python3 scripts/testing_release.py"
+          ],
+          "evidence_required": [
+            "Receipt with API /v1/freshness pass and Playwright /how source link visible."
+          ],
+          "evidence_refs": [
+            ".session/testing/receipts/85af30863b7a.json"
+          ]
+        }
+      ]
+    },
+    {
+      "checklist_id": "G2",
+      "product_status": "partial",
+      "gates": [
+        {
+          "id": "G2-T1",
+          "title": "Deterministic web and API suite",
+          "kind": "deterministic",
+          "status_code": "passed",
+          "blocks_completion": true,
+          "criteria": [
+            "Lint, graders, API tests, and Playwright smoke pass on one unchanged git HEAD."
+          ],
+          "procedure": [
+            "python3 scripts/testing_release.py"
+          ],
+          "evidence_required": [
+            "Receipt under .session/testing/receipts/ naming the git HEAD."
+          ],
+          "evidence_refs": [
+            ".session/testing/receipts/85af30863b7a.json"
+          ]
+        },
+        {
+          "id": "G2-T2",
+          "title": "Live visual vs DESIGN.md",
+          "kind": "visual",
+          "status_code": "pending",
+          "blocks_completion": true,
+          "criteria": [
+            "Current screenshots match DESIGN.md tokens and disclosure on How, map, and report."
+          ],
+          "procedure": [
+            "Capture live /how, /map, and report modal; compare to .session/docs/DESIGN.md."
+          ],
+          "evidence_required": [
+            "Current-hash screenshot packet with pass/fail against DESIGN.md."
+          ]
+        },
+        {
+          "id": "G2-T3",
+          "title": "Blind UX journey",
+          "kind": "ux",
+          "status_code": "pending",
+          "blocks_completion": true,
+          "criteria": [
+            "A blind actor can report an issue and read freshness without implementation notes."
+          ],
+          "procedure": [
+            "Give a fresh reviewer only the running app and the report mission."
+          ],
+          "evidence_required": [
+            "Blind journey notes on the same frozen hash."
+          ]
+        },
+        {
+          "id": "G2-T4",
+          "title": "Accessibility and trust runtime",
+          "kind": "accessibility",
+          "status_code": "pending",
+          "blocks_completion": true,
+          "criteria": [
+            "Names, contrast, targets, and no author_user_id leak on public surfaces."
+          ],
+          "procedure": [
+            "Runtime a11y pass plus public API author-field check on the frozen hash."
+          ],
+          "evidence_required": [
+            "A11y runtime receipt and API leak check on the same HEAD."
+          ]
+        },
+        {
+          "id": "G2-T5",
+          "title": "iOS XCUITest on Simulator",
+          "kind": "runtime",
+          "status_code": "pending",
+          "blocks_completion": true,
+          "criteria": [
+            "HisabPuneUITests pass on iPhone Simulator against the same product API."
+          ],
+          "procedure": [
+            "Follow hisab-pune/ios/README.md; xcodebuild test HisabPuneUITests."
+          ],
+          "evidence_required": [
+            "xcodebuild log on the frozen hash."
+          ]
+        },
+        {
+          "id": "G2-T6",
+          "title": "Empty frozen re-review",
+          "kind": "release",
+          "status_code": "pending",
+          "blocks_completion": true,
+          "criteria": [
+            "A subsequent full review on the same hash finds no new P0/P1."
+          ],
+          "procedure": [
+            "Rerun required dimensions without source changes; record empty_iteration."
+          ],
+          "evidence_required": [
+            "Receipt with empty_iteration true on the same git HEAD."
+          ]
+        }
+      ]
+    }
+  ]
+}

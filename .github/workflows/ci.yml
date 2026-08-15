@@ -27,6 +27,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Checklist freshness
+        working-directory: .
+        run: python3 scripts/generate_checklist.py --check-current
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

@@ -1,0 +1,254 @@
+{
+  "schema_version": "checklist-control.v1",
+  "project": "Hisab Pune",
+  "title": "Hisab Pune product readiness checklist",
+  "warning": "Local CI and Simulator proof do not establish TestFlight, production host, or frozen-source release acceptance.",
+  "current_blocker": "Frozen release is incomplete: visual, UX, accessibility, iOS XCUITest, and empty re-review are open. Apple portal App IDs remain unauthorized.",
+  "next_action": "Capture live How/map/report screenshots and compare them to DESIGN.md on the same git HEAD as the deterministic receipt.",
+  "focus_items": [
+    "G2",
+    "G7",
+    "G1"
+  ],
+  "areas": [
+    {
+      "id": "scope",
+      "label": "0 · Scope and target outcome",
+      "items": ["G0"]
+    },
+    {
+      "id": "outcome",
+      "label": "1 · Product outcome completeness",
+      "items": ["G1"]
+    },
+    {
+      "id": "quality",
+      "label": "2 · Testing and customer-quality acceptance",
+      "items": ["G2"]
+    },
+    {
+      "id": "data",
+      "label": "3 · Data, integrations, and migrations",
+      "items": ["G3"]
+    },
+    {
+      "id": "trust",
+      "label": "4 · Security, privacy, legal, and trust",
+      "items": ["G4"]
+    },
+    {
+      "id": "operations",
+      "label": "5 · Reliability, observability, operations, and support",
+      "items": ["G5"]
+    },
+    {
+      "id": "money",
+      "label": "6 · Money, billing, and reconciliation",
+      "items": ["G6"]
+    },
+    {
+      "id": "providers",
+      "label": "7 · External providers, platforms, and approvals",
+      "items": ["G7"]
+    },
+    {
+      "id": "rollout",
+      "label": "8 · Rollout, rollback, and communications",
+      "items": ["G8"]
+    }
+  ],
+  "items": [
+    {
+      "id": "G0",
+      "gate": "0 · Scope and target outcome",
+      "item": "Pune civic accountability outcome and evidence boundary are explicit",
+      "status_code": "partial",
+      "status": "Partial — architecture and design name the English-only multi-category ledger; no linked current-source acceptance gate exists.",
+      "priority": "medium",
+      "responsible_owner": "Product lead",
+      "evidence_scope": "document",
+      "completed_evidence": [
+        "ARCHITECTURE.md names the civic ledger, anonymous-default authorship, and non-goals."
+      ],
+      "remaining_work": [
+        "Attach and pass a current-source acceptance gate for the product contract."
+      ],
+      "completion_criteria": [
+        "A linked acceptance gate confirms the frozen product contract and evidence boundaries."
+      ],
+      "evidence_refs": [
+        ".session/docs/ARCHITECTURE.md",
+        ".session/docs/DESIGN.md"
+      ]
+    },
+    {
+      "id": "G1",
+      "gate": "1 · Product outcome completeness",
+      "item": "A citizen can locate who answers and publish a multi-category issue",
+      "status_code": "testing",
+      "status": "Testing — /how reads GET /v1/freshness. Local API and Playwright proofs passed. Live Activity stays deferred.",
+      "priority": "critical",
+      "responsible_owner": "Engineering",
+      "evidence_scope": "local",
+      "completed_evidence": [
+        "Roster, /v1/here, reports, comments, session auth, locality feed, city signal, and iOS Here/Report/widget exist.",
+        "HowPage fetches /v1/freshness; HowPage.tsx no longer imports src/data/sources.ts."
+      ],
+      "remaining_work": [
+        "Keep the How-page freshness e2e green on CI."
+      ],
+      "completion_criteria": [
+        "The How page shows API freshness facts; the static sources list is not the public freshness owner."
+      ],
+      "evidence_refs": [
+        "hisab-pune/src/pages/HowPage.tsx",
+        "hisab-pune/src/lib/api.ts",
+        "hisab-pune/server/src/app.ts",
+        ".session/docs/ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": "G2",
+      "gate": "2 · Testing and customer-quality acceptance",
+      "item": "The frozen current-source release gate passes",
+      "status_code": "partial",
+      "status": "Partial — deterministic web/API receipt retained on HEAD 85af308; visual, UX, a11y, iOS, and empty re-review remain open.",
+      "priority": "critical",
+      "responsible_owner": "Quality owner",
+      "evidence_scope": "local",
+      "completed_evidence": [
+        "python3 scripts/testing_release.py passed lint, grade, seed, API, and Playwright on 85af30863b7aefb1e8c66bae33cbeb54bce7c588."
+      ],
+      "remaining_work": [
+        "Prove visual, UX, accessibility, and iOS XCUITest on the same frozen hash, then record an empty re-review."
+      ],
+      "completion_criteria": [
+        "The testing-framework release gate passes on the checklist source revision with a retained receipt and no blocking ledger debt."
+      ],
+      "evidence_refs": [
+        ".session/testing/receipts/85af30863b7a.json",
+        ".agents/skills/hisab-pune-testing/gates.json",
+        "hisab-pune/package.json"
+      ]
+    },
+    {
+      "id": "G3",
+      "gate": "3 · Data, integrations, and migrations",
+      "item": "Roster, reports, and storage stay portable and honest",
+      "status_code": "partial",
+      "status": "Partial — SQLite with a Postgres-shaped schema and seed exist; photo object storage and PostGIS are not in this target.",
+      "priority": "high",
+      "responsible_owner": "Engineering",
+      "evidence_scope": "local",
+      "completed_evidence": [
+        "Versioned roster, reports, comments, and seed load on SQLite."
+      ],
+      "remaining_work": [
+        "Keep schema portable; do not claim PostGIS or photo object storage until those land."
+      ],
+      "completion_criteria": [
+        "Current target storage matches the claimed environment, with a named path for photos and PostGIS when required."
+      ],
+      "evidence_refs": [
+        "hisab-pune/server/src/db/schema.ts",
+        "hisab-pune/server/src/scripts/seed.ts",
+        ".session/docs/ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": "G4",
+      "gate": "4 · Security, privacy, legal, and trust",
+      "item": "Auth, public authorship, and privacy boundaries hold",
+      "status_code": "partial",
+      "status": "Partial — MVP session and anonymous_posting_id exist; phone OTP is deferred. Public APIs must not leak author_user_id.",
+      "priority": "high",
+      "responsible_owner": "Engineering",
+      "evidence_scope": "local",
+      "completed_evidence": [
+        "POST /v1/auth/session assigns anonymous_posting_id; publish_as defaults to anonymous."
+      ],
+      "remaining_work": [
+        "Keep author_user_id off public payloads; replace the session stub with phone OTP only when that target is opened."
+      ],
+      "completion_criteria": [
+        "Public APIs never expose author_user_id, email, phone, or session identifiers; the current auth gate matches the claimed target."
+      ],
+      "reentry_trigger": "Open phone OTP when replacing the session stub.",
+      "evidence_refs": [
+        "hisab-pune/server/src/app.ts",
+        ".session/docs/ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": "G5",
+      "gate": "5 · Reliability, observability, operations, and support",
+      "item": "SLA digest, freshness flags, and operator recovery",
+      "status_code": "deferred",
+      "status": "Deferred — no SLA digest job or @HisabPune batching in this target.",
+      "priority": "medium",
+      "responsible_owner": "Engineering",
+      "evidence_scope": "document",
+      "reentry_trigger": "Open when shipping the SLA digest job and @HisabPune batches.",
+      "evidence_refs": [
+        ".session/docs/ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": "G6",
+      "gate": "6 · Money, billing, and reconciliation",
+      "item": "Customer billing and money movement",
+      "status_code": "not_required",
+      "status": "Not required — public civic ledger; no customer billing or money movement.",
+      "priority": "low",
+      "responsible_owner": "Product lead",
+      "evidence_scope": "document",
+      "evidence_refs": [
+        ".session/docs/ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": "G7",
+      "gate": "7 · External providers, platforms, and approvals",
+      "item": "Apple portal, host, and honest gov adapters",
+      "status_code": "blocked",
+      "status": "Blocked — Simulator signing exists; portal App IDs and App Group registration need explicit authorize. CARE stays a fail-closed stub.",
+      "priority": "high",
+      "responsible_owner": "Operator",
+      "evidence_scope": "operator",
+      "remaining_work": [
+        "With explicit authorize, register App IDs and the App Group for device and TestFlight."
+      ],
+      "completion_criteria": [
+        "Device and TestFlight use registered App IDs and App Group group.in.hisab.pune; gov writes stay fail-closed until a real adapter exists."
+      ],
+      "blocked_by": "Operator must explicitly authorize Apple portal App ID and App Group registration.",
+      "operator_boundary": "Do not create App IDs, profiles, or use -allowProvisioningUpdates without explicit operator authorize.",
+      "reentry_trigger": "Open real gov write adapters only when a public or partner API exists.",
+      "evidence_refs": [
+        "hisab-pune/ios/README.md",
+        ".session/docs/ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": "G8",
+      "gate": "8 · Rollout, rollback, and communications",
+      "item": "Production host, rollback, and public launch path",
+      "status_code": "pending",
+      "status": "Pending — Deploy workflow rebuilds an artifact; the production host step is a placeholder.",
+      "priority": "high",
+      "responsible_owner": "Product lead and operator",
+      "evidence_scope": "ci",
+      "remaining_work": [
+        "Replace the deploy host placeholder, verify rollback, and record an explicit launch decision."
+      ],
+      "completion_criteria": [
+        "A named production host serves the current artifact, rollback is known, and the operator accepts launch."
+      ],
+      "operator_boundary": "Do not deploy or send launch communications without explicit approval.",
+      "evidence_refs": [
+        ".github/workflows/deploy.yml",
+        "hisab-pune/README.md"
+      ]
+    }
+  ]
+}

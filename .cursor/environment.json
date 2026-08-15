@@ -1,0 +1,15 @@
+{
+  "name": "Hisab Pune",
+  "install": "cd hisab-pune\nnpm ci\nnpx playwright install --with-deps chromium\nnpm run seed",
+  "start": "cd hisab-pune\nnpm run dev",
+  "ports": [
+    {
+      "name": "web",
+      "port": 5173
+    },
+    {
+      "name": "api",
+      "port": 8787
+    }
+  ]
+}

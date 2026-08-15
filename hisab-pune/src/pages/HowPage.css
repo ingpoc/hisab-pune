@@ -92,6 +92,7 @@
   margin-top: 1.35rem;
 }
 
+.how__roles,
 .how__sources {
   list-style: none;
   margin: 0.75rem 0 0;
@@ -99,6 +100,18 @@
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+}
+
+.how__roles li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.how__roles span {
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
+  font-size: 0.84rem;
 }
 
 .how__sources li {

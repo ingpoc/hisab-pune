@@ -191,7 +191,28 @@ export async function attachGovTicket(reportId: string, externalId: string) {
   return res.json();
 }
 
-export async function fetchFreshness() {
+export type FreshnessSource = {
+  id: string;
+  title: string;
+  url: string;
+  usedFor: string;
+};
+
+export type FreshnessRole = {
+  role: string;
+  count: number;
+  oldestSource: string | null;
+  newestSource: string | null;
+};
+
+export type FreshnessResponse = {
+  language: string;
+  seededAt: string | null;
+  roles: FreshnessRole[];
+  sources: FreshnessSource[];
+};
+
+export async function fetchFreshness(): Promise<FreshnessResponse> {
   const res = await fetch(`${API}/v1/freshness`);
   if (!res.ok) throw new Error(await res.text());
   return res.json();

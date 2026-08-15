@@ -378,4 +378,4 @@ Reporting, X digests, and SLA pressure stay in the main app / web — so travell
 | Election role | Performance memory for voters, not a campaign tool |
 | iOS widget | Snapshot via App Group; significant-location refresh; Live Activity for travel mode |
 | iOS location | Debounced ward resolve; no breadcrumb trail by default |
-| Doc surfaces | `ARCHITECTURE.md` + `IMPLEMENTATION.md` for system/build; `DESIGN.md` for visual + disclosure language (not a second architecture) |
+| Doc surfaces | `.session/docs/ARCHITECTURE.md` for system; `.session/docs/DESIGN.md` for visual; `.session/checklist/checklist.json` for build status |

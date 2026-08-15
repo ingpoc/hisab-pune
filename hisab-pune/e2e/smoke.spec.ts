@@ -28,6 +28,9 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
 
     await page.goto('/how');
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/Transparency/i);
+    await expect(page.locator('[data-freshness="api"]')).toBeVisible();
+    await expect(page.getByText(/Roster as of/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('link', { name: /2026 PMC election/i })).toBeVisible();
   });
 
   test('map locality ledger is the place surface (no separate full page)', async ({ page }) => {
