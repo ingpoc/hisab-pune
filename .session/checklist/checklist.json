@@ -3,8 +3,8 @@
   "project": "Hisab Pune",
   "title": "Hisab Pune product readiness checklist",
   "warning": "Local CI and Simulator proof do not establish TestFlight, production host, or frozen-source release acceptance.",
-  "current_blocker": "No frozen-source testing-framework receipt. Apple portal App IDs remain unauthorized for device and TestFlight.",
-  "next_action": "Run the testing-framework release gate on one frozen revision and retain the receipt.",
+  "current_blocker": "Frozen release is incomplete: visual, UX, accessibility, iOS XCUITest, and empty re-review are open. Apple portal App IDs remain unauthorized.",
+  "next_action": "Capture live How/map/report screenshots and compare them to DESIGN.md on the same git HEAD as the deterministic receipt.",
   "focus_items": [
     "G2",
     "G7",
@@ -111,21 +111,24 @@
       "id": "G2",
       "gate": "2 · Testing and customer-quality acceptance",
       "item": "The frozen current-source release gate passes",
-      "status_code": "pending",
-      "status": "Pending — graders, API tests, Playwright smoke, and XCUITest exist; no frozen-source testing-framework receipt is retained.",
+      "status_code": "partial",
+      "status": "Partial — deterministic web/API receipt retained on HEAD 85af308; visual, UX, a11y, iOS, and empty re-review remain open.",
       "priority": "critical",
       "responsible_owner": "Quality owner",
-      "evidence_scope": "ci",
+      "evidence_scope": "local",
+      "completed_evidence": [
+        "python3 scripts/testing_release.py passed lint, grade, seed, API, and Playwright on 85af30863b7aefb1e8c66bae33cbeb54bce7c588."
+      ],
       "remaining_work": [
-        "Run the testing-framework release gate on one frozen revision and retain the receipt."
+        "Prove visual, UX, accessibility, and iOS XCUITest on the same frozen hash, then record an empty re-review."
       ],
       "completion_criteria": [
         "The testing-framework release gate passes on the checklist source revision with a retained receipt and no blocking ledger debt."
       ],
       "evidence_refs": [
-        "hisab-pune/package.json",
-        ".github/workflows/ci.yml",
-        "hisab-pune/ios/README.md"
+        ".session/testing/receipts/85af30863b7a.json",
+        ".agents/skills/hisab-pune-testing/gates.json",
+        "hisab-pune/package.json"
       ]
     },
     {

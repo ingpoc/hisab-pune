@@ -1,7 +1,7 @@
 {
   "schema_version": "testing-ledger.v1",
-  "generated_at": "2026-08-16T00:10:43+05:30",
-  "source_fingerprint": "8567a906011d92dcf47118895fd99996edba30539257f83ebf04936886973d87",
+  "generated_at": "2026-08-16T00:11:36+05:30",
+  "source_fingerprint": "f6f481f14a47076ad8a86ae541253a425aaff664127aa5b5008eb41bf3e1f43f",
   "gate_owner": ".agents/skills/hisab-pune-testing/gates.json",
   "checklist_links": [
     {
@@ -12,7 +12,7 @@
           "id": "G1-T1",
           "title": "How page freshness",
           "kind": "runtime",
-          "status_code": "pending",
+          "status_code": "passed",
           "blocks_completion": true,
           "criteria": [
             "How page renders GET /v1/freshness sources and roster dates."
@@ -22,19 +22,22 @@
           ],
           "evidence_required": [
             "Receipt with API /v1/freshness pass and Playwright /how source link visible."
+          ],
+          "evidence_refs": [
+            ".session/testing/receipts/85af30863b7a.json"
           ]
         }
       ]
     },
     {
       "checklist_id": "G2",
-      "product_status": "pending",
+      "product_status": "partial",
       "gates": [
         {
           "id": "G2-T1",
           "title": "Deterministic web and API suite",
           "kind": "deterministic",
-          "status_code": "pending",
+          "status_code": "passed",
           "blocks_completion": true,
           "criteria": [
             "Lint, graders, API tests, and Playwright smoke pass on one unchanged git HEAD."
@@ -44,6 +47,9 @@
           ],
           "evidence_required": [
             "Receipt under .session/testing/receipts/ naming the git HEAD."
+          ],
+          "evidence_refs": [
+            ".session/testing/receipts/85af30863b7a.json"
           ]
         },
         {

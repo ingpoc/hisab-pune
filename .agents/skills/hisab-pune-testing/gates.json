@@ -9,7 +9,7 @@
           "id": "G1-T1",
           "title": "How page freshness",
           "kind": "runtime",
-          "status_code": "pending",
+          "status_code": "passed",
           "blocks_completion": true,
           "criteria": [
             "How page renders GET /v1/freshness sources and roster dates."
@@ -19,6 +19,9 @@
           ],
           "evidence_required": [
             "Receipt with API /v1/freshness pass and Playwright /how source link visible."
+          ],
+          "evidence_refs": [
+            ".session/testing/receipts/85af30863b7a.json"
           ]
         }
       ]
@@ -30,7 +33,7 @@
           "id": "G2-T1",
           "title": "Deterministic web and API suite",
           "kind": "deterministic",
-          "status_code": "pending",
+          "status_code": "passed",
           "blocks_completion": true,
           "criteria": [
             "Lint, graders, API tests, and Playwright smoke pass on one unchanged git HEAD."
@@ -40,6 +43,9 @@
           ],
           "evidence_required": [
             "Receipt under .session/testing/receipts/ naming the git HEAD."
+          ],
+          "evidence_refs": [
+            ".session/testing/receipts/85af30863b7a.json"
           ]
         },
         {

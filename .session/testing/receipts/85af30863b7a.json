@@ -1,0 +1,70 @@
+{
+  "schema_version": "testing-receipt.v1",
+  "kind": "frozen-source-deterministic",
+  "git_head": "85af30863b7aefb1e8c66bae33cbeb54bce7c588",
+  "source_fingerprint": "100b9133b511767fa99eb7f0e85aa38ca6f21477f8e3f7cdc8eaaf4ee5cf5069",
+  "created_at": "2026-08-15T18:41:11+00:00",
+  "passed": [
+    "lint",
+    "grade",
+    "seed",
+    "api",
+    "e2e"
+  ],
+  "failed": [],
+  "not_proven": [
+    "visual vs DESIGN.md",
+    "blind UX",
+    "accessibility runtime",
+    "iOS XCUITest",
+    "empty frozen re-review"
+  ],
+  "empty_iteration": false,
+  "commands": [
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "grade",
+      "command": [
+        "npm",
+        "run",
+        "grade"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "seed",
+      "command": [
+        "npm",
+        "run",
+        "seed"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "api",
+      "command": [
+        "npm",
+        "run",
+        "test:api"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "e2e",
+      "command": [
+        "npm",
+        "run",
+        "test:e2e"
+      ],
+      "exit_code": 0
+    }
+  ]
+}
