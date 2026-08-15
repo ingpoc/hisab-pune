@@ -39,3 +39,14 @@ Owner map:
 - English only in names, UI, and API payloads.
 - Edit `hisab-pune/ios/project.yml`, not pbxproj.
 - No Apple portal mutation without explicit operator authorize.
+
+## Cursor Cloud specific instructions
+
+Environment owner: `.cursor/environment.json` (install + start). No secrets in that file.
+
+- App package is `hisab-pune/`, not the git root.
+- After a JIT checkout (no Build), run `cd hisab-pune && npm ci && npm run seed` before tests or `npm run dev`.
+- Web is `:5173`, API is `:8787`. Vite already binds `0.0.0.0`.
+- Verify with `cd hisab-pune && npm run ci`. Do not put tests in `install`.
+- iOS / Xcode / Simulator / TestFlight are Mac-only. Cloud Ubuntu cannot prove them.
+- Do not create Apple portal App IDs or profiles without explicit operator authorize.
