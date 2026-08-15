@@ -1,0 +1,29 @@
+{
+  "schema_version": "testing-ledger.v1",
+  "generated_at": "2026-08-15T19:17:27+05:30",
+  "source_fingerprint": "abca20dfd6248111302c6a7e5196ef58ec1298603d631223b794b1f26d745bd5",
+  "checklist_links": [
+    {
+      "checklist_id": "G2",
+      "product_status": "pending",
+      "gates": [
+        {
+          "id": "G2-T1",
+          "title": "Frozen-source release gate",
+          "kind": "release",
+          "status_code": "pending",
+          "blocks_completion": true,
+          "criteria": [
+            "testing-framework release gate passes on the checklist source revision."
+          ],
+          "procedure": [
+            "Freeze the product source, run hisab-pune npm run ci, and retain the receipt."
+          ],
+          "evidence_required": [
+            "Current-source testing-framework receipt or .session/testing/testing-ledger.json pass."
+          ]
+        }
+      ]
+    }
+  ]
+}
