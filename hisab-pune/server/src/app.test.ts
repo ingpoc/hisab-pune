@@ -82,6 +82,24 @@ describe('Hisab API', () => {
     db.close();
   });
 
+  it('returns roster freshness from /v1/freshness', async () => {
+    const db = openDb(rootDb);
+    migrate(db);
+    const app = createApp(db);
+    const res = await app.request('http://local/v1/freshness');
+    assert.equal(res.status, 200);
+    const body = await res.json();
+    assert.equal(body.language, 'en');
+    assert.ok(body.seededAt);
+    assert.ok(Array.isArray(body.roles));
+    assert.ok(body.roles.length > 0);
+    assert.ok(Array.isArray(body.sources));
+    assert.ok(body.sources.length > 0);
+    assert.ok(body.sources[0].url);
+    assert.ok(body.sources[0].title);
+    db.close();
+  });
+
   it('rejects report without session', async () => {
     const db = openDb(rootDb);
     migrate(db);

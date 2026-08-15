@@ -1,7 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { dataSources } from '../data/sources';
-import { electoralWards } from '../data/electoralWards';
-import { localities } from '../data/localities';
+import { fetchFreshness, type FreshnessResponse } from '../lib/api';
 import './HowPage.css';
 
 const steps = [
@@ -23,8 +22,27 @@ const steps = [
   },
 ];
 
+function roleLabel(role: string) {
+  return role.replaceAll('_', ' ');
+}
+
 export function HowPage() {
-  const corporatorCount = electoralWards.reduce((n, w) => n + w.corporators.length, 0);
+  const [freshness, setFreshness] = useState<FreshnessResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchFreshness()
+      .then((data) => {
+        if (!cancelled) setFreshness(data);
+      })
+      .catch(() => {
+        if (!cancelled) setError('Roster freshness is unavailable.');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <main className="how">
@@ -50,28 +68,42 @@ export function HowPage() {
         ))}
       </ol>
 
-      <section className="how__note">
-        <h2>What&apos;s loaded now</h2>
-        <p>
-          {electoralWards.length} electoral wards · {corporatorCount} corporators ·{' '}
-          {localities.length} localities with ward-office AMC phones. Initial
-          avatars only — no scraped personal photos.
-        </p>
-        <h2>Sources</h2>
-        <ul className="how__sources">
-          {dataSources.map((s) => (
-            <li key={s.id}>
-              <a href={s.url} target="_blank" rel="noreferrer">
-                {s.title}
-              </a>
-              <span>{s.usedFor}</span>
-            </li>
-          ))}
-        </ul>
+      <section className="how__note" data-freshness="api">
+        <h2>Data freshness</h2>
+        {!freshness && !error ? <p>Loading roster freshness from the API.</p> : null}
+        {error ? <p>{error}</p> : null}
+        {freshness ? (
+          <>
+            <p>
+              Roster as of {freshness.seededAt?.slice(0, 10) ?? 'unknown'} · language{' '}
+              {freshness.language}.
+            </p>
+            <ul className="how__roles">
+              {freshness.roles.map((row) => (
+                <li key={row.role}>
+                  <strong>{roleLabel(row.role)}</strong>
+                  <span>
+                    {row.count} · {row.oldestSource ?? '—'} → {row.newestSource ?? '—'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <h2>Sources</h2>
+            <ul className="how__sources">
+              {freshness.sources.map((s) => (
+                <li key={s.id}>
+                  <a href={s.url} target="_blank" rel="noreferrer">
+                    {s.title}
+                  </a>
+                  <span>{s.usedFor}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
         <p>
           New reports go to the live API (session + anonymous posting id). Roster
-          data stays sourced; ward polygons and continuous PMC/SEC refresh keep
-          improving.
+          rows stay sourced; this page reads GET /v1/freshness, not a static list.
         </p>
         <Link to="/map?report=1" className="btn btn--signal">
           Try a report
