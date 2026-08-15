@@ -2,7 +2,7 @@
   "schema_version": "checklist.v1",
   "project": "Hisab Pune",
   "title": "Hisab Pune product readiness checklist",
-  "generated_at": "2026-08-15T19:33:39+05:30",
+  "generated_at": "2026-08-16T00:10:43+05:30",
   "source_fingerprint": "5f4d8e8ddb42a8d35f7d2047693f04e1090358e96c082c0b636ad56e40a664ce",
   "control_owner": ".session/checklist/checklist.json",
   "posture": "not_ready",

@@ -15,6 +15,7 @@ Pune civic accountability: web + API in `hisab-pune/`, iOS in `hisab-pune/ios/`.
 - Visual / disclosure language → `.session/docs/DESIGN.md`
 - iOS / WidgetKit / XCUITest → `.cursor/skills/hisab-pune-ios/SKILL.md` → `hisab-pune/ios/README.md`
 - Web/API run, CI, graders → `hisab-pune/README.md`
+- Prove, drain, or frozen-source release → `.agents/skills/hisab-pune-testing/SKILL.md`
 
 ## Documentation ownership
 

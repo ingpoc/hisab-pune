@@ -1,12 +1,9 @@
 {
-  "schema_version": "testing-ledger.v1",
-  "generated_at": "2026-08-16T00:10:43+05:30",
-  "source_fingerprint": "8567a906011d92dcf47118895fd99996edba30539257f83ebf04936886973d87",
-  "gate_owner": ".agents/skills/hisab-pune-testing/gates.json",
-  "checklist_links": [
+  "schema_version": "checklist-gates.v1",
+  "control_owner": ".agents/skills/hisab-pune-testing/gates.json",
+  "items": [
     {
       "checklist_id": "G1",
-      "product_status": "testing",
       "gates": [
         {
           "id": "G1-T1",
@@ -28,7 +25,6 @@
     },
     {
       "checklist_id": "G2",
-      "product_status": "pending",
       "gates": [
         {
           "id": "G2-T1",

@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTROL_PATH = ROOT / ".session/checklist/checklist.json"
 STATE_PATH = ROOT / ".session/checklist/state.json"
 TESTING_PATH = ROOT / ".session/testing/testing-ledger.json"
+GATES_PATH = ROOT / ".agents/skills/hisab-pune-testing/gates.json"
 RENDERER_PATH = Path.home() / ".agents/skills/checklist-framework/scripts/render_checklist.py"
 STATUSES = (
     "pending", "in_progress", "testing", "partial", "blocked", "complete",
@@ -29,40 +30,6 @@ REQUIRED_CONTROL = {
 REQUIRED_ITEM = {
     "id", "gate", "item", "status_code", "status", "responsible_owner",
     "priority", "evidence_scope",
-}
-GATES = {
-    "G1": {
-        "id": "G1-T1",
-        "title": "How page freshness",
-        "kind": "runtime",
-        "status_code": "pending",
-        "blocks_completion": True,
-        "criteria": [
-            "How page renders GET /v1/freshness sources and roster dates.",
-        ],
-        "procedure": [
-            "cd hisab-pune && npm run seed && npm run test:api && npm run test:e2e -- --grep 'primary routes'",
-        ],
-        "evidence_required": [
-            "API /v1/freshness test pass and Playwright /how source link visible.",
-        ],
-    },
-    "G2": {
-        "id": "G2-T1",
-        "title": "Frozen-source release gate",
-        "kind": "release",
-        "status_code": "pending",
-        "blocks_completion": True,
-        "criteria": [
-            "testing-framework release gate passes on the checklist source revision.",
-        ],
-        "procedure": [
-            "Freeze the product source, run hisab-pune npm run ci, and retain the receipt.",
-        ],
-        "evidence_required": [
-            "Current-source testing-framework receipt or .session/testing/testing-ledger.json pass.",
-        ],
-    }
 }
 
 
@@ -160,21 +127,36 @@ def build_state() -> dict[str, object]:
     }
 
 
+def load_gates() -> list[dict[str, object]]:
+    owner = json.loads(GATES_PATH.read_text(encoding="utf-8"))
+    items = owner.get("items")
+    if not isinstance(items, list) or not items:
+        raise ValueError("gates.json items must be a non-empty array")
+    return items
+
+
 def build_testing(state: dict[str, object]) -> dict[str, object]:
     products = {item["id"]: item["status_code"] for item in state["items"]}
     links = []
-    for checklist_id, gate in GATES.items():
+    for item in load_gates():
+        checklist_id = item.get("checklist_id")
+        gates = item.get("gates")
         if checklist_id not in products:
             raise ValueError(f"testing gate names unknown checklist item: {checklist_id}")
+        if not isinstance(gates, list) or not gates:
+            raise ValueError(f"{checklist_id} requires acceptance gates")
         links.append({
             "checklist_id": checklist_id,
             "product_status": products[checklist_id],
-            "gates": [dict(gate)],
+            "gates": [dict(gate) for gate in gates],
         })
     return {
         "schema_version": "testing-ledger.v1",
         "generated_at": state["generated_at"],
-        "source_fingerprint": state["source_fingerprint"],
+        "source_fingerprint": hashlib.sha256(
+            CONTROL_PATH.read_bytes() + GATES_PATH.read_bytes()
+        ).hexdigest(),
+        "gate_owner": ".agents/skills/hisab-pune-testing/gates.json",
         "checklist_links": links,
     }
 

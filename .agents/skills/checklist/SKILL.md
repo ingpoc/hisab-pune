@@ -17,7 +17,7 @@ Use `~/.agents/skills/checklist-framework` for lifecycle, statuses, schema, and 
 
 Code, CI logs, Simulator runs, and portals never update checklist status automatically.
 
-Testing follows `~/.agents/skills/testing-framework`. Current snapshot: `.session/testing/testing-ledger.json`. Local `npm run ci` in `hisab-pune/` is evidence only; it is not a frozen-source release receipt.
+Testing follows `~/.agents/skills/testing-framework` via `.agents/skills/hisab-pune-testing/`. Gate owner: `.agents/skills/hisab-pune-testing/gates.json`. Snapshot: `.session/testing/testing-ledger.json`. `npm run ci` is evidence only.
 
 ## Applicability
 
