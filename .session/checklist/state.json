@@ -2,15 +2,15 @@
   "schema_version": "checklist.v1",
   "project": "Hisab Pune",
   "title": "Hisab Pune product readiness checklist",
-  "generated_at": "2026-08-15T19:17:27+05:30",
-  "source_fingerprint": "abca20dfd6248111302c6a7e5196ef58ec1298603d631223b794b1f26d745bd5",
+  "generated_at": "2026-08-15T19:33:39+05:30",
+  "source_fingerprint": "5f4d8e8ddb42a8d35f7d2047693f04e1090358e96c082c0b636ad56e40a664ce",
   "control_owner": ".session/checklist/checklist.json",
   "posture": "not_ready",
   "counts": {
     "pending": 3,
     "in_progress": 0,
-    "testing": 0,
-    "partial": 4,
+    "testing": 1,
+    "partial": 3,
     "blocked": 1,
     "complete": 0,
     "deferred": 1,
@@ -45,16 +45,17 @@
       "id": "G1",
       "gate": "1 · Product outcome completeness",
       "item": "A citizen can locate who answers and publish a multi-category issue",
-      "status_code": "partial",
-      "status": "Partial — Phases A, C scaffold, and E are implemented; /how is not driven by /v1/freshness. Live Activity is deferred.",
+      "status_code": "testing",
+      "status": "Testing — /how reads GET /v1/freshness. Local API and Playwright proofs passed. Live Activity stays deferred.",
       "priority": "critical",
       "responsible_owner": "Engineering",
       "evidence_scope": "local",
       "completed_evidence": [
-        "Roster, /v1/here, reports, comments, session auth, locality feed, city signal, and iOS Here/Report/widget exist."
+        "Roster, /v1/here, reports, comments, session auth, locality feed, city signal, and iOS Here/Report/widget exist.",
+        "HowPage fetches /v1/freshness; HowPage.tsx no longer imports src/data/sources.ts."
       ],
       "remaining_work": [
-        "Render /how from GET /v1/freshness and stop using src/data/sources.ts as the freshness owner."
+        "Keep the How-page freshness e2e green on CI."
       ],
       "completion_criteria": [
         "The How page shows API freshness facts; the static sources list is not the public freshness owner."
@@ -225,9 +226,9 @@
     }
   ],
   "focus_items": [
-    "G1",
+    "G2",
     "G7",
-    "G2"
+    "G1"
   ],
   "areas": [
     {
@@ -301,7 +302,7 @@
       ]
     }
   ],
-  "current_blocker": "How page still uses a static sources list instead of GET /v1/freshness. Apple portal App IDs remain unauthorized for device and TestFlight.",
-  "next_action": "Drive /how from GET /v1/freshness so the static sources list is not the freshness owner.",
+  "current_blocker": "No frozen-source testing-framework receipt. Apple portal App IDs remain unauthorized for device and TestFlight.",
+  "next_action": "Run the testing-framework release gate on one frozen revision and retain the receipt.",
   "warning": "Local CI and Simulator proof do not establish TestFlight, production host, or frozen-source release acceptance."
 }

@@ -1,8 +1,30 @@
 {
   "schema_version": "testing-ledger.v1",
-  "generated_at": "2026-08-15T19:17:27+05:30",
-  "source_fingerprint": "abca20dfd6248111302c6a7e5196ef58ec1298603d631223b794b1f26d745bd5",
+  "generated_at": "2026-08-15T19:33:39+05:30",
+  "source_fingerprint": "5f4d8e8ddb42a8d35f7d2047693f04e1090358e96c082c0b636ad56e40a664ce",
   "checklist_links": [
+    {
+      "checklist_id": "G1",
+      "product_status": "testing",
+      "gates": [
+        {
+          "id": "G1-T1",
+          "title": "How page freshness",
+          "kind": "runtime",
+          "status_code": "pending",
+          "blocks_completion": true,
+          "criteria": [
+            "How page renders GET /v1/freshness sources and roster dates."
+          ],
+          "procedure": [
+            "cd hisab-pune && npm run seed && npm run test:api && npm run test:e2e -- --grep 'primary routes'"
+          ],
+          "evidence_required": [
+            "API /v1/freshness test pass and Playwright /how source link visible."
+          ]
+        }
+      ]
+    },
     {
       "checklist_id": "G2",
       "product_status": "pending",

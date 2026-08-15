@@ -31,6 +31,22 @@ REQUIRED_ITEM = {
     "priority", "evidence_scope",
 }
 GATES = {
+    "G1": {
+        "id": "G1-T1",
+        "title": "How page freshness",
+        "kind": "runtime",
+        "status_code": "pending",
+        "blocks_completion": True,
+        "criteria": [
+            "How page renders GET /v1/freshness sources and roster dates.",
+        ],
+        "procedure": [
+            "cd hisab-pune && npm run seed && npm run test:api && npm run test:e2e -- --grep 'primary routes'",
+        ],
+        "evidence_required": [
+            "API /v1/freshness test pass and Playwright /how source link visible.",
+        ],
+    },
     "G2": {
         "id": "G2-T1",
         "title": "Frozen-source release gate",
