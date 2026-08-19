@@ -16,10 +16,32 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   actions: read
 
 jobs:
+  # Render Free web service `hisab-pune` auto-deploys from branch
+  # `cursor/render-free-tier-17a3`. The Render API/MCP cannot change a
+  # service's Git branch, so each green push to main force-updates that
+  # deploy branch to the same SHA. Do not gate this job on
+  # `environment: production` (required reviewers would block live deploys).
+  sync-render-branch:
+    name: Sync Render Free deploy branch
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout main SHA
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Force-update cursor/render-free-tier-17a3
+        run: git push --force origin "HEAD:cursor/render-free-tier-17a3"
+
   deploy:
     name: Publish web artifact
     if: >
