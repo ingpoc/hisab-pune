@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MapView } from '../components/MapView';
+import { MapView, type UnmappedWard } from '../components/MapView';
 import { ReportModal } from '../components/ReportModal';
 import { EscalationLadder } from '../components/EscalationLadder';
 import { localities, getLocality } from '../data/localities';
@@ -15,6 +15,7 @@ export function MapPage() {
   const [params, setParams] = useSearchParams();
   const [reports, setReports] = useState<Report[]>(() => loadReportsWithOverrides());
   const [selectedId, setSelectedId] = useState<string | null>(params.get('loc'));
+  const [unmappedWard, setUnmappedWard] = useState<UnmappedWard | null>(null);
   const [activeReportId, setActiveReportId] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(params.get('report') === '1');
 
@@ -51,10 +52,23 @@ export function MapPage() {
   }, [activeReport, selected]);
 
   const onSelectLocality = useCallback((id: string) => {
+    setUnmappedWard(null);
     setSelectedId(id);
     setParams((prev) => {
       const next = new URLSearchParams(prev);
       next.set('loc', id);
+      next.delete('report');
+      return next;
+    });
+  }, [setParams]);
+
+  const onUnmappedWard = useCallback((ward: UnmappedWard) => {
+    setUnmappedWard(ward);
+    setSelectedId(null);
+    setActiveReportId(null);
+    setParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('loc');
       next.delete('report');
       return next;
     });
@@ -96,8 +110,9 @@ export function MapPage() {
           reports={reports}
           localities={localities}
           selectedId={selectedId}
-          selectedWardId={selected?.electoralWardId ?? null}
+          selectedWardId={selected?.electoralWardId ?? unmappedWard?.id ?? null}
           onSelectLocality={onSelectLocality}
+          onUnmappedWard={onUnmappedWard}
           onSelectReport={setActiveReportId}
           focus={focus}
         />
@@ -142,6 +157,16 @@ export function MapPage() {
               Open locality page →
             </Link>
           </>
+        ) : unmappedWard ? (
+          <div className="map-page__empty">
+            <p className="eyebrow">Electoral ward</p>
+            <h1>Ward {unmappedWard.id}</h1>
+            <p>{unmappedWard.name}</p>
+            <p>No named locality pin yet — add centroid mapping next.</p>
+            <Link className="text-link" to="/wards">
+              Open wards directory →
+            </Link>
+          </div>
         ) : (
           <div className="map-page__empty">
             <h1>City map</h1>
