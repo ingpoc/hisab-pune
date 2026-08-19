@@ -1,0 +1,29 @@
+# Hisab Pune — Render Blueprint
+#
+# Lives at the repo root (Render's default discovery path). The Node app is in
+# hisab-pune/, so the web service sets rootDir: hisab-pune.
+#
+# Free web service only. Postgres is Neon (external), not a Render database.
+# Set DATABASE_URL in the Dashboard to the Neon pooled connection string
+# (hostname contains `-pooler`, typically `sslmode=require`).
+#
+# No Render Postgres, disks, Key Value, cron, or paid instance types.
+# Free web: 512MB, ephemeral disk, spin-down after 15 min idle.
+
+services:
+  - type: web
+    name: hisab-pune
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: hisab-pune
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false

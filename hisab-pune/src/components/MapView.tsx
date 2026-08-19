@@ -1,16 +1,20 @@
 import { useEffect, useRef } from 'react';
-import { Map, Marker, NavigationControl } from 'maplibre-gl';
+import { Map, Marker, NavigationControl, type MapMouseEvent } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Locality, Report } from '../data/types';
 import { localities as allLocalities } from '../data/localities';
-import { loadWardGeoJSON } from '../lib/wardsGeo';
+import { electoralWards } from '../data/electoralWards';
+import { loadWardGeoJSON, wardIdAt } from '../lib/wardsGeo';
 import './MapView.css';
+
+export type UnmappedWard = { id: number; name: string };
 
 interface Props {
   reports: Report[];
   localities: Locality[];
   selectedId?: string | null;
   onSelectLocality: (id: string) => void;
+  onUnmappedWard?: (ward: UnmappedWard) => void;
   onSelectReport?: (id: string) => void;
   focus?: { lat: number; lng: number } | null;
   selectedWardId?: number | null;
@@ -22,11 +26,19 @@ const STATUS_COLOR: Record<Report['status'], string> = {
   resolved: '#2a9d6e',
 };
 
+function wardDisplayName(wardId: number, geoName?: unknown): string {
+  const roster = electoralWards.find((w) => w.id === wardId);
+  if (roster?.name) return roster.name;
+  if (typeof geoName === 'string' && geoName.trim()) return geoName;
+  return `Ward ${wardId}`;
+}
+
 export function MapView({
   reports,
   localities,
   selectedId,
   onSelectLocality,
+  onUnmappedWard,
   onSelectReport,
   focus,
   selectedWardId,
@@ -37,6 +49,8 @@ export function MapView({
   const localityMarkersRef = useRef<Marker[]>([]);
   const selectRef = useRef(onSelectLocality);
   selectRef.current = onSelectLocality;
+  const unmappedRef = useRef(onUnmappedWard);
+  unmappedRef.current = onUnmappedWard;
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -99,13 +113,24 @@ export function MapView({
           });
         }
 
-        map.on('click', 'wards-fill', (e) => {
-          const wid = e.features?.[0]?.properties?.wardId;
-          if (typeof wid !== 'number' && typeof wid !== 'string') return;
-          const wardId = Number(wid);
+        const onWardClick = (e: MapMouseEvent) => {
+          const wardId = wardIdAt(e.lngLat.lng, e.lngLat.lat, fc);
+          if (wardId == null) return;
           const match = allLocalities.find((l) => l.electoralWardId === wardId);
-          if (match) selectRef.current(match.id);
-        });
+          if (match) {
+            selectRef.current(match.id);
+            return;
+          }
+          const geoName = fc.features.find((f) => f.properties.wardId === wardId)?.properties.name;
+          unmappedRef.current?.({
+            id: wardId,
+            name: wardDisplayName(wardId, geoName),
+          });
+        };
+        // Point-in-polygon on the click lng/lat. Layer queryRenderedFeatures is
+        // empty while OSM tiles/WebGL are still settling, which made polygon
+        // clicks a silent no-op.
+        map.on('click', onWardClick);
         map.on('mouseenter', 'wards-fill', () => {
           map.getCanvas().style.cursor = 'pointer';
         });

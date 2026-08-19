@@ -46,6 +46,39 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByRole('heading', { name: /report a blackspot/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /use my location/i })).toBeVisible();
+    await expect(page.getByText(/Location is required; photo is optional/i)).toBeVisible();
+  });
+
+  test('mobile menu reaches Map, Localities, Wards, How, and Report', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await expect(page.getByRole('link', { name: 'Report garbage' })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Primary' })).toBeHidden();
+    await page.getByRole('button', { name: 'Open menu' }).click();
+    await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible();
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Wards' }).click();
+    await expect(page).toHaveURL(/\/wards/);
+    await page.getByRole('button', { name: 'Open menu' }).click();
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'How it works' }).click();
+    await expect(page).toHaveURL(/\/how/);
+    await page.getByRole('button', { name: 'Open menu' }).click();
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Map' }).click();
+    await expect(page).toHaveURL(/\/map/);
+    await page.getByRole('button', { name: 'Open menu' }).click();
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Localities' }).click();
+    await expect(page).toHaveURL(/\/localities/);
+    await page.getByRole('link', { name: 'Report garbage' }).click();
+    await expect(page).toHaveURL(/report=1/);
+  });
+
+  test('how page loads live freshness and does not claim no backend', async ({ page }) => {
+    const freshness = page.waitForResponse((res) => res.url().includes('/v1/freshness'));
+    await page.goto('/how');
+    const res = await freshness;
+    expect(res.ok()).toBeTruthy();
+    await expect(page.getByText(/Live backend roster/i)).toBeVisible();
+    await expect(page.getByText(/localStorage/i)).toHaveCount(0);
+    await expect(page.getByText(/Next: live backend/i)).toHaveCount(0);
   });
 
   test('nav Localities click navigates (real link)', async ({ page }) => {

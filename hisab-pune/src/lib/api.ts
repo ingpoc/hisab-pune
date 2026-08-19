@@ -80,8 +80,27 @@ export async function createReport(input: {
   return { report: toClientReport(data.report), here: data.here };
 }
 
-export async function fetchFreshness() {
+export type FreshnessSource = {
+  id: string;
+  title: string;
+  url: string;
+  usedFor: string;
+};
+
+export type Freshness = {
+  language: string;
+  seededAt: string | null;
+  roles: Array<{
+    role: string;
+    count: number;
+    oldestSource: string | null;
+    newestSource: string | null;
+  }>;
+  sources: FreshnessSource[];
+};
+
+export async function fetchFreshness(): Promise<Freshness> {
   const res = await fetch(`${API}/v1/freshness`);
   if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  return res.json() as Promise<Freshness>;
 }
