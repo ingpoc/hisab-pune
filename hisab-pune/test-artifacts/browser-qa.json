@@ -1,0 +1,209 @@
+{
+  "homeProof": [
+    {
+      "text": "30 localities mapped",
+      "opacity": "0",
+      "visibility": "visible"
+    },
+    {
+      "text": "165 corporators from 2026 poll",
+      "opacity": "0",
+      "visibility": "visible"
+    },
+    {
+      "text": "11 demo open reports",
+      "opacity": "0",
+      "visibility": "visible"
+    }
+  ],
+  "homeWhyCopy": {
+    "text": "THE PROBLEM\n\nElected and appointed people stay invisible when streets fail.\n\nComplaints vanish into apps and helplines. Hisab makes the chain public: who owns the shift, who owns the ward, who owns th",
+    "opacity": "1",
+    "childOpacities": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ]
+  },
+  "homeWhyStack": [
+    {
+      "text": "Street report",
+      "opacity": "0"
+    },
+    {
+      "text": "Named ladder",
+      "opacity": "0"
+    },
+    {
+      "text": "Public X thread",
+      "opacity": "0"
+    }
+  ],
+  "heroSteps": [
+    "01\nSWM desk",
+    "02\nWard office",
+    "03\nCorporators",
+    "04\nMLA",
+    "05\nCommissioner"
+  ],
+  "navLinksDesktop": [
+    {
+      "text": "Map",
+      "href": "/map",
+      "display": "block"
+    },
+    {
+      "text": "Localities",
+      "href": "/localities",
+      "display": "block"
+    },
+    {
+      "text": "Wards",
+      "href": "/wards",
+      "display": "block"
+    },
+    {
+      "text": "How it works",
+      "href": "/how",
+      "display": "block"
+    }
+  ],
+  "howV1": [
+    "http://127.0.0.1:5173/v1/reports",
+    "http://127.0.0.1:5173/v1/reports",
+    "http://127.0.0.1:5173/v1/reports",
+    "http://127.0.0.1:5173/v1/reports",
+    "http://127.0.0.1:5173/v1/reports",
+    "http://127.0.0.1:5173/v1/reports"
+  ],
+  "howLocalStorageCopy": 1,
+  "howLiveBackendCopy": 1,
+  "howSourceLinks": [
+    {
+      "href": "https://en.wikipedia.org/wiki/2026_Pune_Municipal_Corporation_election",
+      "text": "2026 PMC election — ward-wise winners"
+    },
+    {
+      "href": "https://data.opencity.in/dataset/pmc-election-results-2026",
+      "text": "OpenCity — PMC Election Results 2026 (SEC gazette)"
+    },
+    {
+      "href": "https://data.opencity.in/dataset/pune-wards-info",
+      "text": "OpenCity — PMC Electoral Wards 2025 (final_41wardboundary)"
+    },
+    {
+      "href": "https://thekarbhari.com/pmc-ward-committee-ward-committees-circles-and-regional-offices-attached-to-them-established-as-per-ward-structure-order-issued-by-municipal-commissioner/",
+      "text": "PMC ward-committee / regional office order (post Jan 2026)"
+    },
+    {
+      "href": "https://timesofindia.indiatimes.com/city/pune/mechanised-waste-collection-new-segregation-rules-take-centre-stage-at-wadgaonsheri-civic-meet/articleshow/128923509.cms",
+      "text": "SWM head — Avinash Sakpal (Mar 2026 reporting)"
+    },
+    {
+      "href": "https://www.hindustantimes.com/india-news/pune-election-2024-results-ajit-pawar-baramati-chandrakant-patil-yugendra-pawar-sharad-pawar-live-updates-latest-news-101732316552705.html",
+      "text": "Sitting MLAs — 15th Maharashtra Assembly (elected 2024)"
+    },
+    {
+      "href": "https://www.business-standard.com/india-news/bjp-s-manjusha-nagpure-elected-as-pune-mayor-rpi-a-s-wadekar-dy-mayor-126020900436_1.html",
+      "text": "Mayor / Deputy Mayor (Feb 2026)"
+    },
+    {
+      "href": "https://www.hindustantimes.com/cities/pune-news/pmc-proposes-13-995-crore-budget-with-focus-on-urban-mobility-101773082437226.html",
+      "text": "Municipal Commissioner Naval Kishore Ram (2026)"
+    },
+    {
+      "href": "https://x.com/PMCPune",
+      "text": "Public X accounts"
+    }
+  ],
+  "mapLayers": {
+    "canvas": true,
+    "locMarkers": 30,
+    "pins": 12
+  },
+  "wardLayer": {
+    "legend": "Open\nEscalated\nLocality\n41 ward polygons (2026 election)"
+  },
+  "ladderAfterSideClick": "Aundh",
+  "xIntent": "https://twitter.com/intent/tweet?text=Garbage%20issue%20in%20Aundh%2C%20Pune%20(Ward%208).%0AOverflowing%20bins%20near%20the%20market%20%E2%80%94%20test%20report%20from%20QA.%0AEscalation%20ladder%20is%20public%20on%20Hisab.%20%40PMCPune%20%40MDNagpure%20%40SidShirole%20%40mohol_murlidhar%0A%23HisabPune%20%23PuneGarbage",
+  "telLinks": [
+    "tel:1800-103-0222",
+    "tel:1800-103-0222",
+    "tel:020-25501100"
+  ],
+  "mailtoLinks": [
+    "mailto:swm@punecorporation.org"
+  ],
+  "xProfileLinks": [
+    "https://x.com/PMCPune",
+    "https://x.com/PMCPune",
+    "https://x.com/SidShirole",
+    "https://x.com/MDNagpure",
+    "https://x.com/PMCPune",
+    "https://x.com/mohol_murlidhar"
+  ],
+  "wardCards": 41,
+  "wardsWithoutLocality": 14,
+  "wardEyebrow": "PMC 2026",
+  "wardH1": "All 41 electoral wards · 165 corporators",
+  "sampleMuted": "No named locality pin yet — add centroid mapping next.",
+  "sampleLinked": {
+    "text": "Dhanori / Kalas",
+    "href": "/locality/dhanori"
+  },
+  "localityCards": 30,
+  "devanagariPaths": [],
+  "desktopConsole": [
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x128400161400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x128400161400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x128400161400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "type": "warning",
+      "text": "[.WebGL-0x128400161400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ],
+  "mobileNavDisplay": "none",
+  "mobileHomeLinks": [
+    "/",
+    "/map",
+    "/localities",
+    "/wards",
+    "/how",
+    "/map?report=1",
+    "/locality/baner",
+    "/locality/balewadi",
+    "/locality/pashan",
+    "/locality/aundh",
+    "/locality/kothrud",
+    "/locality/bavdhan",
+    "/locality/shivajinagar",
+    "/locality/deccan"
+  ],
+  "mobileHomeProofOpacity": [
+    {
+      "text": "30 localities mapped",
+      "opacity": "0"
+    },
+    {
+      "text": "165 corporators from 2026 poll",
+      "opacity": "0"
+    },
+    {
+      "text": "11 demo open reports",
+      "opacity": "0"
+    }
+  ],
+  "mobileDialog": true,
+  "mobileLadder": "Aundh",
+  "mobileConsole": []
+}
