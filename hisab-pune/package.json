@@ -9,13 +9,14 @@
   "scripts": {
     "dev": "concurrently -k -n web,api -c cyan,magenta \"vite\" \"tsx server/src/index.ts\"",
     "build": "tsc -b && vite build",
+    "start": "tsx server/src/index.ts",
     "lint": "oxlint",
     "preview": "vite preview",
     "dev:web": "vite",
     "dev:api": "tsx server/src/index.ts",
     "seed": "tsx server/src/scripts/seed.ts",
     "grade": "tsx graders/run.ts",
-    "test:api": "tsx --test server/src/**/*.test.ts",
+    "test:api": "tsx --test \"server/src/**/*.test.ts\"",
     "test:e2e": "playwright test",
     "test": "npm run seed && npm run test:api",
     "ci": "npm run lint && npm run grade && npm run test && npm run build"
@@ -23,6 +24,8 @@
   "dependencies": {
     "@hono/node-server": "^2.1.0",
     "better-sqlite3": "^13.0.3",
+    "pg": "^8.16.3",
+    "tsx": "^4.23.9",
     "gsap": "^3.15.0",
     "hono": "^4.13.0",
     "maplibre-gl": "^6.1.0",
@@ -33,6 +36,7 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "^9.6.0",
+    "@types/pg": "^8.15.6",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
@@ -40,7 +44,6 @@
     "concurrently": "^10.0.4",
     "oxlint": "^1.75.0",
     "@playwright/test": "^1.55.0",
-    "tsx": "^4.23.9",
     "typescript": "~6.0.2",
     "vite": "^8.2.0",
     "vitest": "^4.1.10"

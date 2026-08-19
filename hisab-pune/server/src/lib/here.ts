@@ -1,4 +1,4 @@
-import type Database from 'better-sqlite3';
+import type { Db } from '../db/client.ts';
 import type { FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 import { wardIdAt, loadWardGeomsFromFC, type WardGeom } from './geo.ts';
 import { buildEscalation, widgetEscalation } from './escalation.ts';
@@ -18,9 +18,9 @@ type WardRow = { id: number; name: string; geometry_json: string };
 
 let wardCache: WardGeom[] | null = null;
 
-export function loadWards(db: Database.Database): WardGeom[] {
+export async function loadWards(db: Db): Promise<WardGeom[]> {
   if (wardCache) return wardCache;
-  const rows = db.prepare('SELECT id, name, geometry_json FROM wards').all() as WardRow[];
+  const rows = await db.all<WardRow>('SELECT id, name, geometry_json FROM wards');
   const fc: FeatureCollection<Polygon | MultiPolygon, { wardId: number; name: string }> = {
     type: 'FeatureCollection',
     features: rows.map((r) => ({
@@ -37,20 +37,17 @@ export function invalidateWardCache(): void {
   wardCache = null;
 }
 
-function nearestLocality(
-  db: Database.Database,
+async function nearestLocality(
+  db: Db,
   lat: number,
   lng: number,
   wardId?: number | null,
-): LocalityRow {
-  const rows = (
+): Promise<LocalityRow> {
+  const rows =
     wardId != null
-      ? (db
-          .prepare('SELECT * FROM localities WHERE ward_id = ?')
-          .all(wardId) as LocalityRow[])
-      : (db.prepare('SELECT * FROM localities').all() as LocalityRow[])
-  );
-  const pool = rows.length ? rows : (db.prepare('SELECT * FROM localities').all() as LocalityRow[]);
+      ? await db.all<LocalityRow>('SELECT * FROM localities WHERE ward_id = ?', [wardId])
+      : await db.all<LocalityRow>('SELECT * FROM localities');
+  const pool = rows.length ? rows : await db.all<LocalityRow>('SELECT * FROM localities');
   let best = pool[0];
   let bestD = Infinity;
   for (const loc of pool) {
@@ -63,33 +60,32 @@ function nearestLocality(
   return best;
 }
 
-export function resolveHere(db: Database.Database, lat: number, lng: number) {
-  const wards = loadWards(db);
+export async function resolveHere(db: Db, lat: number, lng: number) {
+  const wards = await loadWards(db);
   const wardId = wardIdAt(lng, lat, wards);
-  const locality = nearestLocality(db, lat, lng, wardId);
-  const wardName =
-    (wardId != null
-      ? (db.prepare('SELECT name FROM wards WHERE id = ?').get(wardId) as { name: string } | undefined)
-          ?.name
-      : null) ??
-    (db.prepare('SELECT name FROM wards WHERE id = ?').get(locality.ward_id) as { name: string })
-      .name;
+  const locality = await nearestLocality(db, lat, lng, wardId);
+  const named =
+    wardId != null
+      ? await db.get<{ name: string }>('SELECT name FROM wards WHERE id = ?', [wardId])
+      : undefined;
+  const fallback = await db.get<{ name: string }>('SELECT name FROM wards WHERE id = ?', [
+    locality.ward_id,
+  ]);
+  const wardName = named?.name ?? fallback?.name ?? '';
 
   const effectiveWardId = wardId ?? locality.ward_id;
-  const escalation = buildEscalation(db, {
+  const escalation = await buildEscalation(db, {
     wardId: effectiveWardId,
     officeId: locality.office_id,
     assemblyKey: locality.assembly_key,
   });
 
-  const boundary = db
-    .prepare('SELECT id, label, source_url, effective_from FROM boundary_versions LIMIT 1')
-    .get() as {
+  const boundary = await db.get<{
     id: string;
     label: string;
     source_url: string | null;
     effective_from: string;
-  };
+  }>('SELECT id, label, source_url, effective_from FROM boundary_versions LIMIT 1');
 
   return {
     locality: {
@@ -113,7 +109,7 @@ export function resolveHere(db: Database.Database, lat: number, lng: number) {
       })),
     },
     resolvedAt: new Date().toISOString(),
-    boundaryVersion: boundary.id,
-    boundaryLabel: boundary.label,
+    boundaryVersion: boundary?.id ?? '',
+    boundaryLabel: boundary?.label ?? '',
   };
 }

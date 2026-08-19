@@ -9,14 +9,32 @@ Public transparency for who answers when a Pune street stays dirty.
 ```bash
 cd hisab-pune
 npm install
-npm run seed          # SQLite + 2026 roster / wards
+npm run seed          # SQLite + 2026 roster / wards (wipes local SQLite)
 npm run dev           # web :5173 + API :8787
 ```
 
 ```bash
 npm run test:api
 npm run build
+npm start             # production: API + Vite dist on 0.0.0.0:$PORT (default 8787)
 ```
+
+## Render
+
+Blueprint is **`render.yaml` at the repo root** (not in this folder). Render `rootDir` is `hisab-pune`.
+
+| Script | What it does |
+|--------|----------------|
+| `npm run build` | `tsc -b && vite build` (CI + Render build) |
+| `npm start` | Hono on `0.0.0.0` / `$PORT`; migrates; seeds empty Postgres; serves `/v1`, `/health`, and `dist` |
+| `npm run seed` | Local: recreate SQLite. With `DATABASE_URL`: idempotent Postgres seed |
+| `npm run dev` | Vite + API for local development (SQLite) |
+
+When `DATABASE_URL` is set (Render), the server uses the `pg` driver. Without it, local SQLite at `server/data/hisab.sqlite` is unchanged.
+
+Free-tier limits: 512MB RAM, ephemeral disk, spin-down after 15 minutes idle. Do not attach a persistent disk.
+
+This Render workspace already has one free Postgres (`agentguard-preprod-postgres`). Creating `hisab-pune-db` from the Blueprint may require replacing that instance.
 
 ## CI/CD
 
@@ -45,7 +63,7 @@ Branch protection on `main` requires the **Lint, test & build** check.
 ## Stack
 
 - Web: Vite + React + TypeScript + MapLibre + **GSAP** (hero / ladder / page motion)
-- API: Hono + SQLite (Postgres-ready schema) — `GET /v1/here`, reports, freshness, SLA
+- API: Hono + SQLite locally; Postgres (`pg`) when `DATABASE_URL` is set — `GET /v1/here`, reports, freshness, SLA
 - iOS: SwiftUI + WidgetKit scaffold under `ios/` (build on Mac/Xcode)
 
 ## Docs

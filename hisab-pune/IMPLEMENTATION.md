@@ -4,8 +4,8 @@ Status owner: this file + `ARCHITECTURE.md`.
 Language: **English only** for names, UI, and API payloads.
 
 ## Phase A — Backend v1
-- [x] SQLite DB with versioned roster + reports + events (Postgres-shaped schema)
-- [x] Seed 2026 wards / corporators / offices / city leaders + GeoJSON
+- [x] SQLite locally + Postgres when `DATABASE_URL` is set (same schema; `pg` driver)
+- [x] Seed 2026 wards / corporators / offices / city leaders + GeoJSON (idempotent on Postgres)
 - [x] `GET /v1/here?lat=&lng=`
 - [x] `GET/POST /v1/reports` + moderation / SLA fields
 - [x] `GET /v1/wards/:id` escalation
@@ -29,5 +29,5 @@ Language: **English only** for names, UI, and API payloads.
 - Election scorecards
 
 ## Environment note
-No Docker/Postgres in this cloud VM → **SQLite + in-process PIP** for v1.
-Schema and routes stay portable to PostGIS.
+Local/dev: **SQLite**. Render: **Postgres** via `DATABASE_URL` (see repo-root `render.yaml`).
+Schema and routes stay portable; PostGIS is still a later upgrade.

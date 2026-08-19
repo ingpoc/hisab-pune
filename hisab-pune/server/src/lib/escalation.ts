@@ -1,4 +1,4 @@
-import type Database from 'better-sqlite3';
+import type { Db } from '../db/client.ts';
 
 export type EscalationPerson = {
   id: string;
@@ -73,18 +73,16 @@ function mapRow(r: RoleRow): EscalationPerson {
 }
 
 /** Active roles only (effective_to IS NULL). */
-export function buildEscalation(
-  db: Database.Database,
+export async function buildEscalation(
+  db: Db,
   opts: { wardId: number; officeId: string; assemblyKey: string },
-): EscalationPerson[] {
-  const active = db
-    .prepare(
-      `SELECT r.*, o.name AS name
-       FROM official_roles r
-       JOIN officials o ON o.id = r.official_id
-       WHERE r.effective_to IS NULL`,
-    )
-    .all() as RoleRow[];
+): Promise<EscalationPerson[]> {
+  const active = await db.all<RoleRow>(
+    `SELECT r.*, o.name AS name
+     FROM official_roles r
+     JOIN officials o ON o.id = r.official_id
+     WHERE r.effective_to IS NULL`,
+  );
 
   const out: EscalationPerson[] = [];
 
@@ -107,7 +105,6 @@ export function buildEscalation(
     if (row) out.push(mapRow(row));
   }
 
-  // stable order safety
   out.sort(
     (a, b) =>
       ROLE_ORDER.indexOf(a.role as (typeof ROLE_ORDER)[number]) -
