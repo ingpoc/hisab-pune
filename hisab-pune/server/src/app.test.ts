@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { openDatabase, migrate } from './db/schema.ts';
 import { toPgPlaceholders } from './db/client.ts';
 import { createApp } from './app.ts';
-import { mountSpa } from './spa.ts';
+import { mountSpa, staticRootFrom } from './spa.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDb = path.resolve(__dirname, '../data/hisab.sqlite');
@@ -76,19 +76,54 @@ describe('Hisab API', () => {
     await db.close();
   });
 
+  it('maps an absolute dist dir to a cwd-relative serveStatic root', () => {
+    assert.equal(staticRootFrom('/app/dist', '/app'), 'dist');
+    assert.equal(staticRootFrom('/app', '/app'), '.');
+  });
+
   it('SPA fallback serves index.html for client routes', async () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hisab-spa-'));
     fs.writeFileSync(path.join(tmp, 'index.html'), '<!doctype html><title>Hisab</title>');
+    fs.mkdirSync(path.join(tmp, 'assets'));
+    fs.writeFileSync(path.join(tmp, 'assets', 'app.js'), 'console.log(1)');
+    fs.writeFileSync(path.join(tmp, 'favicon.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
     const db = await openDatabase({ sqlitePath: rootDb });
     const app = createApp(db);
     mountSpa(app, tmp);
+
+    const home = await app.request('http://local/');
+    assert.equal(home.status, 200);
+    assert.match(await home.text(), /Hisab/);
+
     const res = await app.request('http://local/wards');
     assert.equal(res.status, 200);
     assert.match(await res.text(), /Hisab/);
+
+    const asset = await app.request('http://local/assets/app.js');
+    assert.equal(asset.status, 200);
+    assert.equal(await asset.text(), 'console.log(1)');
+
+    const missingAsset = await app.request('http://local/assets/missing.js');
+    assert.equal(missingAsset.status, 404);
+    assert.equal(missingAsset.headers.get('content-type')?.includes('text/html'), false);
+    assert.doesNotMatch(await missingAsset.text(), /<!doctype html>/i);
+
+    const favicon = await app.request('http://local/favicon.svg');
+    assert.equal(favicon.status, 200);
+
     const health = await app.request('http://local/health');
     assert.equal(health.status, 200);
+    const healthBody = (await health.json()) as { ok: boolean };
+    assert.equal(healthBody.ok, true);
+
+    const here = await app.request('http://local/v1/here?lat=18.559&lng=73.7867');
+    assert.equal(here.status, 200);
+
     const api404 = await app.request('http://local/v1/does-not-exist');
     assert.equal(api404.status, 404);
+    const apiBody = await api404.text();
+    assert.doesNotMatch(apiBody, /<!doctype html>/i);
+
     await db.close();
     fs.rmSync(tmp, { recursive: true, force: true });
   });

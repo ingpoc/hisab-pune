@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { localities, nearestLocality, localityForWard } from '../data/localities';
 import type { Report } from '../data/types';
 import { createReport, fetchHere } from '../lib/api';
@@ -23,6 +23,7 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
   const [locating, setLocating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const locateGen = useRef(0);
 
   useEffect(() => {
     if (!coords) {
@@ -67,6 +68,7 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
     : null;
 
   function locate() {
+    const gen = ++locateGen.current;
     setLocating(true);
     setError(null);
     if (!navigator.geolocation) {
@@ -77,10 +79,13 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (gen !== locateGen.current) return;
+        setError(null);
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setLocating(false);
       },
       () => {
+        if (gen !== locateGen.current) return;
         setError('Could not read GPS. Using Pune centre — adjust if needed.');
         setCoords({ lat: 18.5204, lng: 73.8567 });
         setLocating(false);
@@ -161,12 +166,12 @@ export function ReportModal({ open, onClose, onCreated }: Props) {
         </header>
 
         <p className="modal__lead">
-          Photo + location → matched to the 2026 electoral ward polygon, then the
-          escalation ladder. No login required for this MVP.
+          Location is required; photo is optional. We match you to the 2026
+          electoral ward polygon, then the escalation ladder. No login required.
         </p>
 
         <label className="modal__field">
-          <span>Photo</span>
+          <span>Photo (optional)</span>
           <input
             type="file"
             accept="image/*"

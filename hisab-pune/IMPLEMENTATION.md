@@ -16,7 +16,7 @@ Language: **English only** for names, UI, and API payloads.
 - [x] Map/report flows use API (with local fallback)
 - [x] GSAP motion (hero, scroll sections, escalation ladder, page enter)
 - [x] Deterministic graders + Playwright smoke for browser-QA regressions
-- [ ] Freshness page fully driven by `/v1/freshness` (How page still uses static sources list)
+- [x] Freshness page fully driven by `/v1/freshness`
 
 ## Phase C — iOS scaffold
 - [x] Shared `HereSnapshot` + WidgetKit medium widget stub
