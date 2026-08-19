@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { LocalitySearch } from './LocalitySearch';
 import './Nav.css';
 
 export function Nav() {
@@ -45,8 +46,9 @@ export function Nav() {
         <NavLink to="/wards">Wards</NavLink>
         <NavLink to="/how">How it works</NavLink>
       </nav>
+      <LocalitySearch variant="nav" placeholder="Find locality…" />
       <NavLink to="/map?report=1" className="nav__cta">
-        Report garbage
+        Report issue
       </NavLink>
     </header>
   );

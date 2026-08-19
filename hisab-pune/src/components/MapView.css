@@ -74,7 +74,7 @@
 }
 
 .map-loc.is-active {
-  background: var(--signal);
+  background: var(--brand);
   transform: scale(1.35);
   border-color: var(--ink);
 }

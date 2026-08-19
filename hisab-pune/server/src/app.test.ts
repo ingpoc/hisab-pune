@@ -53,11 +53,13 @@ describe('Hisab API', () => {
     assert.equal(res.status, 200);
     const body = await res.json();
     assert.ok(body.reports.length > 0);
+    assert.equal('author_user_id' in body.reports[0], false);
     await db.close();
   });
 
-  it('creates a report', async () => {
+  it('creates a report without a session', async () => {
     const db = await openDatabase({ sqlitePath: rootDb });
+    await migrate(db);
     const app = createApp(db);
     const res = await app.request('http://local/v1/reports', {
       method: 'POST',
@@ -73,6 +75,60 @@ describe('Hisab API', () => {
     assert.ok(body.report.id);
     assert.equal(body.report.status, 'open');
     assert.ok(body.report.sla_due_at);
+    await db.close();
+  });
+
+  it('creates a report with session and category', async () => {
+    const db = await openDatabase({ sqlitePath: rootDb });
+    await migrate(db);
+    const app = createApp(db);
+    const session = await app.request('http://local/v1/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+    assert.equal(session.status, 201);
+    const { sessionToken, anonymousPostingId } = (await session.json()) as {
+      sessionToken: string;
+      anonymousPostingId: string;
+    };
+    assert.ok(anonymousPostingId.startsWith('R-'));
+    const res = await app.request('http://local/v1/reports', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Hisab-Session': sessionToken,
+      },
+      body: JSON.stringify({
+        lat: 18.5074,
+        lng: 73.8077,
+        note: 'Session report near Kothrud for API validation.',
+        categoryId: 'solid_waste',
+      }),
+    });
+    assert.equal(res.status, 201);
+    const body = await res.json();
+    assert.equal(body.report.category_id, 'solid_waste');
+    assert.ok(body.report.author_label?.startsWith('R-'));
+    assert.equal(body.report.publish_as, 'anonymous');
+    assert.equal('author_user_id' in body.report, false);
+    await db.close();
+  });
+
+  it('lists locality reports and city signal', async () => {
+    const db = await openDatabase({ sqlitePath: rootDb });
+    await migrate(db);
+    const app = createApp(db);
+    const cats = await app.request('http://local/v1/categories');
+    assert.equal(cats.status, 200);
+    const loc = await app.request('http://local/v1/localities/baner/reports');
+    assert.equal(loc.status, 200);
+    const locBody = await loc.json();
+    assert.ok(Array.isArray(locBody.reports));
+    const signal = await app.request('http://local/v1/signal/city');
+    assert.equal(signal.status, 200);
+    const signalBody = await signal.json();
+    assert.ok(Array.isArray(signalBody.byCategory));
     await db.close();
   });
 

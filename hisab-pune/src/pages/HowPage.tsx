@@ -9,19 +9,19 @@ import './HowPage.css';
 const steps = [
   {
     title: 'Pin the problem',
-    body: 'Share your location (required) and optionally a photo. We match it to the 2026 electoral ward polygon, then the nearest mapped locality.',
+    body: 'Share your location (required) and optionally a photo. We match the nearest locality and show it on the city ledger.',
   },
   {
-    title: 'See the ladder',
-    body: 'Solid-waste desk → Assistant Municipal Commissioner (ward office) → every corporator for that electoral ward → MLA → deputy mayor → mayor → municipal commissioner → MP.',
+    title: 'Read the ledger',
+    body: 'Open and closed issues for that street first — counts and notes before any contact list.',
   },
   {
-    title: 'Act on X',
-    body: 'One tap opens a draft that tags public handles (@PMCPune, MLA, MP, Mayor where known). Visibility is the enforcement layer.',
+    title: 'Open the ladder when you need it',
+    body: 'SWM desk → ward office → corporators → MLA → mayor → commissioner → MP. Names and handles stay collapsed until you expand.',
   },
   {
-    title: 'Keep the ledger',
-    body: 'Open, escalated, resolved — public status so the city can see which areas are ignored. New reports go to the live API (`POST /v1/reports`).',
+    title: 'Act on X (or CARE)',
+    body: 'Escalate with a tagged draft, or file on PMC CARE yourself and paste the real ticket number back on Hisab.',
   },
 ];
 

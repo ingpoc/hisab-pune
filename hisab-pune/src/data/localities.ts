@@ -341,6 +341,42 @@ export function getLocality(id: string): Locality | undefined {
   return localities.find((l) => l.id === id);
 }
 
+/** Ranked typeahead over name, zone, ward id, and slug. */
+export function searchLocalities(query: string, limit = 8): Locality[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+
+  const scored = localities
+    .map((loc) => {
+      const name = loc.name.toLowerCase();
+      const zone = loc.zone.toLowerCase();
+      const ward = String(loc.electoralWardId);
+      let score = 0;
+      if (name === q) score = 100;
+      else if (name.startsWith(q)) score = 80;
+      else if (name.includes(q)) score = 60;
+      else if (loc.id.includes(q)) score = 50;
+      else if (zone.includes(q)) score = 40;
+      else if (ward === q || `ward ${ward}`.includes(q)) score = 30;
+      return { loc, score };
+    })
+    .filter((row) => row.score > 0)
+    .sort(
+      (a, b) =>
+        b.score - a.score || a.loc.name.localeCompare(b.loc.name),
+    );
+
+  return scored.slice(0, limit).map((row) => row.loc);
+}
+
+/** High-signal shortcuts when the search field is open but empty. */
+export const SUGGESTED_LOCALITY_IDS = [
+  'baner',
+  'aundh',
+  'kothrud',
+  'hadapsar',
+] as const;
+
 export function nearestLocality(lat: number, lng: number): Locality {
   let best = localities[0];
   let bestD = Infinity;

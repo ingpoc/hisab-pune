@@ -18,31 +18,47 @@ export function HomePage() {
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from('.home-proof__stat', {
-        scrollTrigger: { trigger: proofRef.current, start: 'top 85%' },
-        y: 22,
-        opacity: 0,
-        duration: 0.55,
-        stagger: 0.1,
-        ease: 'power2.out',
-      });
+      const mm = gsap.matchMedia();
 
-      gsap.from('.home-why__copy > *', {
-        scrollTrigger: { trigger: whyRef.current, start: 'top 80%' },
-        y: 16,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.08,
-        ease: 'power2.out',
-      });
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.from('.home-proof__stat', {
+          scrollTrigger: {
+            trigger: proofRef.current,
+            start: 'top 85%',
+            once: true,
+          },
+          y: 18,
+          opacity: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+        });
 
-      gsap.from('.home-why__stack span', {
-        scrollTrigger: { trigger: whyRef.current, start: 'top 75%' },
-        x: 24,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.12,
-        ease: 'power3.out',
+        gsap.from('.home-why__copy > *', {
+          scrollTrigger: {
+            trigger: whyRef.current,
+            start: 'top 80%',
+            once: true,
+          },
+          y: 14,
+          opacity: 0,
+          duration: 0.45,
+          stagger: 0.07,
+          ease: 'power2.out',
+        });
+
+        gsap.from('.home-why__rail span', {
+          scrollTrigger: {
+            trigger: whyRef.current,
+            start: 'top 75%',
+            once: true,
+          },
+          x: 20,
+          opacity: 0,
+          duration: 0.45,
+          stagger: 0.1,
+          ease: 'power3.out',
+        });
       });
     });
 
@@ -53,61 +69,41 @@ export function HomePage() {
     <main>
       <Hero />
 
-      <section className="home-proof" ref={proofRef}>
+      <section className="home-proof" ref={proofRef} aria-label="Coverage">
         <div className="home-proof__stat">
           <strong>{localities.length}</strong>
           <span>localities mapped</span>
         </div>
         <div className="home-proof__stat">
           <strong>{corporators}</strong>
-          <span>corporators from 2026 poll</span>
+          <span>corporators · 2026 poll</span>
         </div>
         <div className="home-proof__stat">
           <strong>{open}</strong>
-          <span>demo open reports</span>
+          <span>open demo reports</span>
         </div>
       </section>
 
       <section className="home-why" ref={whyRef}>
         <div className="home-why__copy">
-          <p className="eyebrow">The problem</p>
-          <h2>Elected and appointed people stay invisible when streets fail.</h2>
+          <p className="eyebrow">Mechanism</p>
+          <h2>Name the chain. Make the pressure public.</h2>
           <p>
-            Complaints vanish into apps and helplines. Hisab makes the chain public:
-            who owns the shift, who owns the ward, who owns the assembly seat — then
-            puts their X handles one tap away.
+            Helplines hide faces. Hisab maps each street to sanitation, ward
+            office, corporators, MLA, mayor, and commissioner — then puts their
+            handles one tap away on X.
           </p>
           <Link to="/how" className="text-link">
             How escalation works →
           </Link>
         </div>
         <div className="home-why__visual" aria-hidden>
-          <div className="home-why__stack">
+          <div className="home-why__rail">
             <span>Street report</span>
             <span>Named ladder</span>
             <span>Public X thread</span>
           </div>
         </div>
-      </section>
-
-      <section className="home-localities">
-        <header>
-          <p className="eyebrow">Start somewhere</p>
-          <h2>Pick a locality</h2>
-        </header>
-        <ul className="home-localities__grid">
-          {localities.slice(0, 8).map((loc) => (
-            <li key={loc.id}>
-              <Link to={`/locality/${loc.id}`}>
-                <strong>{loc.name}</strong>
-                <span>Ward {loc.electoralWardId}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <Link to="/localities" className="btn btn--ink">
-          All localities
-        </Link>
       </section>
     </main>
   );

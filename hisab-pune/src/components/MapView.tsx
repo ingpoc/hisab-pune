@@ -21,9 +21,9 @@ interface Props {
 }
 
 const STATUS_COLOR: Record<Report['status'], string> = {
-  open: '#e23d28',
-  escalated: '#f0a202',
-  resolved: '#2a9d6e',
+  open: '#c62828',
+  escalated: '#a67c00',
+  resolved: '#2a7d5a',
 };
 
 function wardDisplayName(wardId: number, geoName?: unknown): string {
@@ -62,9 +62,13 @@ export function MapView({
         sources: {
           osm: {
             type: 'raster',
-            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tiles: [
+              'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+              'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+            ],
             tileSize: 256,
-            attribution: '© OpenStreetMap',
+            attribution: '© OpenStreetMap © CARTO',
           },
         },
         layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
@@ -107,8 +111,8 @@ export function MapView({
             source: 'wards',
             filter: ['==', ['get', 'wardId'], -1],
             paint: {
-              'fill-color': '#f0a202',
-              'fill-opacity': 0.22,
+              'fill-color': '#c62828',
+              'fill-opacity': 0.16,
             },
           });
         }
