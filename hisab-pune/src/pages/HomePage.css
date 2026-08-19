@@ -109,8 +109,11 @@
 }
 
 .text-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   margin-top: 1.25rem;
+  padding: 0.25rem 0;
   font-weight: 600;
   color: var(--ink);
   text-decoration: none;

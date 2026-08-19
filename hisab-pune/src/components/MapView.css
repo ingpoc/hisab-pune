@@ -36,6 +36,14 @@
   gap: 0.35rem;
 }
 
+@media (max-width: 960px) {
+  .map-shell__legend {
+    top: 0.65rem;
+    bottom: auto;
+    max-width: calc(100% - 4.25rem);
+  }
+}
+
 .map-shell__legend i {
   width: 0.55rem;
   height: 0.55rem;

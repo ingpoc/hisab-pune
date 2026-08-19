@@ -352,3 +352,43 @@
   font-weight: 600;
   text-underline-offset: 3px;
 }
+
+@media (max-width: 960px) {
+  .loc-panel {
+    /* Grow with content so the sheet body, not a nested clamp, is the scroller. */
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+    padding-bottom: 0.5rem;
+  }
+
+  .loc-panel__issues {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .loc-panel__issue-note {
+    display: block;
+    -webkit-line-clamp: unset;
+    overflow: visible;
+  }
+
+  .loc-panel__tabs button {
+    min-height: 44px;
+  }
+
+  .loc-panel__escalate-btn {
+    min-height: 44px;
+    justify-content: center;
+  }
+
+  .loc-panel__dismiss {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .loc-panel__text-btn {
+    min-height: 44px;
+    padding: 0.35rem 0;
+  }
+}

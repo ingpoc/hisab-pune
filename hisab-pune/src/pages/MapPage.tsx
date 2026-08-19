@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MapView, type UnmappedWard } from '../components/MapView';
 import { ReportModal } from '../components/ReportModal';
@@ -20,6 +20,9 @@ export function MapPage() {
   const [activeReportId, setActiveReportId] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(params.get('report') === '1');
   const [escalationOpen, setEscalationOpen] = useState(false);
+  const [sheetExpanded, setSheetExpanded] = useState(false);
+  const sheetDrag = useRef<{ y: number; id: number } | null>(null);
+  const skipSheetClick = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,7 +52,37 @@ export function MapPage() {
 
   useEffect(() => {
     setEscalationOpen(false);
+    setSheetExpanded(false);
   }, [selectedId]);
+
+  const onSheetHandlePointerDown = useCallback(
+    (e: PointerEvent<HTMLButtonElement>) => {
+      sheetDrag.current = { y: e.clientY, id: e.pointerId };
+      e.currentTarget.setPointerCapture(e.pointerId);
+    },
+    [],
+  );
+
+  const onSheetHandlePointerUp = useCallback(
+    (e: PointerEvent<HTMLButtonElement>) => {
+      const start = sheetDrag.current;
+      sheetDrag.current = null;
+      if (!start || start.id !== e.pointerId) return;
+      const dy = e.clientY - start.y;
+      if (Math.abs(dy) < 40) return;
+      skipSheetClick.current = true;
+      setSheetExpanded(dy < 0);
+    },
+    [],
+  );
+
+  const onSheetHandleClick = useCallback(() => {
+    if (skipSheetClick.current) {
+      skipSheetClick.current = false;
+      return;
+    }
+    setSheetExpanded((open) => !open);
+  }, []);
 
   const selected = selectedId ? getLocality(selectedId) : null;
   const activeReport = reports.find((r) => r.id === activeReportId);
@@ -137,7 +170,7 @@ export function MapPage() {
 
   return (
     <main
-      className={`map-page${escalationOpen && selected ? ' map-page--escalating' : ''}`}
+      className={`map-page${escalationOpen && selected ? ' map-page--escalating' : ''}${sheetExpanded ? ' map-page--sheet-expanded' : ''}`}
     >
       {escalationOpen && selected && (
         <aside className="map-page__escalate" aria-label="Escalation route">
@@ -164,6 +197,20 @@ export function MapPage() {
       </div>
 
       <aside className="map-page__side">
+        <button
+          type="button"
+          className="map-page__sheet-handle"
+          aria-expanded={sheetExpanded}
+          aria-controls="locality-sheet"
+          aria-label={sheetExpanded ? 'Collapse locality sheet' : 'Expand locality sheet'}
+          onPointerDown={onSheetHandlePointerDown}
+          onPointerUp={onSheetHandlePointerUp}
+          onClick={onSheetHandleClick}
+          onPointerCancel={() => {
+            sheetDrag.current = null;
+          }}
+        />
+        <div id="locality-sheet" className="map-page__sheet-body">
         {selected ? (
           <LocalitySidePanel
             locality={selected}
@@ -221,6 +268,7 @@ export function MapPage() {
             </ul>
           </div>
         )}
+        </div>
       </aside>
 
       <ReportModal
