@@ -8,7 +8,7 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
   test('home shows brand-level Hisab and CTAs', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.hero__brand')).toHaveText('Hisab');
-    await expect(page.getByRole('link', { name: 'Report a blackspot' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Report an issue' })).toBeVisible();
     await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible();
     // Real anchors (computerUse could not click non-anchors)
     await expect(page.locator('a.nav__brand')).toHaveAttribute('href', '/');
@@ -19,7 +19,7 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
   test('primary routes render expected content', async ({ page }) => {
     await page.goto('/localities');
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/locality/i);
-    await expect(page.locator('a[href^="/locality/"]').first()).toBeVisible();
+    await expect(page.locator('a[href^="/map?loc="]').first()).toBeVisible();
 
     await page.goto('/wards');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
@@ -30,10 +30,16 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     await expect(page.getByRole('heading', { level: 1 })).toContainText(/Transparency/i);
   });
 
-  test('locality detail shows escalation ladder', async ({ page }) => {
+  test('map locality ledger is the place surface (no separate full page)', async ({ page }) => {
     await page.goto('/locality/aundh');
-    await expect(page.getByText(/Aundh/i).first()).toBeVisible();
-    await expect(page.getByText(/SWM|Ward office|Corporator|MLA/i).first()).toBeVisible();
+    await expect(page).toHaveURL(/\/map\?loc=aundh/);
+    await expect(page.getByRole('heading', { level: 1, name: /Aundh/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole('tab', { name: /Open/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Report in Aundh/i })).toBeVisible();
+    await expect(page.getByText(/Escalation route/i).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Avinash Sakpal/i })).toHaveCount(0);
   });
 
   test('map page loads and report=1 opens modal', async ({ page }) => {
@@ -44,15 +50,53 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
 
     await page.goto('/map?report=1');
     await expect(page.getByRole('dialog')).toBeVisible();
-    await expect(page.getByRole('heading', { name: /report a blackspot/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /use my location/i })).toBeVisible();
-    await expect(page.getByText(/Location is required; photo is optional/i)).toBeVisible();
+    await expect(page.getByRole('heading', { name: /report an issue/i })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /use my location|refine with gps/i }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: /publish report/i })).toBeVisible();
+    await expect(page.getByRole('option', { name: /solid waste/i })).toBeVisible();
+    await expect(page.getByText(/photo \(optional\)/i)).toBeVisible();
+  });
+
+  test('hero locality search opens the map ledger', async ({ page }) => {
+    await page.goto('/');
+    await page.getByPlaceholder(/Baner, Kothrud, Hadapsar/i).fill('Baner');
+    await page.locator('.loc-search__pick').filter({ hasText: 'Baner' }).click();
+    await expect(page).toHaveURL(/\/map\?loc=baner/);
+    await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
+      timeout: 15_000,
+    });
+  });
+
+  test('map locality ledger shows Baner without auto-expanded ladder', async ({ page }) => {
+    await page.goto('/map?loc=baner');
+    await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole('tab', { name: /Open/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Report in Baner/i })).toBeVisible();
+    await expect(page.getByText(/Escalation route/i).first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Avinash Sakpal/i })).toHaveCount(0);
+    // No duplicate map FAB
+    await expect(page.locator('.map-page__fab')).toHaveCount(0);
+  });
+
+  test('report modal publishes from map locality', async ({ page }) => {
+    await page.goto('/map?loc=baner&report=1');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.getByText(/Baner/i).first()).toBeVisible();
+    const note = `E2E drain Baner ${Date.now()}`;
+    await page.getByRole('textbox', { name: /what happened/i }).fill(note);
+    await page.getByRole('button', { name: /publish report/i }).click();
+    await expect(page.getByRole('dialog')).toBeHidden({ timeout: 15_000 });
+    await expect(page.getByText(note).first()).toBeVisible({ timeout: 15_000 });
   });
 
   test('mobile menu reaches Map, Localities, Wards, How, and Report', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/');
-    await expect(page.getByRole('link', { name: 'Report garbage' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Report issue' })).toBeVisible();
     await expect(page.getByRole('navigation', { name: 'Primary' })).toBeHidden();
     await page.getByRole('button', { name: 'Open menu' }).click();
     await expect(page.getByRole('navigation', { name: 'Primary' })).toBeVisible();
@@ -67,7 +111,7 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     await page.getByRole('button', { name: 'Open menu' }).click();
     await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Localities' }).click();
     await expect(page).toHaveURL(/\/localities/);
-    await page.getByRole('link', { name: 'Report garbage' }).click();
+    await page.getByRole('link', { name: 'Report issue' }).click();
     await expect(page).toHaveURL(/report=1/);
   });
 
@@ -85,7 +129,7 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     await page.goto('/');
     await page.locator('nav.nav__links a[href="/localities"]').click();
     await expect(page).toHaveURL(/\/localities/);
-    await expect(page.locator('a[href^="/locality/"]').first()).toBeVisible();
+    await expect(page.locator('a[href^="/map?loc="]').first()).toBeVisible();
   });
 
   test('rendered UI stays English-only (no Devanagari)', async ({ page }) => {

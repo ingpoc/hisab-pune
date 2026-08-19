@@ -100,7 +100,66 @@ const MIGRATIONS = [
   `CREATE INDEX IF NOT EXISTS idx_roles_active ON official_roles(role, effective_to)`,
   `CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status, moderation_state)`,
   `CREATE INDEX IF NOT EXISTS idx_localities_ward ON localities(ward_id)`,
+  `CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      session_token TEXT NOT NULL UNIQUE,
+      anonymous_posting_id TEXT NOT NULL UNIQUE,
+      public_display_id TEXT,
+      role TEXT NOT NULL DEFAULT 'citizen',
+      created_at TEXT NOT NULL
+    )`,
+  `CREATE TABLE IF NOT EXISTS comments (
+      id TEXT PRIMARY KEY,
+      report_id TEXT NOT NULL,
+      author_user_id TEXT NOT NULL,
+      publish_as TEXT NOT NULL DEFAULT 'anonymous',
+      body TEXT NOT NULL,
+      moderation_state TEXT NOT NULL DEFAULT 'approved',
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (report_id) REFERENCES reports(id),
+      FOREIGN KEY (author_user_id) REFERENCES users(id)
+    )`,
+  `CREATE TABLE IF NOT EXISTS escalation_tickets (
+      id TEXT PRIMARY KEY,
+      report_id TEXT NOT NULL,
+      adapter_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      external_id TEXT,
+      last_error TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (report_id) REFERENCES reports(id)
+    )`,
+  `CREATE INDEX IF NOT EXISTS idx_comments_report ON comments(report_id, created_at)`,
+  `CREATE INDEX IF NOT EXISTS idx_tickets_report ON escalation_tickets(report_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_reports_locality ON reports(locality_id, created_at)`,
 ];
+
+/** Public anonymous posting id — not the login subject. */
+export function mintAnonymousPostingId(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let out = 'R-';
+  for (let i = 0; i < 4; i++) {
+    out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return out;
+}
+
+async function ensureColumn(
+  db: Db,
+  table: string,
+  column: string,
+  definition: string,
+): Promise<void> {
+  if (db.dialect === 'postgres') {
+    await db.exec(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${column} ${definition}`);
+    return;
+  }
+  const cols = await db.all<{ name: string }>(`PRAGMA table_info(${table})`);
+  if (!cols.some((c) => c.name === column)) {
+    await db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
 
 /**
  * Portable DDL for SQLite (local/dev) and Postgres (Render).
@@ -111,4 +170,10 @@ export async function migrate(db: Db): Promise<void> {
   for (const sql of MIGRATIONS) {
     await db.exec(sql);
   }
+  await ensureColumn(db, 'reports', 'category_id', `TEXT NOT NULL DEFAULT 'solid_waste'`);
+  await ensureColumn(db, 'reports', 'author_user_id', 'TEXT');
+  await ensureColumn(db, 'reports', 'publish_as', `TEXT NOT NULL DEFAULT 'anonymous'`);
+  await ensureColumn(db, 'reports', 'author_label', 'TEXT');
+  await ensureColumn(db, 'reports', 'gov_ticket_id', 'TEXT');
+  await db.exec(`CREATE INDEX IF NOT EXISTS idx_reports_category ON reports(category_id, status)`);
 }

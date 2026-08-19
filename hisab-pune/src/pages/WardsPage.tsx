@@ -40,7 +40,7 @@ export function WardsPage() {
                   {linked.map((l, i) => (
                     <span key={l.id}>
                       {i > 0 && ', '}
-                      <Link to={`/locality/${l.id}`}>{l.name}</Link>
+                      <Link to={`/map?loc=${l.id}`}>{l.name}</Link>
                     </span>
                   ))}
                 </p>

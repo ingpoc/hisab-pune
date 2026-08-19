@@ -2,6 +2,8 @@
   padding: clamp(2rem, 5vh, 3.5rem) clamp(1rem, 3vw, 2.5rem)
     clamp(3rem, 7vh, 5rem);
   max-width: 1100px;
+  width: 100%;
+  margin-inline: auto;
 }
 
 .wards__head h1 {

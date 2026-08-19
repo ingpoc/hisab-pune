@@ -11,11 +11,17 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
     const el = ref.current;
     if (!el) return;
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' },
-      );
+      const mm = gsap.matchMedia();
+      mm.add('(prefers-reduced-motion: reduce)', () => {
+        gsap.set(el, { clearProps: 'all', opacity: 1, y: 0 });
+      });
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.32, ease: 'power2.out' },
+        );
+      });
     }, el);
     return () => ctx.revert();
   }, [location.pathname]);
