@@ -24,7 +24,35 @@ export function toPgPlaceholders(sql: string): string {
   return sql.replace(/\?/g, () => `$${++i}`);
 }
 
-function sslFor(connectionString: string): boolean | { rejectUnauthorized: false } {
+export function isPoolerHost(host: string): boolean {
+  return host.includes('-pooler');
+}
+
+/**
+ * Prefer a Neon pooled endpoint when present.
+ * - `DATABASE_URL` whose hostname contains `-pooler` is used as-is.
+ * - Else if `PGHOST` contains `-pooler`, rewrite the URL hostname to `PGHOST`.
+ */
+export function resolveDatabaseUrl(raw?: string | null): string | undefined {
+  if (raw === null) return undefined;
+  const url = raw ?? process.env.DATABASE_URL;
+  if (!url) return undefined;
+  const pghost = process.env.PGHOST;
+  if (pghost && isPoolerHost(pghost)) {
+    try {
+      const u = new URL(url);
+      if (!isPoolerHost(u.hostname)) {
+        u.hostname = pghost;
+        return u.toString();
+      }
+    } catch {
+      // Keep the original string if it is not a parseable URL.
+    }
+  }
+  return url;
+}
+
+export function sslFor(connectionString: string): boolean | { rejectUnauthorized: false } {
   try {
     const u = new URL(connectionString);
     const mode = (u.searchParams.get('sslmode') ?? '').toLowerCase();
@@ -32,8 +60,11 @@ function sslFor(connectionString: string): boolean | { rejectUnauthorized: false
     if (mode === 'require' || mode === 'verify-ca' || mode === 'verify-full' || mode === 'prefer') {
       return { rejectUnauthorized: false };
     }
-    // Render external hosts need TLS; internal hostnames do not.
-    if (u.hostname.endsWith('.render.com')) return { rejectUnauthorized: false };
+    const host = u.hostname.toLowerCase();
+    // Neon requires TLS even when sslmode is omitted from the URL.
+    if (host.endsWith('.neon.tech') || isPoolerHost(host) || host.endsWith('.render.com')) {
+      return { rejectUnauthorized: false };
+    }
   } catch {
     // Fall through — Pool will parse the raw string.
   }
@@ -104,7 +135,7 @@ export type OpenDatabaseOptions = {
 export async function openDatabase(opts: OpenDatabaseOptions = {}): Promise<Db> {
   if (opts.sqlitePath) return openSqlite(opts.sqlitePath);
 
-  const url = opts.databaseUrl === null ? undefined : (opts.databaseUrl ?? process.env.DATABASE_URL);
+  const url = resolveDatabaseUrl(opts.databaseUrl);
   if (url) return openPostgres(url);
   return openSqlite(DB_PATH);
 }

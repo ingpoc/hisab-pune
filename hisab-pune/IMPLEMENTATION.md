@@ -29,5 +29,5 @@ Language: **English only** for names, UI, and API payloads.
 - Election scorecards
 
 ## Environment note
-Local/dev: **SQLite**. Render: **Postgres** via `DATABASE_URL` (see repo-root `render.yaml`).
+Local/dev: **SQLite**. Render: **Neon Postgres** via `DATABASE_URL` (pooled URL; see repo-root `render.yaml`).
 Schema and routes stay portable; PostGIS is still a later upgrade.

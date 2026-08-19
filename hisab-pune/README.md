@@ -30,11 +30,22 @@ Blueprint is **`render.yaml` at the repo root** (not in this folder). Render `ro
 | `npm run seed` | Local: recreate SQLite. With `DATABASE_URL`: idempotent Postgres seed |
 | `npm run dev` | Vite + API for local development (SQLite) |
 
-When `DATABASE_URL` is set (Render), the server uses the `pg` driver. Without it, local SQLite at `server/data/hisab.sqlite` is unchanged.
+When `DATABASE_URL` is set (Render → Neon), the server uses the `pg` driver with TLS. Without it, local SQLite at `server/data/hisab.sqlite` is unchanged.
 
-Free-tier limits: 512MB RAM, ephemeral disk, spin-down after 15 minutes idle. Do not attach a persistent disk.
+**Render env:** set `DATABASE_URL` to the Neon **pooled** URL (hostname contains `-pooler`, e.g. `ep-….neon.tech` with `sslmode=require`). If `PGHOST` is the pooler host and `DATABASE_URL` is the direct endpoint, the server rewrites to the pooler.
 
-This Render workspace already has one free Postgres (`agentguard-preprod-postgres`). Creating `hisab-pune-db` from the Blueprint may require replacing that instance.
+Dummy / local Postgres (optional):
+
+```bash
+# Local Postgres without TLS (SQLite stays the default if this is unset)
+DATABASE_URL='postgresql://user:pass@127.0.0.1:5432/hisab?sslmode=disable' npm run seed
+DATABASE_URL='postgresql://user:pass@127.0.0.1:5432/hisab?sslmode=disable' npm start
+
+# Neon (pooled) — same var Render should get
+DATABASE_URL='postgresql://USER:PASS@ep-xxx-pooler.REGION.aws.neon.tech/neondb?sslmode=require' npm start
+```
+
+Free-tier limits: 512MB RAM, ephemeral disk, spin-down after 15 minutes idle. Do not attach a persistent disk. Postgres lives on Neon, not Render.
 
 ## CI/CD
 

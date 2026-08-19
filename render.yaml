@@ -3,19 +3,12 @@
 # Lives at the repo root (Render's default discovery path). The Node app is in
 # hisab-pune/, so the web service sets rootDir: hisab-pune.
 #
-# Free tier: 512MB web (spins down after 15 min idle), 1GB Postgres, ephemeral
-# disk. Do not attach a disk or any paid instance type.
+# Free web service only. Postgres is Neon (external), not a Render database.
+# Set DATABASE_URL in the Dashboard to the Neon pooled connection string
+# (hostname contains `-pooler`, typically `sslmode=require`).
 #
-# This workspace already has a free Postgres (agentguard-preprod-postgres,
-# virginia). Render allows one free Postgres per workspace — applying this
-# Blueprint may require replacing that instance or upgrading a plan.
-
-databases:
-  - name: hisab-pune-db
-    plan: free
-    region: singapore
-    postgresMajorVersion: "16"
-    diskSizeGB: 1
+# No Render Postgres, disks, Key Value, cron, or paid instance types.
+# Free web: 512MB, ephemeral disk, spin-down after 15 min idle.
 
 services:
   - type: web
@@ -33,6 +26,4 @@ services:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        fromDatabase:
-          name: hisab-pune-db
-          property: connectionString
+        sync: false
