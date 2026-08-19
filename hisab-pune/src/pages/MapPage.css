@@ -10,8 +10,10 @@
 }
 
 .map-page__escalate {
-  overflow: auto;
+  /* Definite height so the inner ladder list can scroll. */
+  height: calc(100vh - var(--nav-h));
   max-height: calc(100vh - var(--nav-h));
+  overflow: hidden;
   padding: 1rem 0.95rem 1.25rem;
   background: var(--paper);
   border-right: 1px solid var(--line);
@@ -35,15 +37,29 @@
 }
 
 .map-page__side {
-  overflow: auto;
+  overflow: hidden;
   max-height: calc(100vh - var(--nav-h));
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  min-height: 0;
+  min-width: 0;
+}
+
+.map-page__sheet-handle {
+  display: none;
+}
+
+.map-page__sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
   padding: 1.1rem clamp(1rem, 2vw, 1.4rem) 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: var(--paper);
-  min-height: 0;
-  min-width: 0;
 }
 
 .map-page__empty h1 {
@@ -60,7 +76,9 @@
 }
 
 .map-page__empty .text-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   font-weight: 600;
   color: var(--ink);
   text-decoration: none;
@@ -112,24 +130,38 @@
   .map-page,
   .map-page--escalating {
     grid-template-columns: 1fr;
-    grid-template-rows: auto minmax(36vh, 42vh) minmax(0, 1fr);
+    grid-template-rows: auto minmax(28vh, 34vh) minmax(0, 1fr);
     height: calc(100svh - var(--nav-h));
     min-height: calc(100svh - var(--nav-h));
+    overflow: hidden;
   }
 
   .map-page:not(.map-page--escalating) {
-    grid-template-rows: minmax(42vh, 48vh) minmax(0, 1fr);
+    grid-template-rows: minmax(36vh, 42vh) minmax(0, 1fr);
+  }
+
+  .map-page.map-page--sheet-expanded:not(.map-page--escalating) {
+    grid-template-rows: minmax(16vh, 20vh) minmax(0, 1fr);
+  }
+
+  .map-page--escalating.map-page--sheet-expanded {
+    grid-template-rows: auto minmax(14vh, 16vh) minmax(0, 1fr);
   }
 
   .map-page__escalate {
-    max-height: 42vh;
+    /* Keep the rail short so the locality sheet still has room; list scrolls. */
+    height: min(34vh, 17rem);
+    max-height: min(34vh, 17rem);
+    overflow: hidden;
     border-right: 0;
     border-bottom: 1px solid var(--line);
     order: 0;
+    padding: 0.75rem 0.85rem 0.65rem;
   }
 
   .map-page__map {
     order: 1;
+    min-height: 0;
   }
 
   .map-page__map .map-shell {
@@ -142,23 +174,41 @@
   .map-page__side {
     order: 2;
     max-height: none;
+    min-height: 0;
     border-radius: 14px 14px 0 0;
     box-shadow: 0 -10px 28px rgba(14, 28, 24, 0.12);
     margin-top: -12px;
     position: relative;
     z-index: 2;
-    padding-top: 1.25rem;
   }
 
-  .map-page__side::before {
+  .map-page__sheet-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 0.35rem 0 0.15rem;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .map-page__sheet-handle::before {
     content: '';
-    position: absolute;
-    top: 0.45rem;
-    left: 50%;
-    transform: translateX(-50%);
     width: 2.5rem;
     height: 4px;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--ink) 18%, transparent);
+    background: color-mix(in srgb, var(--ink) 28%, transparent);
+  }
+
+  .map-page__sheet-body {
+    padding-top: 0.35rem;
+    -webkit-overflow-scrolling: touch;
   }
 }

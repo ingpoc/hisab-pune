@@ -53,8 +53,8 @@ GitHub Actions (Cursor-aligned: deterministic gates, least privilege):
 
 | Workflow | Trigger | What it does |
 |----------|---------|--------------|
-| `CI` | PR + push to `main` | `lint` → **`grade`** → `seed` → `test:api` → `build` → **Playwright smoke**; cancels stale runs; uploads `dist` on `main` |
-| `Deploy` | After green CI on `main` | Rebuilds web artifact for the `production` environment (host step is a placeholder until secrets exist) |
+| `CI` | PR + push to `main` | `lint` → **`grade`** → `seed` → `test:api` → `build` → **Playwright smoke** (desktop Chromium + mobile 390×844); cancels stale runs; uploads `dist` on `main` |
+| `Deploy` | After green CI on `main` | Rebuilds web artifact. Also **force-updates** `cursor/render-free-tier-17a3` to the `main` SHA so Render Free auto-deploy goes live (the service branch cannot be changed to `main`). |
 | Dependabot | Weekly | npm (`hisab-pune/`) + GitHub Actions |
 
 **Cost posture:** known browser-QA failures are locked as deterministic graders (`npm run grade`) + a small Chromium smoke (`npm run test:e2e`). Cursor agent review stays **off** in CI unless you opt in with `CURSOR_API_KEY`.
