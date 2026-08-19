@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { Map, Marker, NavigationControl } from 'maplibre-gl';
+import { Map, Marker, NavigationControl, type MapMouseEvent } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { Locality, Report } from '../data/types';
 import { localities as allLocalities } from '../data/localities';
 import { electoralWards } from '../data/electoralWards';
-import { loadWardGeoJSON } from '../lib/wardsGeo';
+import { loadWardGeoJSON, wardIdAt } from '../lib/wardsGeo';
 import './MapView.css';
 
 export type UnmappedWard = { id: number; name: string };
@@ -113,22 +113,24 @@ export function MapView({
           });
         }
 
-        map.on('click', 'wards-fill', (e) => {
-          const feature = e.features?.[0];
-          const wid = feature?.properties?.wardId;
-          if (typeof wid !== 'number' && typeof wid !== 'string') return;
-          const wardId = Number(wid);
-          if (!Number.isFinite(wardId)) return;
+        const onWardClick = (e: MapMouseEvent) => {
+          const wardId = wardIdAt(e.lngLat.lng, e.lngLat.lat, fc);
+          if (wardId == null) return;
           const match = allLocalities.find((l) => l.electoralWardId === wardId);
           if (match) {
             selectRef.current(match.id);
             return;
           }
+          const geoName = fc.features.find((f) => f.properties.wardId === wardId)?.properties.name;
           unmappedRef.current?.({
             id: wardId,
-            name: wardDisplayName(wardId, feature?.properties?.name),
+            name: wardDisplayName(wardId, geoName),
           });
-        });
+        };
+        // Point-in-polygon on the click lng/lat. Layer queryRenderedFeatures is
+        // empty while OSM tiles/WebGL are still settling, which made polygon
+        // clicks a silent no-op.
+        map.on('click', onWardClick);
         map.on('mouseenter', 'wards-fill', () => {
           map.getCanvas().style.cursor = 'pointer';
         });
