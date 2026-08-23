@@ -136,6 +136,11 @@
     overflow: hidden;
   }
 
+  .map-page--escalating,
+  .map-page--escalating.map-page--sheet-expanded {
+    grid-template-rows: minmax(60vh, 64vh) minmax(12vh, 14vh) minmax(0, 1fr);
+  }
+
   .map-page:not(.map-page--escalating) {
     grid-template-rows: minmax(36vh, 42vh) minmax(0, 1fr);
   }
@@ -144,14 +149,9 @@
     grid-template-rows: minmax(16vh, 20vh) minmax(0, 1fr);
   }
 
-  .map-page--escalating.map-page--sheet-expanded {
-    grid-template-rows: auto minmax(14vh, 16vh) minmax(0, 1fr);
-  }
-
   .map-page__escalate {
-    /* Keep the rail short so the locality sheet still has room; list scrolls. */
-    height: min(34vh, 17rem);
-    max-height: min(34vh, 17rem);
+    height: 100%;
+    max-height: none;
     overflow: hidden;
     border-right: 0;
     border-bottom: 1px solid var(--line);
