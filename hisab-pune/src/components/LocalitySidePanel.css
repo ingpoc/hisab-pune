@@ -330,6 +330,14 @@
   box-shadow: inset 3px 0 0 var(--brand);
 }
 
+.loc-panel__escalate-status {
+  margin: -0.45rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--ink) 52%, transparent);
+}
+
 .loc-panel__disclose .tweet {
   margin-top: 0.5rem;
 }

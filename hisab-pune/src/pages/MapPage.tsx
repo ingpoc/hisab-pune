@@ -9,7 +9,10 @@ import type { Report } from '../data/types';
 import { loadReportsWithOverrides, updateReportStatus } from '../lib/storage';
 import { fetchReports } from '../lib/api';
 import { REPORTS_LOAD_ERROR, retryWake, useWakeStatus } from '../lib/apiWake';
-import { escalationChain } from '../lib/escalation';
+import {
+  ESCALATION_FALLBACK_COPY,
+  useLocalityEscalation,
+} from '../lib/useLocalityEscalation';
 import { buildEscalationTweet, xIntentUrl } from '../lib/twitter';
 import './MapPage.css';
 
@@ -89,6 +92,8 @@ export function MapPage() {
   }, []);
 
   const selected = selectedId ? getLocality(selectedId) : null;
+  const { officials, usingFallback } = useLocalityEscalation(selected);
+  const escalationStatus = usingFallback ? ESCALATION_FALLBACK_COPY : null;
   const activeReport = reports.find((r) => r.id === activeReportId);
 
   useEffect(() => {
@@ -167,7 +172,7 @@ export function MapPage() {
     const tweet = buildEscalationTweet({
       locality: loc,
       note: report.note,
-      officials: escalationChain(loc),
+      officials,
     });
     window.open(xIntentUrl(tweet), '_blank', 'noopener,noreferrer');
   }
@@ -180,6 +185,7 @@ export function MapPage() {
         <aside className="map-page__escalate" aria-label="Escalation route">
           <EscalationLadder
             locality={selected}
+            officials={officials}
             note={activeReport?.note}
             variant="rail"
             onClose={() => setEscalationOpen(false)}
@@ -227,6 +233,8 @@ export function MapPage() {
           <LocalitySidePanel
             locality={selected}
             reports={localityReports}
+            officials={officials}
+            escalationStatus={escalationStatus}
             activeReportId={activeReportId}
             onSelectReport={setActiveReportId}
             onEscalate={escalate}

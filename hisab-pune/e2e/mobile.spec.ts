@@ -97,7 +97,13 @@ test.describe('Mobile Chrome 390×844', () => {
   });
 
   test('Escalation route makes the rail primary and still reaches the last contact', async ({ page }) => {
+    const locApi = page.waitForResponse(
+      (res) =>
+        /\/v1\/localities\/baner\/?(\?|$)/.test(res.url()) && !res.url().includes('/reports'),
+    );
     await page.goto('/map?loc=baner');
+    const locRes = await locApi;
+    expect(locRes.ok()).toBeTruthy();
     await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
       timeout: 15_000,
     });
