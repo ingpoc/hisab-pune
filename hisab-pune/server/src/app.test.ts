@@ -260,6 +260,74 @@ describe('Hisab API', () => {
     await db.close();
   });
 
+  it('lists and posts anonymous comments on a report', async () => {
+    const db = await openDatabase({ sqlitePath: rootDb });
+    await migrate(db);
+    const app = createApp(db);
+    const created = await app.request('http://local/v1/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lat: 18.559,
+        lng: 73.7867,
+        note: 'API comment Baner dumpster follow-up.',
+      }),
+    });
+    assert.equal(created.status, 201);
+    const createdBody = (await created.json()) as { report: { id: string } };
+    const id = createdBody.report.id;
+
+    const empty = await app.request(`http://local/v1/reports/${id}/comments`);
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as { comments: unknown[] };
+    assert.equal(emptyBody.comments.length, 0);
+
+    const noSession = await app.request(`http://local/v1/reports/${id}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: 'Still there this morning.' }),
+    });
+    assert.equal(noSession.status, 401);
+
+    const session = await app.request('http://local/v1/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+    assert.equal(session.status, 201);
+    const { sessionToken, anonymousPostingId } = (await session.json()) as {
+      sessionToken: string;
+      anonymousPostingId: string;
+    };
+
+    const posted = await app.request(`http://local/v1/reports/${id}/comments`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Hisab-Session': sessionToken,
+      },
+      body: JSON.stringify({ body: 'Still there this morning.' }),
+    });
+    assert.equal(posted.status, 201);
+    const postedBody = (await posted.json()) as {
+      comment: { body: string; publish_as: string; author_label: string };
+    };
+    assert.equal(postedBody.comment.body, 'Still there this morning.');
+    assert.equal(postedBody.comment.publish_as, 'anonymous');
+    assert.equal(postedBody.comment.author_label, anonymousPostingId);
+
+    const listed = await app.request(`http://local/v1/reports/${id}/comments`);
+    assert.equal(listed.status, 200);
+    const listedBody = (await listed.json()) as {
+      comments: Array<{ body: string; author_label: string }>;
+    };
+    assert.equal(listedBody.comments.length, 1);
+    assert.equal(listedBody.comments[0]?.body, 'Still there this morning.');
+    assert.equal(listedBody.comments[0]?.author_label, anonymousPostingId);
+
+    await db.close();
+  });
+
   it('returns 404 for missing reports and rejects escalating resolved ones', async () => {
     const db = await openDatabase({ sqlitePath: rootDb });
     await migrate(db);

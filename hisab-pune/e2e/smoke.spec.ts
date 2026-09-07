@@ -211,6 +211,116 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     await expect(page.getByRole('textbox', { name: /Draft for X/i })).toBeVisible();
   });
 
+  test('Comments L1 stays collapsed until asked, lists mocked thread, and posts honestly', async ({
+    page,
+  }) => {
+    const mockedBody = 'Still overflowing this morning.';
+    const postedBody = 'Same dumpster, still there.';
+    let commentsFetched = false;
+    let failPost = true;
+
+    await page.route('**/v1/auth/session', async (route) => {
+      if (route.request().method() !== 'POST') {
+        await route.continue();
+        return;
+      }
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        json: {
+          sessionToken: 'ses-test',
+          anonymousPostingId: 'R-7F2A',
+          publicDisplayId: null,
+          publishAsDefault: 'anonymous',
+        },
+      });
+    });
+    await page.route('**/v1/reports/*/comments', async (route) => {
+      if (route.request().method() === 'GET') {
+        commentsFetched = true;
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          json: {
+            comments: [
+              {
+                id: 'cmt-mock-1',
+                body: mockedBody,
+                publish_as: 'anonymous',
+                author_label: 'R-7F2A',
+                created_at: '2026-08-04T09:00:00.000Z',
+              },
+            ],
+          },
+        });
+        return;
+      }
+      if (route.request().method() === 'POST') {
+        if (failPost) {
+          failPost = false;
+          await route.fulfill({ status: 500, body: 'unavailable' });
+          return;
+        }
+        const posted = route.request().postDataJSON() as { body?: string; publishAs?: string };
+        await route.fulfill({
+          status: 201,
+          contentType: 'application/json',
+          json: {
+            comment: {
+              id: 'cmt-mock-2',
+              body: posted.body,
+              publish_as: posted.publishAs ?? 'anonymous',
+              author_label: 'R-7F2A',
+              created_at: '2026-09-07T12:00:00.000Z',
+            },
+          },
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    await page.goto('/map?loc=baner');
+    await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole('button', { name: 'Comments', exact: true })).toHaveCount(0);
+
+    await page.locator('.loc-panel__issue').filter({ hasText: /Overflowing dumpster/i }).click();
+    const commentsBtn = page.getByRole('button', { name: 'Comments', exact: true });
+    await expect(commentsBtn).toBeVisible();
+    await expect(commentsBtn).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.getByText(mockedBody)).toHaveCount(0);
+    expect(commentsFetched).toBe(false);
+
+    await page.getByRole('button', { name: /Edit draft/i }).click();
+    await expect(page.getByRole('textbox', { name: /Draft for X/i })).toBeVisible();
+
+    await commentsBtn.click();
+    await expect(page.getByRole('button', { name: 'Hide comments' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    await expect(page.getByRole('textbox', { name: /Draft for X/i })).toHaveCount(0);
+    await expect(page.getByText(mockedBody)).toBeVisible();
+    await expect(page.getByText('R-7F2A').first()).toBeVisible();
+    await expect(page.locator('.issue-comments__meta').first()).toContainText(/ago|Just now/);
+    await expect(page.locator('.issue-comments').getByText(/Sign-in/i)).toHaveCount(0);
+
+    const composer = page.getByRole('textbox', { name: /^Comment$/i });
+    await composer.fill(postedBody);
+    await page.getByRole('button', { name: 'Post comment' }).click();
+    await expect(page.getByRole('alert').filter({ hasText: /Could not post comment/i })).toBeVisible();
+    await expect(composer).toHaveValue(postedBody);
+
+    await page.getByRole('button', { name: 'Retry' }).click();
+    await expect(page.getByText(postedBody)).toBeVisible();
+    await expect(composer).toHaveValue('');
+    await expect(page.getByRole('alert').filter({ hasText: /Could not post comment/i })).toHaveCount(
+      0,
+    );
+  });
+
   test('report modal Escape closes the dialog', async ({ page }) => {
     await page.goto('/map?report=1');
     const dialog = page.getByRole('dialog');
