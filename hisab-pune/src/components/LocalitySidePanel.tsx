@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { getCategory } from '../data/categories';
 import { getElectoralWard } from '../data/electoralWards';
 import { mlas } from '../data/cityOfficials';
-import type { Locality, Report } from '../data/types';
-import { escalationChain } from '../lib/escalation';
+import type { Locality, Official, Report } from '../data/types';
 import { formatIssueAge } from '../lib/issueAge';
 import { TweetAction } from './TweetAction';
 import './LocalitySidePanel.css';
@@ -14,6 +13,8 @@ type IssueTab = 'open' | 'closed';
 interface Props {
   locality: Locality;
   reports: Report[];
+  officials: Official[];
+  escalationStatus?: string | null;
   activeReportId: string | null;
   onSelectReport: (id: string | null) => void;
   onEscalate: (report: Report) => void;
@@ -28,6 +29,8 @@ function sortNewest(a: Report, b: Report) {
 export function LocalitySidePanel({
   locality,
   reports,
+  officials,
+  escalationStatus,
   activeReportId,
   onSelectReport,
   onEscalate,
@@ -61,7 +64,7 @@ export function LocalitySidePanel({
   const ward = getElectoralWard(locality.electoralWardId);
   const mla = mlas[locality.assemblyId];
   const assemblyLabel = mla?.title.replace(/^MLA — /, '') ?? locality.assemblyId;
-  const chain = escalationChain(locality);
+  const chain = officials;
 
   function openDraft() {
     setDraftOpen((v) => !v);
@@ -212,6 +215,11 @@ export function LocalitySidePanel({
           {chain.length} contacts · {escalationOpen ? 'hide left rail' : 'open left rail'}
         </span>
       </button>
+      {escalationStatus && (
+        <p className="loc-panel__escalate-status" role="status">
+          {escalationStatus}
+        </p>
+      )}
 
       <Link
         className="btn btn--alert loc-panel__report"

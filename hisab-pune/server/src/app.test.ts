@@ -115,6 +115,25 @@ describe('Hisab API', () => {
     await db.close();
   });
 
+  it('returns Baner locality escalation ending with Murlidhar Mohol', async () => {
+    const db = await openDatabase({ sqlitePath: rootDb });
+    await migrate(db);
+    const app = createApp(db);
+    const res = await app.request('http://local/v1/localities/baner');
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      locality: { id: string };
+      escalation: Array<{ name: string; role: string; sourceLabel: string | null }>;
+    };
+    assert.equal(body.locality.id, 'baner');
+    assert.ok(body.escalation.length >= 4);
+    const last = body.escalation.at(-1);
+    assert.equal(last?.name, 'Murlidhar Mohol');
+    assert.equal(last?.role, 'mp');
+    assert.ok(last?.sourceLabel);
+    await db.close();
+  });
+
   it('lists locality reports and city signal', async () => {
     const db = await openDatabase({ sqlitePath: rootDb });
     await migrate(db);

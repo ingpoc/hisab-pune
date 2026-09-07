@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from 'react';
 import gsap from 'gsap';
-import type { Locality } from '../data/types';
+import type { Locality, Official } from '../data/types';
 import { getElectoralWard } from '../data/electoralWards';
 import { mlas } from '../data/cityOfficials';
 import { escalationChain } from '../lib/escalation';
@@ -11,6 +11,8 @@ import './EscalationLadder.css';
 interface Props {
   locality: Locality;
   note?: string;
+  /** Live or fallback contacts. Defaults to the static chain. */
+  officials?: Official[];
   /** `list` / `rail` = contacts only. `full` = title + optional tweet + list. */
   variant?: 'full' | 'list' | 'rail';
   /** L1 — draft compose is opt-in (DESIGN.md). Default off. */
@@ -21,11 +23,12 @@ interface Props {
 export function EscalationLadder({
   locality,
   note,
+  officials,
   variant = 'full',
   showTweet = false,
   onClose,
 }: Props) {
-  const chain = escalationChain(locality);
+  const chain = officials ?? escalationChain(locality);
   const ward = getElectoralWard(locality.electoralWardId);
   const mla = mlas[locality.assemblyId];
   const assemblyLabel = mla?.title.replace(/^MLA — /, '') ?? locality.assemblyId;

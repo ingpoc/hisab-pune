@@ -1,5 +1,5 @@
 import type { CategoryId } from '../data/categories';
-import type { PublishAs, Report, ReportStatus } from '../data/types';
+import type { Official, OfficialRole, PublishAs, Report, ReportStatus } from '../data/types';
 import { ensureSession, sessionHeaders } from './session';
 import { resilientFetch } from './resilientFetch';
 
@@ -11,19 +11,78 @@ async function apiRequest(path: string, init?: RequestInit): Promise<Response> {
   return res;
 }
 
+const OFFICIAL_ROLES = new Set<OfficialRole>([
+  'sanitation',
+  'ward_officer',
+  'corporator',
+  'mla',
+  'mayor',
+  'deputy_mayor',
+  'commissioner',
+  'mp',
+]);
+
+export type ApiEscalationPerson = {
+  id: string;
+  name: string;
+  role: string;
+  shortTitle: string;
+  title: string | null;
+  party: string | null;
+  xHandle: string | null;
+  phone: string | null;
+  email?: string | null;
+  note?: string | null;
+  sourceLabel?: string | null;
+  seat?: string | null;
+};
+
+export type LocalityResponse = {
+  locality: {
+    id: string;
+    name: string;
+    electoralWardId: number;
+    wardOfficeId: string;
+    assemblyId: string;
+    lat: number;
+    lng: number;
+    zone: string;
+  };
+  ward: { id: number; name: string } | null;
+  escalation: ApiEscalationPerson[];
+};
+
+export function toOfficial(row: ApiEscalationPerson): Official | null {
+  if (!row.id || !row.name) return null;
+  if (!OFFICIAL_ROLES.has(row.role as OfficialRole)) return null;
+  return {
+    id: row.id,
+    name: row.name,
+    role: row.role as OfficialRole,
+    title: row.title?.trim() || row.shortTitle || row.role,
+    party: row.party || undefined,
+    phone: row.phone || undefined,
+    xHandle: row.xHandle || undefined,
+    email: row.email || undefined,
+    note: row.note || undefined,
+    source: row.sourceLabel || undefined,
+  };
+}
+
+export function toOfficials(rows: ApiEscalationPerson[] | null | undefined): Official[] {
+  if (!rows?.length) return [];
+  const out: Official[] = [];
+  for (const row of rows) {
+    const official = toOfficial(row);
+    if (official) out.push(official);
+  }
+  return out;
+}
+
 export type HereResponse = {
   locality: { id: string; name: string; zone: string | null };
   ward: { id: number; name: string; matchedByPolygon: boolean };
-  escalation: Array<{
-    id: string;
-    name: string;
-    role: string;
-    shortTitle: string;
-    title: string | null;
-    party: string | null;
-    xHandle: string | null;
-    phone: string | null;
-  }>;
+  escalation: ApiEscalationPerson[];
   widget: {
     localityName: string;
     wardId: number;
@@ -91,6 +150,11 @@ export async function fetchReports(opts?: {
   const res = await apiRequest(`/v1/reports${qs ? `?${qs}` : ''}`);
   const data = (await res.json()) as { reports: ApiReport[] };
   return data.reports.map(toClientReport);
+}
+
+export async function fetchLocality(localityId: string): Promise<LocalityResponse> {
+  const res = await apiRequest(`/v1/localities/${encodeURIComponent(localityId)}`);
+  return res.json() as Promise<LocalityResponse>;
 }
 
 export async function fetchLocalityReports(localityId: string): Promise<Report[]> {
