@@ -162,4 +162,61 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
       expect(text, path).not.toMatch(/[\u0900-\u097F]/);
     }
   });
+
+  test('CARE L1 stays collapsed until asked and never fakes success', async ({ page }) => {
+    const careMessage =
+      'PMC CARE has no public partner write API. File on CARE yourself, then paste the ticket number.';
+    await page.route('**/v1/reports/*/escalate-gov', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        json: {
+          result: { ok: false, reason: 'unsupported', message: careMessage },
+          care: {
+            portal: 'https://pmccare.in/cep/home',
+            whatsapp: 'https://api.whatsapp.com/send/?phone=918888251001&text=hi',
+          },
+        },
+      });
+    });
+
+    await page.goto('/map?loc=baner');
+    await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole('button', { name: /Get CARE links/i })).toHaveCount(0);
+
+    await page.getByRole('button', { name: /Overflowing dumpster/i }).click();
+    const careBtn = page.getByRole('button', { name: /Get CARE links/i });
+    await expect(careBtn).toBeVisible();
+    await expect(careBtn).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.getByRole('link', { name: /CARE portal/i })).toHaveCount(0);
+    await expect(page.getByText(/submitted to CARE/i)).toHaveCount(0);
+
+    await careBtn.click();
+    await expect(page.getByRole('button', { name: /Hide CARE links/i })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    await expect(page.getByText(careMessage)).toBeVisible();
+    const portal = page.getByRole('link', { name: 'CARE portal' });
+    await expect(portal).toBeVisible();
+    await expect(portal).toHaveAttribute('href', 'https://pmccare.in/cep/home');
+    await expect(portal).toHaveAttribute('target', '_blank');
+    await expect(page.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('target', '_blank');
+    await expect(page.getByText(/submitted to CARE/i)).toHaveCount(0);
+
+    await page.getByRole('button', { name: /Edit draft/i }).click();
+    await expect(page.getByRole('link', { name: /CARE portal/i })).toHaveCount(0);
+    await expect(page.getByRole('textbox', { name: /Draft for X/i })).toBeVisible();
+  });
+
+  test('report modal Escape closes the dialog', async ({ page }) => {
+    await page.goto('/map?report=1');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+  });
 });
