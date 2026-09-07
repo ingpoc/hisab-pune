@@ -88,6 +88,21 @@
   color: var(--mist);
 }
 
+@media (max-width: 960px) {
+  .ladder__rail-title {
+    font-size: 1.2rem;
+  }
+
+  .ladder__meta {
+    margin-top: 0.2rem;
+  }
+
+  .ladder__hint {
+    margin-bottom: 0.45rem;
+    font-size: 0.72rem;
+  }
+}
+
 .ladder__close {
   appearance: none;
   border: 1px solid var(--line);

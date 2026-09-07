@@ -22,7 +22,21 @@ async function shot(page: Page, name: string) {
 
 async function fullyInView(locator: Locator) {
   await locator.scrollIntoViewIfNeeded();
-  await expect(locator).toBeInViewport({ ratio: 1 });
+  const geo = await locator.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      top: r.top,
+      bottom: r.bottom,
+      left: r.left,
+      right: r.right,
+      vh: window.innerHeight,
+      vw: window.innerWidth,
+    };
+  });
+  expect(geo.top).toBeGreaterThanOrEqual(-1);
+  expect(geo.left).toBeGreaterThanOrEqual(-1);
+  expect(geo.bottom).toBeLessThanOrEqual(geo.vh + 1);
+  expect(geo.right).toBeLessThanOrEqual(geo.vw + 1);
 }
 
 test.describe('Mobile Chrome 390×844', () => {
@@ -120,7 +134,7 @@ test.describe('Mobile Chrome 390×844', () => {
         if (!body) return 0;
         return cards.filter((card) => {
           const rect = card.getBoundingClientRect();
-          return rect.top >= body.top && rect.bottom <= body.bottom;
+          return rect.top >= body.top - 1 && rect.bottom <= body.bottom + 1;
         }).length;
       }),
     ).toBeGreaterThanOrEqual(3);

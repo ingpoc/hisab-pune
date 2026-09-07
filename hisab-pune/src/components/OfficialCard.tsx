@@ -60,31 +60,30 @@ export function OfficialCard({
           <p className="official__role">{roleLabels[official.role]}</p>
           <h3 className="official__name">{official.name}</h3>
 
-          {primary && (
+          {(primary || (hasMore && disclosure === 'progressive')) && (
             <div className="official__actions">
-              {primary.kind === 'phone' && (
+              {primary?.kind === 'phone' && (
                 <a href={`tel:${primary.value.replace(/\s/g, '')}`}>{primary.value}</a>
               )}
-              {primary.kind === 'x' && (
+              {primary?.kind === 'x' && (
                 <a href={xProfileUrl(primary.value)} target="_blank" rel="noreferrer">
                   @{primary.value}
                 </a>
               )}
-              {primary.kind === 'email' && (
+              {primary?.kind === 'email' && (
                 <a href={`mailto:${primary.value}`}>{primary.value}</a>
               )}
+              {hasMore && disclosure === 'progressive' && (
+                <button
+                  type="button"
+                  className="official__more"
+                  aria-expanded={open}
+                  onClick={() => setOpen((v) => !v)}
+                >
+                  {open ? 'Less' : 'More details'}
+                </button>
+              )}
             </div>
-          )}
-
-          {hasMore && disclosure === 'progressive' && (
-            <button
-              type="button"
-              className="official__more"
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-            >
-              {open ? 'Less' : 'More details'}
-            </button>
           )}
         </div>
       </div>
