@@ -30,6 +30,11 @@
   gap: 1rem;
 }
 
+.modal__panel:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
 .modal__head {
   display: flex;
   justify-content: space-between;

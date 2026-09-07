@@ -23,6 +23,30 @@ interface Props {
 
 const PUNE_CENTRE = { lat: 18.5204, lng: 73.8567 };
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function trapFocus(event: KeyboardEvent, root: HTMLElement) {
+  const nodes = [...root.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+    (el) => el.getAttribute('aria-hidden') !== 'true',
+  );
+  if (nodes.length === 0) {
+    event.preventDefault();
+    root.focus();
+    return;
+  }
+  const first = nodes[0];
+  const last = nodes[nodes.length - 1];
+  const active = document.activeElement;
+  if (event.shiftKey && (active === first || !root.contains(active))) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && (active === last || !root.contains(active))) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
 export function ReportModal({
   open,
   onClose,
@@ -46,6 +70,10 @@ export function ReportModal({
   const [anonId, setAnonId] = useState<string | null>(null);
   const [locationHint, setLocationHint] = useState<string | null>(null);
   const locateGen = useRef(0);
+  const dialogRef = useRef<HTMLFormElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   const preferredLocality = preferredLocalityId
     ? localities.find((l) => l.id === preferredLocalityId)
@@ -125,6 +153,30 @@ export function ReportModal({
       cancelled = true;
     };
   }, [coords, preferredLocality]);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.activeElement;
+    restoreFocusRef.current = prev instanceof HTMLElement ? prev : null;
+    dialogRef.current?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key === 'Tab' && dialogRef.current) {
+        trapFocus(event, dialogRef.current);
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      restoreFocusRef.current?.focus?.();
+    };
+  }, [open]);
 
   if (!open) return null;
 
@@ -253,9 +305,17 @@ export function ReportModal({
   }
 
   return (
-    <div className="modal" role="dialog" aria-modal="true" aria-labelledby="report-title">
+    <div className="modal">
       <button className="modal__backdrop" type="button" aria-label="Close" onClick={onClose} />
-      <form className="modal__panel" onSubmit={submit}>
+      <form
+        className="modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="report-title"
+        tabIndex={-1}
+        ref={dialogRef}
+        onSubmit={submit}
+      >
         <header className="modal__head">
           <h2 id="report-title">Report an issue</h2>
           <button type="button" className="modal__x" onClick={onClose} aria-label="Close">
