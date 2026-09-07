@@ -186,7 +186,7 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     });
     await expect(page.getByRole('button', { name: /Get CARE links/i })).toHaveCount(0);
 
-    await page.getByRole('button', { name: /Overflowing dumpster/i }).click();
+    await page.locator('.loc-panel__issue').filter({ hasText: /Overflowing dumpster/i }).click();
     const careBtn = page.getByRole('button', { name: /Get CARE links/i });
     await expect(careBtn).toBeVisible();
     await expect(careBtn).toHaveAttribute('aria-expanded', 'false');
