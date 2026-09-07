@@ -22,30 +22,30 @@
     "ci": "npm run lint && npm run grade && npm run test && npm run build"
   },
   "dependencies": {
-    "@hono/node-server": "^2.1.0",
+    "@hono/node-server": "^2.1.1",
     "better-sqlite3": "^13.0.3",
     "pg": "^8.16.3",
-    "tsx": "^4.23.9",
+    "tsx": "^4.23.13",
     "gsap": "^3.15.0",
-    "hono": "^4.13.0",
-    "maplibre-gl": "^6.1.0",
+    "hono": "^4.13.5",
+    "maplibre-gl": "^6.7.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-router-dom": "^7.18.2",
-    "zod": "^4.4.3"
+    "react-router-dom": "^7.18.3",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^9.6.0",
     "@types/pg": "^8.15.6",
-    "@types/node": "^24.13.3",
+    "@types/node": "^26.4.0",
     "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.4",
-    "concurrently": "^10.0.4",
-    "oxlint": "^1.75.0",
+    "@types/react-dom": "^19.2.5",
+    "@vitejs/plugin-react": "^6.1.0",
+    "concurrently": "^10.0.5",
+    "oxlint": "^1.80.0",
     "@playwright/test": "^1.55.0",
-    "typescript": "~6.0.2",
-    "vite": "^8.2.0",
-    "vitest": "^4.1.10"
+    "typescript": "~7.0.2",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11"
   }
 }
