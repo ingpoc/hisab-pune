@@ -181,19 +181,27 @@ test.describe('Map locality escalation (API-first)', () => {
     await expect(last.getByRole('heading', { name: /Murlidhar Mohol/i })).toBeVisible();
   });
 
+  async function publishBanerIssue(page: Page, note: string) {
+    await page.goto('/map?loc=baner&report=1');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.getByRole('textbox', { name: /what happened/i }).fill(note);
+    await page.getByRole('button', { name: /publish report/i }).click();
+    await expect(page.getByRole('dialog')).toBeHidden({ timeout: 15_000 });
+    await expect(page.locator('.loc-panel__issue').filter({ hasText: note })).toBeVisible({
+      timeout: 15_000,
+    });
+    // onCreated selects the new issue — do not click the row (that deselects).
+    await expect(page.getByRole('button', { name: 'Escalate on X' })).toBeVisible({
+      timeout: 15_000,
+    });
+  }
+
   test('Escalate on X updates public status after a live POST', async ({ page }) => {
     await page.addInitScript(() => {
       window.open = () => null;
     });
-    await page.goto('/map?loc=baner&report=1');
-    await expect(page.getByRole('dialog')).toBeVisible();
     const note = `E2E public escalate Baner ${Date.now()}`;
-    await page.getByRole('textbox', { name: /what happened/i }).fill(note);
-    await page.getByRole('button', { name: /publish report/i }).click();
-    await expect(page.getByRole('dialog')).toBeHidden({ timeout: 15_000 });
-    const issue = page.locator('.loc-panel__issue').filter({ hasText: note });
-    await expect(issue).toBeVisible({ timeout: 15_000 });
-    await issue.click();
+    await publishBanerIssue(page, note);
     const escalatePost = page.waitForResponse(
       (res) =>
         res.request().method() === 'POST' && /\/v1\/reports\/[^/]+\/escalate$/.test(res.url()),
@@ -231,16 +239,9 @@ test.describe('Map locality escalation (API-first)', () => {
     await page.addInitScript(() => {
       window.open = () => null;
     });
-    await page.goto('/map?loc=baner&report=1');
-    await expect(page.getByRole('dialog')).toBeVisible();
     const note = `E2E escalate fail Baner ${Date.now()}`;
-    await page.getByRole('textbox', { name: /what happened/i }).fill(note);
-    await page.getByRole('button', { name: /publish report/i }).click();
-    await expect(page.getByRole('dialog')).toBeHidden({ timeout: 15_000 });
-    const issue = page.locator('.loc-panel__issue').filter({ hasText: note });
-    await expect(issue).toBeVisible({ timeout: 15_000 });
-    await issue.click();
-    await expect(issue.locator('.pill--open')).toBeVisible();
+    await publishBanerIssue(page, note);
+    await expect(page.locator('.loc-panel__focus .pill--open')).toHaveText('open');
     await page.getByRole('button', { name: 'Escalate on X' }).click();
     const escalateError = page.getByRole('alert').filter({
       hasText: /Could not update the public ledger/i,
