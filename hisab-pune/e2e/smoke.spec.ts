@@ -284,10 +284,10 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
       timeout: 15_000,
     });
-    await expect(page.getByRole('button', { name: 'Comments' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Comments', exact: true })).toHaveCount(0);
 
     await page.locator('.loc-panel__issue').filter({ hasText: /Overflowing dumpster/i }).click();
-    const commentsBtn = page.getByRole('button', { name: 'Comments' });
+    const commentsBtn = page.getByRole('button', { name: 'Comments', exact: true });
     await expect(commentsBtn).toBeVisible();
     await expect(commentsBtn).toHaveAttribute('aria-expanded', 'false');
     await expect(page.getByText(mockedBody)).toHaveCount(0);

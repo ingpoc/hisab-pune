@@ -22,8 +22,6 @@ export function IssueComments({ reportId }: Props) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setLoadError(null);
     fetchComments(reportId)
       .then((rows) => {
         if (cancelled) return;
@@ -75,7 +73,11 @@ export function IssueComments({ reportId }: Props) {
           <button
             type="button"
             className="issue-comments__retry"
-            onClick={() => setReloadToken((n) => n + 1)}
+            onClick={() => {
+              setLoading(true);
+              setLoadError(null);
+              setReloadToken((n) => n + 1);
+            }}
           >
             Retry
           </button>
