@@ -108,6 +108,7 @@ export type ApiReport = {
   author_label?: string | null;
   publish_as?: PublishAs;
   gov_ticket_id?: string | null;
+  updated_at?: string;
 };
 
 export function toClientReport(r: ApiReport): Report {
@@ -190,6 +191,23 @@ export async function createReport(input: {
   });
   const data = (await res.json()) as { report: ApiReport; here: HereResponse };
   return { report: toClientReport(data.report), here: data.here };
+}
+
+/** Public escalate. Session optional — same contract as createReport. */
+export async function escalateReport(reportId: string): Promise<Report> {
+  try {
+    await ensureSession();
+  } catch {
+    // Anonymous escalate still works without a session.
+  }
+  const res = await apiRequest(`/v1/reports/${encodeURIComponent(reportId)}/escalate`, {
+    method: 'POST',
+    headers: {
+      ...sessionHeaders(),
+    },
+  });
+  const data = (await res.json()) as { report: ApiReport };
+  return toClientReport(data.report);
 }
 
 export type ApiComment = {

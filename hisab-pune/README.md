@@ -74,7 +74,7 @@ Branch protection on `main` requires the **Lint, test & build** check.
 ## Stack
 
 - Web: Vite + React + TypeScript + MapLibre + **GSAP** (hero / ladder / page motion)
-- API: Hono + SQLite locally; Postgres (`pg`) when `DATABASE_URL` is set — `GET /v1/here`, reports, freshness, SLA
+- API: Hono + SQLite locally; Postgres (`pg`) when `DATABASE_URL` is set — `GET /v1/here`, reports, `POST /v1/reports/:id/escalate` (session optional), freshness, SLA
 - iOS: SwiftUI + WidgetKit scaffold under `ios/` (build on Mac/Xcode)
 
 ## Docs

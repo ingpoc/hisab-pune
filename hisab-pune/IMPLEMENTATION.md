@@ -8,6 +8,7 @@ Language: **English only** for names, UI, and API payloads.
 - [x] Seed 2026 wards / corporators / offices / city leaders + GeoJSON (idempotent on Postgres)
 - [x] `GET /v1/here?lat=&lng=`
 - [x] `GET/POST /v1/reports` + moderation / SLA fields
+- [x] `POST /v1/reports/:id/escalate` — public status `escalated` + `report_events` (session optional)
 - [x] `GET /v1/wards/:id` escalation
 - [x] Automated API tests + curl checks
 

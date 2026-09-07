@@ -202,4 +202,88 @@ describe('Hisab API', () => {
     await db.close();
     fs.rmSync(tmp, { recursive: true, force: true });
   });
+
+  it('escalates a report on the public ledger without a session', async () => {
+    const db = await openDatabase({ sqlitePath: rootDb });
+    await migrate(db);
+    const app = createApp(db);
+    const created = await app.request('http://local/v1/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        lat: 18.559,
+        lng: 73.7867,
+        note: 'API escalate Baner dumpster for ledger sync.',
+      }),
+    });
+    assert.equal(created.status, 201);
+    const createdBody = (await created.json()) as {
+      report: { id: string; status: string; updated_at: string };
+    };
+    assert.equal(createdBody.report.status, 'open');
+    const id = createdBody.report.id;
+
+    const res = await app.request(`http://local/v1/reports/${id}/escalate`, { method: 'POST' });
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      report: { id: string; status: string; updated_at: string };
+    };
+    assert.equal(body.report.id, id);
+    assert.equal(body.report.status, 'escalated');
+    assert.ok(body.report.updated_at);
+    assert.equal('author_user_id' in body.report, false);
+
+    const listed = await app.request(`http://local/v1/reports?status=escalated`);
+    assert.equal(listed.status, 200);
+    const listBody = (await listed.json()) as { reports: Array<{ id: string; status: string }> };
+    assert.ok(listBody.reports.some((r) => r.id === id && r.status === 'escalated'));
+
+    const events = await db.all<{ event_type: string }>(
+      `SELECT event_type FROM report_events WHERE report_id = ? ORDER BY created_at`,
+      [id],
+    );
+    assert.deepEqual(
+      events.map((e) => e.event_type),
+      ['created', 'escalated'],
+    );
+
+    const again = await app.request(`http://local/v1/reports/${id}/escalate`, { method: 'POST' });
+    assert.equal(again.status, 200);
+    const againBody = (await again.json()) as { report: { status: string } };
+    assert.equal(againBody.report.status, 'escalated');
+    const eventsAgain = await db.all<{ event_type: string }>(
+      `SELECT event_type FROM report_events WHERE report_id = ? AND event_type = 'escalated'`,
+      [id],
+    );
+    assert.equal(eventsAgain.length, 2);
+
+    await db.close();
+  });
+
+  it('returns 404 for missing reports and rejects escalating resolved ones', async () => {
+    const db = await openDatabase({ sqlitePath: rootDb });
+    await migrate(db);
+    const app = createApp(db);
+
+    const missing = await app.request('http://local/v1/reports/does-not-exist/escalate', {
+      method: 'POST',
+    });
+    assert.equal(missing.status, 404);
+    const missingBody = (await missing.json()) as { error: string };
+    assert.match(missingBody.error, /not found/i);
+
+    const resolved = await app.request('http://local/v1/reports/seed-8/escalate', {
+      method: 'POST',
+    });
+    assert.equal(resolved.status, 409);
+    const resolvedBody = (await resolved.json()) as { error: string };
+    assert.match(resolvedBody.error, /resolved/i);
+
+    const still = await db.get<{ status: string }>(`SELECT status FROM reports WHERE id = ?`, [
+      'seed-8',
+    ]);
+    assert.equal(still?.status, 'resolved');
+
+    await db.close();
+  });
 });

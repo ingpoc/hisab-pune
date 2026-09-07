@@ -180,4 +180,95 @@ test.describe('Map locality escalation (API-first)', () => {
     const last = page.locator('.ladder--rail .ladder__list > li').last();
     await expect(last.getByRole('heading', { name: /Murlidhar Mohol/i })).toBeVisible();
   });
+
+  test('Escalate on X updates public status after a live POST', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.open = () => null;
+    });
+    await page.goto('/map?loc=baner&report=1');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    const note = `E2E public escalate Baner ${Date.now()}`;
+    await page.getByRole('textbox', { name: /what happened/i }).fill(note);
+    await page.getByRole('button', { name: /publish report/i }).click();
+    await expect(page.getByRole('dialog')).toBeHidden({ timeout: 15_000 });
+    const issue = page.locator('.loc-panel__issue').filter({ hasText: note });
+    await expect(issue).toBeVisible({ timeout: 15_000 });
+    await issue.click();
+    const escalatePost = page.waitForResponse(
+      (res) =>
+        res.request().method() === 'POST' && /\/v1\/reports\/[^/]+\/escalate$/.test(res.url()),
+    );
+    await page.getByRole('button', { name: 'Escalate on X' }).click();
+    const post = await escalatePost;
+    expect(post.ok()).toBeTruthy();
+    await expect(page.getByRole('complementary', { name: 'Escalation route' })).toBeVisible();
+    await expect(page.locator('.loc-panel__focus .pill--escalated')).toHaveText('escalated');
+    const listed = await page.request.get('/v1/reports?localityId=baner');
+    expect(listed.ok()).toBeTruthy();
+    const body = (await listed.json()) as {
+      reports: Array<{ note: string; status: string }>;
+    };
+    const row = body.reports.find((r) => r.note === note);
+    expect(row?.status).toBe('escalated');
+  });
+
+  test('failed public escalate keeps X usable and does not fake city-wide status', async ({
+    page,
+  }) => {
+    test.setTimeout(45_000);
+    let down = true;
+    await page.route('**/v1/reports/**/escalate', async (route) => {
+      if (route.request().method() !== 'POST') {
+        await route.continue();
+        return;
+      }
+      if (down) {
+        await route.fulfill({ status: 500, body: 'unavailable' });
+        return;
+      }
+      await route.continue();
+    });
+    await page.addInitScript(() => {
+      window.open = () => null;
+    });
+    await page.goto('/map?loc=baner&report=1');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    const note = `E2E escalate fail Baner ${Date.now()}`;
+    await page.getByRole('textbox', { name: /what happened/i }).fill(note);
+    await page.getByRole('button', { name: /publish report/i }).click();
+    await expect(page.getByRole('dialog')).toBeHidden({ timeout: 15_000 });
+    const issue = page.locator('.loc-panel__issue').filter({ hasText: note });
+    await expect(issue).toBeVisible({ timeout: 15_000 });
+    await issue.click();
+    await expect(issue.locator('.pill--open')).toBeVisible();
+    await page.getByRole('button', { name: 'Escalate on X' }).click();
+    const escalateError = page.getByRole('alert').filter({
+      hasText: /Could not update the public ledger/i,
+    });
+    await expect(escalateError).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('complementary', { name: 'Escalation route' })).toBeVisible();
+    await expect(page.locator('.loc-panel__focus .pill--open')).toHaveText('open');
+    await expect(page.locator('.loc-panel__focus .pill--escalated')).toHaveCount(0);
+    const listedDown = await page.request.get('/v1/reports?localityId=baner');
+    const downBody = (await listedDown.json()) as {
+      reports: Array<{ note: string; status: string }>;
+    };
+    expect(downBody.reports.find((r) => r.note === note)?.status).toBe('open');
+
+    down = false;
+    const escalatePost = page.waitForResponse(
+      (res) =>
+        res.request().method() === 'POST' && /\/v1\/reports\/[^/]+\/escalate$/.test(res.url()),
+    );
+    await escalateError.getByRole('button', { name: 'Retry' }).click();
+    const post = await escalatePost;
+    expect(post.ok()).toBeTruthy();
+    await expect(escalateError).toHaveCount(0, { timeout: 10_000 });
+    await expect(page.locator('.loc-panel__focus .pill--escalated')).toHaveText('escalated');
+    const listedUp = await page.request.get('/v1/reports?localityId=baner');
+    const upBody = (await listedUp.json()) as {
+      reports: Array<{ note: string; status: string }>;
+    };
+    expect(upBody.reports.find((r) => r.note === note)?.status).toBe('escalated');
+  });
 });
