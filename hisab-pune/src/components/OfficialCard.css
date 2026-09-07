@@ -93,6 +93,24 @@
   text-underline-offset: 2px;
 }
 
+@media (max-width: 960px) {
+  .official__actions a,
+  .official__more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .official__actions a {
+    min-width: 44px;
+  }
+
+  .official__more {
+    padding-inline: 0.15rem;
+    margin-top: 0.15rem;
+  }
+}
+
 .official__more:hover {
   color: var(--ink);
 }
