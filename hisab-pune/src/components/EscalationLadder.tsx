@@ -44,6 +44,7 @@ export function EscalationLadder({
           opacity: 0,
           duration: 0.35,
           ease: 'power2.out',
+          clearProps: 'transform,opacity',
         });
         gsap.from('.ladder__list > li', {
           y: 14,
@@ -52,6 +53,7 @@ export function EscalationLadder({
           stagger: 0.05,
           ease: 'power2.out',
           delay: 0.06,
+          clearProps: 'transform,opacity',
         });
       });
     }, root);
@@ -76,30 +78,32 @@ export function EscalationLadder({
   if (variant === 'rail') {
     return (
       <section className="ladder ladder--rail" ref={rootRef} aria-label="Escalation route">
-        <header className="ladder__rail-head">
-          <div>
-            <p className="ladder__eyebrow">Escalation route</p>
-            <h2 className="ladder__rail-title">{locality.name}</h2>
-            <p className="ladder__meta">
-              {chain.length} contacts · Ward {locality.electoralWardId}
-              {ward ? ` · ${ward.name}` : ''}
-            </p>
-          </div>
-          {onClose && (
-            <button
-              type="button"
-              className="ladder__close"
-              onClick={onClose}
-              aria-label="Close escalation route"
-            >
-              ✕
-            </button>
-          )}
-        </header>
-        <p className="ladder__hint">
-          Role + name + one contact. Open details when you need title, note, or source.
-        </p>
-        {list}
+        <div className="ladder__rail-body">
+          <header className="ladder__rail-head">
+            <div>
+              <p className="ladder__eyebrow">Escalation route</p>
+              <h2 className="ladder__rail-title">{locality.name}</h2>
+              <p className="ladder__meta">
+                {chain.length} contacts · Ward {locality.electoralWardId}
+                {ward ? ` · ${ward.name}` : ''}
+              </p>
+            </div>
+            {onClose && (
+              <button
+                type="button"
+                className="ladder__close"
+                onClick={onClose}
+                aria-label="Close escalation route"
+              >
+                ✕
+              </button>
+            )}
+          </header>
+          <p className="ladder__hint">
+            Role + name + one contact. Open details when you need title, note, or source.
+          </p>
+          {list}
+        </div>
       </section>
     );
   }

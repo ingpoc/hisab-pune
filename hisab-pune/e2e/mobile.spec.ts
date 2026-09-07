@@ -22,7 +22,21 @@ async function shot(page: Page, name: string) {
 
 async function fullyInView(locator: Locator) {
   await locator.scrollIntoViewIfNeeded();
-  await expect(locator).toBeInViewport({ ratio: 1 });
+  const geo = await locator.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      top: r.top,
+      bottom: r.bottom,
+      left: r.left,
+      right: r.right,
+      vh: window.innerHeight,
+      vw: window.innerWidth,
+    };
+  });
+  expect(geo.top).toBeGreaterThanOrEqual(-1);
+  expect(geo.left).toBeGreaterThanOrEqual(-1);
+  expect(geo.bottom).toBeLessThanOrEqual(geo.vh + 1);
+  expect(geo.right).toBeLessThanOrEqual(geo.vw + 1);
 }
 
 test.describe('Mobile Chrome 390×844', () => {
@@ -93,32 +107,90 @@ test.describe('Mobile Chrome 390×844', () => {
     await page.getByRole('button', { name: /Escalation route/i }).click();
     const rail = page.getByRole('complementary', { name: 'Escalation route' });
     await expect(rail).toBeVisible();
-    expect((await rail.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(844 * 0.45);
+    const railHeight = (await rail.boundingBox())?.height ?? 0;
+    expect(railHeight).toBeGreaterThanOrEqual(844 * 0.6);
+    expect(railHeight).toBeLessThanOrEqual(844 * 0.64 + 8);
 
-    const list = page.locator('.ladder--rail .ladder__list');
-    const metrics = await list.evaluate((el) => ({
+    const close = page.getByRole('button', { name: 'Close escalation route' });
+    await expect(close).toBeVisible();
+    expect((await close.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+
+    // DESIGN.md L1 — do not auto-expand every card on rail mount.
+    const moreButtons = page.locator('.ladder--rail .official__more');
+    await expect(moreButtons.first()).toBeVisible();
+    expect(await moreButtons.evaluateAll((btns) => btns.every((b) => b.getAttribute('aria-expanded') === 'false'))).toBe(
+      true,
+    );
+
+    const scroller = page.locator('.ladder--rail .ladder__rail-body');
+    const metrics = await scroller.evaluate((el) => ({
       clientHeight: el.clientHeight,
       scrollHeight: el.scrollHeight,
     }));
     expect(metrics.scrollHeight).toBeGreaterThan(metrics.clientHeight);
     expect(
-      await list.locator('.official').evaluateAll((cards) => {
-        const list = cards[0]?.closest('.ladder__list')?.getBoundingClientRect();
-        if (!list) return 0;
+      await scroller.locator('.official').evaluateAll((cards) => {
+        const body = cards[0]?.closest('.ladder__rail-body')?.getBoundingClientRect();
+        if (!body) return 0;
         return cards.filter((card) => {
           const rect = card.getBoundingClientRect();
-          return rect.top >= list.top && rect.bottom <= list.bottom;
+          return rect.top >= body.top - 1 && rect.bottom <= body.bottom + 1;
         }).length;
       }),
     ).toBeGreaterThanOrEqual(3);
 
-    const last = page.getByRole('heading', { name: /Murlidhar Mohol/i });
+    const firstPhone = page.locator('.ladder--rail .official__actions a').first();
+    const firstMore = moreButtons.first();
+    expect((await firstPhone.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+    expect((await firstMore.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+
+    const lastItem = page.locator('.ladder--rail .ladder__list > li').last();
+    const last = lastItem.getByRole('heading', { name: /Murlidhar Mohol/i });
     await expect(last).toBeVisible({ timeout: 10_000 });
-    await fullyInView(last);
+
+    await scroller.evaluate((el) => {
+      el.scrollTop = el.scrollHeight;
+    });
+
+    await expect(close).toBeVisible();
+    const closeAfter = await close.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { top: r.top, bottom: r.bottom, height: r.height };
+    });
+    const railTop = (await rail.boundingBox())?.y ?? 0;
+    expect(closeAfter.top).toBeGreaterThanOrEqual(railTop - 1);
+    expect(closeAfter.bottom).toBeLessThan(railTop + 180);
+    expect(closeAfter.height).toBeGreaterThanOrEqual(44);
+
+    const lastGeo = await lastItem.evaluate((el) => {
+      const item = el.getBoundingClientRect();
+      const body = el.closest('.ladder__rail-body')?.getBoundingClientRect();
+      const more = el.querySelector('.official__more')?.getBoundingClientRect();
+      const contact = el.querySelector('.official__actions a')?.getBoundingClientRect();
+      return {
+        itemTop: item.top,
+        itemBottom: item.bottom,
+        itemHeight: item.height,
+        itemWidth: item.width,
+        bodyTop: body?.top ?? null,
+        bodyBottom: body?.bottom ?? null,
+        moreHeight: more?.height ?? null,
+        contactHeight: contact?.height ?? null,
+      };
+    });
+    expect(lastGeo.bodyTop).not.toBeNull();
+    expect(lastGeo.bodyBottom).not.toBeNull();
+    expect(lastGeo.itemTop).toBeGreaterThanOrEqual((lastGeo.bodyTop ?? 0) - 1);
+    expect(lastGeo.itemBottom).toBeLessThanOrEqual((lastGeo.bodyBottom ?? 0) + 1);
+    expect(lastGeo.itemHeight).toBeGreaterThanOrEqual(44);
+    expect(lastGeo.itemWidth).toBeGreaterThanOrEqual(44);
+    if (lastGeo.moreHeight != null) expect(lastGeo.moreHeight).toBeGreaterThanOrEqual(44);
+    if (lastGeo.contactHeight != null) expect(lastGeo.contactHeight).toBeGreaterThanOrEqual(44);
+
     await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible();
     await shot(page, 'escalation_rail_last_contact');
 
-    await page.getByRole('button', { name: 'Close escalation route' }).click();
+    await close.click();
     await expect(rail).toBeHidden();
     expect((await map.boundingBox())?.height ?? 0).toBeCloseTo(closedMapHeight, 0);
   });

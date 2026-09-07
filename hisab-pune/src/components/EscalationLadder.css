@@ -5,11 +5,23 @@
 }
 
 .ladder--rail {
-  gap: 0.85rem;
+  gap: 0;
   flex: 1;
   height: 100%;
   min-height: 0;
   overflow: hidden;
+}
+
+/* One scroller: header sticks, contacts move, last row can clear the home indicator. */
+.ladder__rail-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scroll-padding-top: 0.5rem;
+  scroll-padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 .ladder__head {
@@ -29,6 +41,12 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--paper);
+  padding-bottom: 0.55rem;
+  box-shadow: 0 1px 0 var(--line);
 }
 
 .ladder__eyebrow {
@@ -64,10 +82,25 @@
 }
 
 .ladder__hint {
-  margin: 0;
+  margin: 0 0 0.75rem;
   font-size: 0.78rem;
   line-height: 1.4;
   color: var(--mist);
+}
+
+@media (max-width: 960px) {
+  .ladder__rail-title {
+    font-size: 1.2rem;
+  }
+
+  .ladder__meta {
+    margin-top: 0.2rem;
+  }
+
+  .ladder__hint {
+    margin-bottom: 0.45rem;
+    font-size: 0.72rem;
+  }
 }
 
 .ladder__close {
@@ -100,12 +133,15 @@
 }
 
 .ladder--rail .ladder__list {
-  overflow: auto;
+  overflow: visible;
   min-height: 0;
-  flex: 1;
-  padding-bottom: 0.5rem;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  flex: none;
+  padding-bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.ladder--rail .ladder__list > li {
+  scroll-margin-top: 0.5rem;
+  scroll-margin-bottom: calc(1.75rem + env(safe-area-inset-bottom, 0px));
 }
 
 .ladder__connector {
