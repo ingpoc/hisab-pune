@@ -82,15 +82,18 @@ test.describe('Mobile Chrome 390×844', () => {
     await shot(page, 'baner_sheet_expanded');
   });
 
-  test('Escalation route rail scrolls to the last contact', async ({ page }) => {
+  test('Escalation route makes the rail primary and still reaches the last contact', async ({ page }) => {
     await page.goto('/map?loc=baner');
     await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
       timeout: 15_000,
     });
+    const map = page.locator('.map-page__map');
+    const closedMapHeight = (await map.boundingBox())?.height ?? 0;
 
     await page.getByRole('button', { name: /Escalation route/i }).click();
     const rail = page.getByRole('complementary', { name: 'Escalation route' });
     await expect(rail).toBeVisible();
+    expect((await rail.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(844 * 0.45);
 
     const list = page.locator('.ladder--rail .ladder__list');
     const metrics = await list.evaluate((el) => ({
@@ -98,12 +101,26 @@ test.describe('Mobile Chrome 390×844', () => {
       scrollHeight: el.scrollHeight,
     }));
     expect(metrics.scrollHeight).toBeGreaterThan(metrics.clientHeight);
+    expect(
+      await list.locator('.official').evaluateAll((cards) => {
+        const list = cards[0]?.closest('.ladder__list')?.getBoundingClientRect();
+        if (!list) return 0;
+        return cards.filter((card) => {
+          const rect = card.getBoundingClientRect();
+          return rect.top >= list.top && rect.bottom <= list.bottom;
+        }).length;
+      }),
+    ).toBeGreaterThanOrEqual(3);
 
     const last = page.getByRole('heading', { name: /Murlidhar Mohol/i });
     await expect(last).toBeVisible({ timeout: 10_000 });
     await fullyInView(last);
     await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible();
     await shot(page, 'escalation_rail_last_contact');
+
+    await page.getByRole('button', { name: 'Close escalation route' }).click();
+    await expect(rail).toBeHidden();
+    expect((await map.boundingBox())?.height ?? 0).toBeCloseTo(closedMapHeight, 0);
   });
 
   test('tap targets are at least 44px (menu, report, brand, rows, how-link)', async ({
