@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { Nav } from './components/Nav';
+import { WakeBanner } from './components/WakeBanner';
 import { PageTransition } from './components/PageTransition';
 import { HomePage } from './pages/HomePage';
 import { MapPage } from './pages/MapPage';
@@ -18,6 +19,7 @@ export default function App() {
     <BrowserRouter>
       <div className="grain" aria-hidden />
       <Nav />
+      <WakeBanner />
       <PageTransition>
         <Routes>
           <Route path="/" element={<HomePage />} />

@@ -8,6 +8,7 @@ import { localities, getLocality } from '../data/localities';
 import type { Report } from '../data/types';
 import { loadReportsWithOverrides, updateReportStatus } from '../lib/storage';
 import { fetchReports } from '../lib/api';
+import { REPORTS_LOAD_ERROR, retryWake, useWakeStatus } from '../lib/apiWake';
 import { escalationChain } from '../lib/escalation';
 import { buildEscalationTweet, xIntentUrl } from '../lib/twitter';
 import './MapPage.css';
@@ -21,11 +22,14 @@ export function MapPage() {
   const [reportOpen, setReportOpen] = useState(params.get('report') === '1');
   const [escalationOpen, setEscalationOpen] = useState(false);
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const { retryNonce } = useWakeStatus();
   const sheetDrag = useRef<{ y: number; id: number } | null>(null);
   const skipSheetClick = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
+    setLoadError(null);
     fetchReports()
       .then((apiReports) => {
         if (cancelled) return;
@@ -36,12 +40,12 @@ export function MapPage() {
         setReports([...byId.values()]);
       })
       .catch(() => {
-        /* keep local/seed fallback */
+        if (!cancelled) setLoadError(REPORTS_LOAD_ERROR);
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryNonce]);
 
   useEffect(() => {
     const loc = params.get('loc');
@@ -211,6 +215,14 @@ export function MapPage() {
           }}
         />
         <div id="locality-sheet" className="map-page__sheet-body">
+        {loadError && (
+          <div className="map-page__api-error" role="alert">
+            <p>{loadError}</p>
+            <button type="button" className="map-page__api-retry" onClick={() => retryWake()}>
+              Retry
+            </button>
+          </div>
+        )}
         {selected ? (
           <LocalitySidePanel
             locality={selected}
