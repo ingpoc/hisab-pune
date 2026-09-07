@@ -261,7 +261,9 @@ export async function attachGovTicket(reportId: string, externalId: string) {
     },
     body: JSON.stringify({ externalId, channel: 'pmc_care' }),
   });
-  return res.json();
+  return res.json() as Promise<{
+    ticket: { id: string; externalId: string; channel: string; status: string };
+  }>;
 }
 
 export type FreshnessSource = {

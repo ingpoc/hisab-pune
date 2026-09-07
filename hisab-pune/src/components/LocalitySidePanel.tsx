@@ -5,6 +5,7 @@ import { getElectoralWard } from '../data/electoralWards';
 import { mlas } from '../data/cityOfficials';
 import type { Locality, Official, Report } from '../data/types';
 import { formatIssueAge } from '../lib/issueAge';
+import { CareLinks } from './CareLinks';
 import { TweetAction } from './TweetAction';
 import './LocalitySidePanel.css';
 
@@ -39,14 +40,17 @@ export function LocalitySidePanel({
 }: Props) {
   const [tab, setTab] = useState<IssueTab>('open');
   const [draftOpen, setDraftOpen] = useState(false);
+  const [careOpen, setCareOpen] = useState(false);
 
   useEffect(() => {
     setTab('open');
     setDraftOpen(false);
+    setCareOpen(false);
   }, [locality.id]);
 
   useEffect(() => {
     setDraftOpen(false);
+    setCareOpen(false);
   }, [activeReportId]);
 
   const openIssues = useMemo(
@@ -66,8 +70,20 @@ export function LocalitySidePanel({
   const assemblyLabel = mla?.title.replace(/^MLA — /, '') ?? locality.assemblyId;
   const chain = officials;
 
-  function openDraft() {
-    setDraftOpen((v) => !v);
+  function toggleDraft() {
+    setDraftOpen((v) => {
+      const next = !v;
+      if (next) setCareOpen(false);
+      return next;
+    });
+  }
+
+  function toggleCare() {
+    setCareOpen((v) => {
+      const next = !v;
+      if (next) setDraftOpen(false);
+      return next;
+    });
   }
 
   return (
@@ -184,7 +200,7 @@ export function LocalitySidePanel({
                 type="button"
                 className="loc-panel__text-btn"
                 aria-expanded={draftOpen}
-                onClick={openDraft}
+                onClick={toggleDraft}
               >
                 {draftOpen ? 'Hide draft' : 'Edit draft'}
               </button>
@@ -194,6 +210,21 @@ export function LocalitySidePanel({
                   locality={locality}
                   officials={chain}
                   note={active.note}
+                />
+              )}
+              <button
+                type="button"
+                className="loc-panel__text-btn"
+                aria-expanded={careOpen}
+                onClick={toggleCare}
+              >
+                {careOpen ? 'Hide CARE links' : 'Get CARE links'}
+              </button>
+              {careOpen && (
+                <CareLinks
+                  key={active.id}
+                  reportId={active.id}
+                  existingTicket={active.govTicketId}
                 />
               )}
             </div>
@@ -207,6 +238,7 @@ export function LocalitySidePanel({
         aria-expanded={escalationOpen}
         onClick={() => {
           setDraftOpen(false);
+          setCareOpen(false);
           onEscalationOpenChange(!escalationOpen);
         }}
       >
