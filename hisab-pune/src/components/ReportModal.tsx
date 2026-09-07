@@ -7,6 +7,12 @@ import { ensureSession, loadSession } from '../lib/session';
 import { saveUserReport } from '../lib/storage';
 import './ReportModal.css';
 
+/** Shown after createReport fails (including exhausted cold-start retries). */
+export const PUBLISH_FAIL_COPY =
+  'Could not publish to Hisab. Free hosting may still be starting — Retry.';
+
+export const SAVE_DEVICE_ONLY_LABEL = 'Save on this device only';
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -35,6 +41,7 @@ export function ReportModal({
   } | null>(null);
   const [locating, setLocating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [publishFailed, setPublishFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [anonId, setAnonId] = useState<string | null>(null);
   const [locationHint, setLocationHint] = useState<string | null>(null);
@@ -54,6 +61,7 @@ export function ReportModal({
   useEffect(() => {
     if (!open) return;
     setError(null);
+    setPublishFailed(false);
     if (preferredLocality) {
       setCoords({ lat: preferredLocality.lat, lng: preferredLocality.lng });
       setResolved({
@@ -198,39 +206,50 @@ export function ReportModal({
       const withPhoto = { ...report, photoDataUrl };
       saveUserReport(withPhoto);
       onCreated(withPhoto);
-      setNote('');
-      setPhotoDataUrl(undefined);
-      setCoords(null);
-      setResolved(null);
-      setCategoryId('solid_waste');
-      setPublishAs('anonymous');
+      resetForm();
       onClose();
-    } catch (err) {
-      const report: Report = {
-        id: `user-${Date.now()}`,
-        localityId: locality.id,
-        lat: coords.lat,
-        lng: coords.lng,
-        note: note.trim(),
-        status: 'open',
-        createdAt: new Date().toISOString(),
-        photoDataUrl,
-        source: 'user',
-        categoryId,
-        publishAs,
-        authorLabel: anonId ?? 'R-LOCAL',
-      };
-      saveUserReport(report);
-      onCreated(report);
-      setNote('');
-      setPhotoDataUrl(undefined);
-      setCoords(null);
-      setResolved(null);
-      onClose();
-      console.warn('API create failed, saved locally', err);
+    } catch {
+      setPublishFailed(true);
+      setError(PUBLISH_FAIL_COPY);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function resetForm() {
+    setNote('');
+    setPhotoDataUrl(undefined);
+    setCoords(null);
+    setResolved(null);
+    setCategoryId('solid_waste');
+    setPublishAs('anonymous');
+    setPublishFailed(false);
+    setError(null);
+  }
+
+  function saveOnThisDeviceOnly() {
+    if (!coords || !locality || !note.trim()) {
+      setError('Locate yourself and add a short description first.');
+      return;
+    }
+    const report: Report = {
+      id: `user-${Date.now()}`,
+      localityId: locality.id,
+      lat: coords.lat,
+      lng: coords.lng,
+      note: note.trim(),
+      status: 'open',
+      createdAt: new Date().toISOString(),
+      photoDataUrl,
+      source: 'user',
+      categoryId,
+      publishAs,
+      authorLabel: anonId ?? 'R-LOCAL',
+    };
+    saveUserReport(report);
+    onCreated(report);
+    resetForm();
+    onClose();
   }
 
   return (
@@ -331,14 +350,28 @@ export function ReportModal({
           </label>
         </fieldset>
 
-        {error && <p className="modal__error">{error}</p>}
+        {error && (
+          <p className="modal__error" role="alert">
+            {error}
+          </p>
+        )}
 
         <div className="modal__actions">
+          {publishFailed && (
+            <button
+              type="button"
+              className="modal__local-only"
+              onClick={saveOnThisDeviceOnly}
+              disabled={submitting}
+            >
+              {SAVE_DEVICE_ONLY_LABEL}
+            </button>
+          )}
           <button type="button" className="modal__cancel" onClick={onClose}>
             Cancel
           </button>
           <button type="submit" className="btn btn--alert" disabled={submitting}>
-            {submitting ? 'Publishing…' : 'Publish report'}
+            {submitting ? 'Publishing…' : publishFailed ? 'Retry' : 'Publish report'}
           </button>
         </div>
       </form>

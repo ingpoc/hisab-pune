@@ -5,6 +5,29 @@ import { expect, test } from '@playwright/test';
  * Keep this suite small — prefer graders/ for static invariants.
  */
 test.describe('Hisab smoke (browser QA regressions)', () => {
+  test('viewport-fit and social preview metas are wired', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
+      'content',
+      /viewport-fit=cover/,
+    );
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute(
+      'content',
+      'https://hisab-pune.onrender.com/',
+    );
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+      'content',
+      'https://hisab-pune.onrender.com/og-image.png',
+    );
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+      'content',
+      'https://hisab-pune.onrender.com/og-image.png',
+    );
+    const image = await page.request.get('/og-image.png');
+    expect(image.ok()).toBeTruthy();
+    expect(image.headers()['content-type']).toMatch(/image\/png/);
+  });
+
   test('home shows brand-level Hisab and CTAs', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('.hero__brand')).toHaveText('Hisab');
