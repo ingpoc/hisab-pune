@@ -10,6 +10,7 @@ import { gradeNoStaleAmc } from './no-stale-amc.ts';
 import { gradeRoutes } from './routes.ts';
 import { gradeGeojson, gradeViteHost } from './vite-and-geo.ts';
 import { gradeColdStart } from './cold-start.ts';
+import { gradeEscalate } from './escalate.ts';
 import type { GradeResult } from './lib.ts';
 
 const results: GradeResult[] = [
@@ -20,6 +21,7 @@ const results: GradeResult[] = [
   gradeViteHost(),
   gradeGeojson(),
   gradeColdStart(),
+  gradeEscalate(),
 ];
 
 let failed = 0;

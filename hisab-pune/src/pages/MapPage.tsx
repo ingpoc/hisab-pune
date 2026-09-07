@@ -7,7 +7,7 @@ import { EscalationLadder } from '../components/EscalationLadder';
 import { localities, getLocality } from '../data/localities';
 import type { Report } from '../data/types';
 import { loadReportsWithOverrides, updateReportStatus } from '../lib/storage';
-import { fetchReports } from '../lib/api';
+import { fetchReports, escalateReport } from '../lib/api';
 import { REPORTS_LOAD_ERROR, retryWake, useWakeStatus } from '../lib/apiWake';
 import {
   ESCALATION_FALLBACK_COPY,
@@ -15,6 +15,9 @@ import {
 } from '../lib/useLocalityEscalation';
 import { buildEscalationTweet, xIntentUrl } from '../lib/twitter';
 import './MapPage.css';
+
+export const ESCALATE_FAIL_COPY =
+  'Could not update the public ledger. You can still post on X — Retry.';
 
 export function MapPage() {
   const [params, setParams] = useSearchParams();
@@ -26,6 +29,9 @@ export function MapPage() {
   const [escalationOpen, setEscalationOpen] = useState(false);
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [escalateError, setEscalateError] = useState<string | null>(null);
+  const [escalateBusy, setEscalateBusy] = useState(false);
+  const [escalateTargetId, setEscalateTargetId] = useState<string | null>(null);
   const { retryNonce } = useWakeStatus();
   const sheetDrag = useRef<{ y: number; id: number } | null>(null);
   const skipSheetClick = useRef(false);
@@ -60,6 +66,9 @@ export function MapPage() {
   useEffect(() => {
     setEscalationOpen(false);
     setSheetExpanded(false);
+    setEscalateError(null);
+    setEscalateBusy(false);
+    setEscalateTargetId(null);
   }, [selectedId]);
 
   const onSheetHandlePointerDown = useCallback(
@@ -161,13 +170,9 @@ export function MapPage() {
     });
   }
 
-  function escalate(report: Report) {
+  function openEscalation(report: Report): boolean {
     const loc = getLocality(report.localityId);
-    if (!loc) return;
-    updateReportStatus(report.id, 'escalated');
-    setReports((prev) =>
-      prev.map((r) => (r.id === report.id ? { ...r, status: 'escalated' as const } : r)),
-    );
+    if (!loc) return false;
     setEscalationOpen(true);
     const tweet = buildEscalationTweet({
       locality: loc,
@@ -175,6 +180,41 @@ export function MapPage() {
       officials,
     });
     window.open(xIntentUrl(tweet), '_blank', 'noopener,noreferrer');
+    return true;
+  }
+
+  function markEscalated(report: Report) {
+    updateReportStatus(report.id, 'escalated');
+    setReports((prev) =>
+      prev.map((r) => (r.id === report.id ? { ...r, status: 'escalated' as const } : r)),
+    );
+  }
+
+  async function syncPublicEscalate(report: Report) {
+    setEscalateTargetId(report.id);
+    setEscalateBusy(true);
+    setEscalateError(null);
+    try {
+      const updated = await escalateReport(report.id);
+      markEscalated(updated);
+    } catch {
+      setEscalateError(ESCALATE_FAIL_COPY);
+    } finally {
+      setEscalateBusy(false);
+    }
+  }
+
+  function escalate(report: Report) {
+    if (!openEscalation(report)) return;
+    void syncPublicEscalate(report);
+  }
+
+  function retryEscalate() {
+    const report =
+      reports.find((r) => r.id === escalateTargetId) ??
+      reports.find((r) => r.id === activeReportId);
+    if (!report) return;
+    void syncPublicEscalate(report);
   }
 
   return (
@@ -238,6 +278,9 @@ export function MapPage() {
             activeReportId={activeReportId}
             onSelectReport={setActiveReportId}
             onEscalate={escalate}
+            escalateError={activeReportId === escalateTargetId ? escalateError : null}
+            escalateBusy={escalateBusy && activeReportId === escalateTargetId}
+            onRetryEscalate={retryEscalate}
             escalationOpen={escalationOpen}
             onEscalationOpenChange={setEscalationOpen}
           />

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { z } from 'zod';
-import type { Db } from './db/client.ts';
+import { withTransaction, type Db } from './db/client.ts';
 import { mintAnonymousPostingId } from './db/schema.ts';
 import { resolveHere } from './lib/here.ts';
 import { buildEscalation } from './lib/escalation.ts';
@@ -397,6 +397,42 @@ export function createApp(db: Db) {
       },
       201,
     );
+  });
+
+  /**
+   * Mark a report escalated on the public ledger.
+   * Session is optional (same as POST /v1/reports) — anonymous citizens can escalate.
+   * Idempotent if already escalated. Resolved reports cannot be escalated here.
+   */
+  app.post('/v1/reports/:id/escalate', async (c) => {
+    const reportId = c.req.param('id');
+    const report = await db.get<{ id: string; status: string }>(
+      'SELECT id, status FROM reports WHERE id = ?',
+      [reportId],
+    );
+    if (!report) return c.json({ error: 'Report not found' }, 404);
+    if (report.status === 'resolved') {
+      return c.json({ error: 'Cannot escalate a resolved report' }, 409);
+    }
+
+    const now = new Date().toISOString();
+    await withTransaction(db, async () => {
+      await db.run(`UPDATE reports SET status = 'escalated', updated_at = ? WHERE id = ?`, [
+        now,
+        reportId,
+      ]);
+      await db.run(
+        `INSERT INTO report_events (id, report_id, event_type, payload_json, created_at)
+         VALUES (?, ?, 'escalated', ?, ?)`,
+        [`evt-${randomUUID()}`, reportId, JSON.stringify({ source: 'api' }), now],
+      );
+    });
+
+    const updated = (await db.get('SELECT * FROM reports WHERE id = ?', [reportId])) as Record<
+      string,
+      unknown
+    >;
+    return c.json({ report: publicReportRow(updated) });
   });
 
   app.post('/v1/reports/:id/gov-ticket', async (c) => {

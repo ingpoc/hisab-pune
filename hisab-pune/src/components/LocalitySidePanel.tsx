@@ -19,6 +19,9 @@ interface Props {
   activeReportId: string | null;
   onSelectReport: (id: string | null) => void;
   onEscalate: (report: Report) => void;
+  escalateError?: string | null;
+  escalateBusy?: boolean;
+  onRetryEscalate?: () => void;
   escalationOpen: boolean;
   onEscalationOpenChange: (open: boolean) => void;
 }
@@ -35,6 +38,9 @@ export function LocalitySidePanel({
   activeReportId,
   onSelectReport,
   onEscalate,
+  escalateError,
+  escalateBusy,
+  onRetryEscalate,
   escalationOpen,
   onEscalationOpenChange,
 }: Props) {
@@ -193,9 +199,25 @@ export function LocalitySidePanel({
                 type="button"
                 className="btn btn--signal"
                 onClick={() => onEscalate(active)}
+                disabled={escalateBusy}
               >
                 Escalate on X
               </button>
+              {escalateError && (
+                <div className="loc-panel__escalate-error" role="alert">
+                  <p>{escalateError}</p>
+                  {onRetryEscalate && (
+                    <button
+                      type="button"
+                      className="loc-panel__escalate-retry"
+                      onClick={onRetryEscalate}
+                      disabled={escalateBusy}
+                    >
+                      Retry
+                    </button>
+                  )}
+                </div>
+              )}
               <button
                 type="button"
                 className="loc-panel__text-btn"
