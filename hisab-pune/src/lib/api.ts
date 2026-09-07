@@ -1,8 +1,15 @@
 import type { CategoryId } from '../data/categories';
 import type { PublishAs, Report, ReportStatus } from '../data/types';
 import { ensureSession, sessionHeaders } from './session';
+import { resilientFetch } from './resilientFetch';
 
 const API = '';
+
+async function apiRequest(path: string, init?: RequestInit): Promise<Response> {
+  const res = await resilientFetch(`${API}${path}`, init);
+  if (!res.ok) throw new Error((await res.text()) || `HTTP ${res.status}`);
+  return res;
+}
 
 export type HereResponse = {
   locality: { id: string; name: string; zone: string | null };
@@ -61,9 +68,15 @@ export function toClientReport(r: ApiReport): Report {
   };
 }
 
+export async function fetchHealth(): Promise<{ ok: true; service: string }> {
+  const res = await apiRequest('/health');
+  const data = (await res.json()) as { ok?: boolean; service?: string };
+  if (data.ok !== true) throw new Error('Health check failed');
+  return { ok: true, service: data.service ?? 'hisab-api' };
+}
+
 export async function fetchHere(lat: number, lng: number): Promise<HereResponse> {
-  const res = await fetch(`${API}/v1/here?lat=${lat}&lng=${lng}`);
-  if (!res.ok) throw new Error(await res.text());
+  const res = await apiRequest(`/v1/here?lat=${lat}&lng=${lng}`);
   return res.json();
 }
 
@@ -75,15 +88,13 @@ export async function fetchReports(opts?: {
   if (opts?.localityId) q.set('localityId', opts.localityId);
   if (opts?.category) q.set('category', opts.category);
   const qs = q.toString();
-  const res = await fetch(`${API}/v1/reports${qs ? `?${qs}` : ''}`);
-  if (!res.ok) throw new Error(await res.text());
+  const res = await apiRequest(`/v1/reports${qs ? `?${qs}` : ''}`);
   const data = (await res.json()) as { reports: ApiReport[] };
   return data.reports.map(toClientReport);
 }
 
 export async function fetchLocalityReports(localityId: string): Promise<Report[]> {
-  const res = await fetch(`${API}/v1/localities/${localityId}/reports`);
-  if (!res.ok) throw new Error(await res.text());
+  const res = await apiRequest(`/v1/localities/${localityId}/reports`);
   const data = (await res.json()) as { reports: ApiReport[] };
   return data.reports.map(toClientReport);
 }
@@ -101,7 +112,7 @@ export async function createReport(input: {
   } catch {
     // Anonymous post still works without a session (main API contract).
   }
-  const res = await fetch(`${API}/v1/reports`, {
+  const res = await apiRequest('/v1/reports', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -113,7 +124,6 @@ export async function createReport(input: {
       publishAs: input.publishAs ?? 'anonymous',
     }),
   });
-  if (!res.ok) throw new Error(await res.text());
   const data = (await res.json()) as { report: ApiReport; here: HereResponse };
   return { report: toClientReport(data.report), here: data.here };
 }
@@ -127,8 +137,7 @@ export type ApiComment = {
 };
 
 export async function fetchComments(reportId: string): Promise<ApiComment[]> {
-  const res = await fetch(`${API}/v1/reports/${reportId}/comments`);
-  if (!res.ok) throw new Error(await res.text());
+  const res = await apiRequest(`/v1/reports/${reportId}/comments`);
   const data = (await res.json()) as { comments: ApiComment[] };
   return data.comments;
 }
@@ -139,7 +148,7 @@ export async function postComment(
   publishAs: PublishAs = 'anonymous',
 ): Promise<ApiComment> {
   await ensureSession();
-  const res = await fetch(`${API}/v1/reports/${reportId}/comments`, {
+  const res = await apiRequest(`/v1/reports/${reportId}/comments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -147,14 +156,12 @@ export async function postComment(
     },
     body: JSON.stringify({ body, publishAs }),
   });
-  if (!res.ok) throw new Error(await res.text());
   const data = (await res.json()) as { comment: ApiComment };
   return data.comment;
 }
 
 export async function fetchCitySignal() {
-  const res = await fetch(`${API}/v1/signal/city`);
-  if (!res.ok) throw new Error(await res.text());
+  const res = await apiRequest('/v1/signal/city');
   return res.json() as Promise<{
     byCategory: Array<{
       categoryId: string;
@@ -171,10 +178,9 @@ export async function fetchCitySignal() {
 }
 
 export async function fetchCareLinks(reportId: string) {
-  const res = await fetch(`${API}/v1/reports/${reportId}/escalate-gov`, {
+  const res = await apiRequest(`/v1/reports/${reportId}/escalate-gov`, {
     method: 'POST',
   });
-  if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{
     result: { ok: false; reason: string; message: string };
     care: { portal: string; whatsapp: string };
@@ -183,7 +189,7 @@ export async function fetchCareLinks(reportId: string) {
 
 export async function attachGovTicket(reportId: string, externalId: string) {
   await ensureSession();
-  const res = await fetch(`${API}/v1/reports/${reportId}/gov-ticket`, {
+  const res = await apiRequest(`/v1/reports/${reportId}/gov-ticket`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -191,7 +197,6 @@ export async function attachGovTicket(reportId: string, externalId: string) {
     },
     body: JSON.stringify({ externalId, channel: 'pmc_care' }),
   });
-  if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
@@ -215,7 +220,6 @@ export type Freshness = {
 };
 
 export async function fetchFreshness(): Promise<Freshness> {
-  const res = await fetch(`${API}/v1/freshness`);
-  if (!res.ok) throw new Error(await res.text());
+  const res = await apiRequest('/v1/freshness');
   return res.json() as Promise<Freshness>;
 }

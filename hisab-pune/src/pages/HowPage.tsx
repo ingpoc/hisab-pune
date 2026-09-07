@@ -4,6 +4,7 @@ import { dataSources } from '../data/sources';
 import { electoralWards } from '../data/electoralWards';
 import { localities } from '../data/localities';
 import { fetchFreshness, type Freshness } from '../lib/api';
+import { useWakeStatus } from '../lib/apiWake';
 import './HowPage.css';
 
 const steps = [
@@ -35,9 +36,11 @@ export function HowPage() {
   const corporatorCount = electoralWards.reduce((n, w) => n + w.corporators.length, 0);
   const [freshness, setFreshness] = useState<Freshness | null>(null);
   const [freshnessError, setFreshnessError] = useState(false);
+  const { retryNonce } = useWakeStatus();
 
   useEffect(() => {
     let cancelled = false;
+    setFreshnessError(false);
     fetchFreshness()
       .then((data) => {
         if (!cancelled) setFreshness(data);
@@ -48,7 +51,7 @@ export function HowPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [retryNonce]);
 
   const sources =
     freshness?.sources && freshness.sources.length > 0 ? freshness.sources : dataSources;

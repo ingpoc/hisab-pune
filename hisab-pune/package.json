@@ -16,7 +16,7 @@
     "dev:api": "tsx server/src/index.ts",
     "seed": "tsx server/src/scripts/seed.ts",
     "grade": "tsx graders/run.ts",
-    "test:api": "tsx --test \"server/src/**/*.test.ts\"",
+    "test:api": "tsx --test \"server/src/**/*.test.ts\" \"src/lib/**/*.test.ts\"",
     "test:e2e": "playwright test",
     "test": "npm run seed && npm run test:api",
     "ci": "npm run lint && npm run grade && npm run test && npm run build"

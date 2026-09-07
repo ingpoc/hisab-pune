@@ -1,3 +1,5 @@
+import { resilientFetch } from './resilientFetch';
+
 const SESSION_KEY = 'hisab.session';
 
 export type HisabSession = {
@@ -24,7 +26,7 @@ export function saveSession(session: HisabSession): void {
 export async function ensureSession(): Promise<HisabSession> {
   const existing = loadSession();
   if (existing?.sessionToken) return existing;
-  const res = await fetch('/v1/auth/session', {
+  const res = await resilientFetch('/v1/auth/session', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({}),
