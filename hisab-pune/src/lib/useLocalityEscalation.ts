@@ -14,6 +14,8 @@ export function resolveLocalityOfficials(
   return live && live.length > 0 ? live : escalationChain(locality);
 }
 
+type LiveEntry = { kind: 'ok'; officials: Official[] } | { kind: 'failed' };
+
 /** Live GET /v1/localities/:id escalation, with static chain fallback. */
 export function useLocalityEscalation(locality: Locality | null | undefined): {
   officials: Official[];
@@ -21,40 +23,36 @@ export function useLocalityEscalation(locality: Locality | null | undefined): {
 } {
   const { retryNonce } = useWakeStatus();
   const localityId = locality?.id ?? null;
-  const [live, setLive] = useState<Official[] | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [byId, setById] = useState<Record<string, LiveEntry>>({});
 
   useEffect(() => {
-    if (!localityId) {
-      setLive(null);
-      setFailed(false);
-      return;
-    }
+    if (!localityId) return;
     let cancelled = false;
-    setLive(null);
-    setFailed(false);
     fetchLocality(localityId)
       .then((data) => {
         if (cancelled) return;
         const mapped = toOfficials(data.escalation);
-        if (mapped.length === 0) {
-          setFailed(true);
-          return;
-        }
-        setLive(mapped);
+        setById((prev) => ({
+          ...prev,
+          [localityId]:
+            mapped.length > 0 ? { kind: 'ok', officials: mapped } : { kind: 'failed' },
+        }));
       })
       .catch(() => {
-        if (!cancelled) setFailed(true);
+        if (cancelled) return;
+        setById((prev) => ({ ...prev, [localityId]: { kind: 'failed' } }));
       });
     return () => {
       cancelled = true;
     };
   }, [localityId, retryNonce]);
 
+  const entry = localityId ? byId[localityId] : undefined;
+  const live = entry?.kind === 'ok' ? entry.officials : null;
   const officials = useMemo(
     () => (locality ? resolveLocalityOfficials(locality, live) : []),
     [locality, live],
   );
 
-  return { officials, usingFallback: failed };
+  return { officials, usingFallback: entry?.kind === 'failed' };
 }
