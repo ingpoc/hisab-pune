@@ -23,5 +23,5 @@ export function attachTicketErrorMessage(err: unknown): string {
   if (/invalid body/i.test(code)) {
     return 'Enter a CARE ticket number (at least 3 characters).';
   }
-  return parseApiError(raw) ?? raw || 'Could not save ticket.';
+  return parseApiError(raw) ?? (raw || 'Could not save ticket.');
 }

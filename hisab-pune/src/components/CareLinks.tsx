@@ -24,9 +24,6 @@ export function CareLinks({ reportId, existingTicket }: Props) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setLoadError(null);
-    setPayload(null);
     fetchCareLinks(reportId)
       .then((data) => {
         if (cancelled) return;
