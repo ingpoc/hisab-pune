@@ -6,6 +6,7 @@ import { mlas } from '../data/cityOfficials';
 import type { Locality, Official, Report } from '../data/types';
 import { formatIssueAge } from '../lib/issueAge';
 import { CareLinks } from './CareLinks';
+import { IssueComments } from './IssueComments';
 import { TweetAction } from './TweetAction';
 import './LocalitySidePanel.css';
 
@@ -47,16 +48,19 @@ export function LocalitySidePanel({
   const [tab, setTab] = useState<IssueTab>('open');
   const [draftOpen, setDraftOpen] = useState(false);
   const [careOpen, setCareOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
   useEffect(() => {
     setTab('open');
     setDraftOpen(false);
     setCareOpen(false);
+    setCommentsOpen(false);
   }, [locality.id]);
 
   useEffect(() => {
     setDraftOpen(false);
     setCareOpen(false);
+    setCommentsOpen(false);
   }, [activeReportId]);
 
   const openIssues = useMemo(
@@ -79,7 +83,10 @@ export function LocalitySidePanel({
   function toggleDraft() {
     setDraftOpen((v) => {
       const next = !v;
-      if (next) setCareOpen(false);
+      if (next) {
+        setCareOpen(false);
+        setCommentsOpen(false);
+      }
       return next;
     });
   }
@@ -87,7 +94,21 @@ export function LocalitySidePanel({
   function toggleCare() {
     setCareOpen((v) => {
       const next = !v;
-      if (next) setDraftOpen(false);
+      if (next) {
+        setDraftOpen(false);
+        setCommentsOpen(false);
+      }
+      return next;
+    });
+  }
+
+  function toggleComments() {
+    setCommentsOpen((v) => {
+      const next = !v;
+      if (next) {
+        setDraftOpen(false);
+        setCareOpen(false);
+      }
       return next;
     });
   }
@@ -193,64 +214,75 @@ export function LocalitySidePanel({
               className="loc-panel__focus-photo"
             />
           )}
-          {active.status !== 'resolved' && (
-            <div className="loc-panel__focus-actions">
-              <button
-                type="button"
-                className="btn btn--signal"
-                onClick={() => onEscalate(active)}
-                disabled={escalateBusy}
-              >
-                Escalate on X
-              </button>
-              {escalateError && (
-                <div className="loc-panel__escalate-error" role="alert">
-                  <p>{escalateError}</p>
-                  {onRetryEscalate && (
-                    <button
-                      type="button"
-                      className="loc-panel__escalate-retry"
-                      onClick={onRetryEscalate}
-                      disabled={escalateBusy}
-                    >
-                      Retry
-                    </button>
-                  )}
-                </div>
-              )}
-              <button
-                type="button"
-                className="loc-panel__text-btn"
-                aria-expanded={draftOpen}
-                onClick={toggleDraft}
-              >
-                {draftOpen ? 'Hide draft' : 'Edit draft'}
-              </button>
-              {draftOpen && (
-                <TweetAction
-                  key={active.id}
-                  locality={locality}
-                  officials={chain}
-                  note={active.note}
-                />
-              )}
-              <button
-                type="button"
-                className="loc-panel__text-btn"
-                aria-expanded={careOpen}
-                onClick={toggleCare}
-              >
-                {careOpen ? 'Hide CARE links' : 'Get CARE links'}
-              </button>
-              {careOpen && (
-                <CareLinks
-                  key={active.id}
-                  reportId={active.id}
-                  existingTicket={active.govTicketId}
-                />
-              )}
-            </div>
-          )}
+          <div className="loc-panel__focus-actions">
+            {active.status !== 'resolved' && (
+              <>
+                <button
+                  type="button"
+                  className="btn btn--signal"
+                  onClick={() => onEscalate(active)}
+                  disabled={escalateBusy}
+                >
+                  Escalate on X
+                </button>
+                {escalateError && (
+                  <div className="loc-panel__escalate-error" role="alert">
+                    <p>{escalateError}</p>
+                    {onRetryEscalate && (
+                      <button
+                        type="button"
+                        className="loc-panel__escalate-retry"
+                        onClick={onRetryEscalate}
+                        disabled={escalateBusy}
+                      >
+                        Retry
+                      </button>
+                    )}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="loc-panel__text-btn"
+                  aria-expanded={draftOpen}
+                  onClick={toggleDraft}
+                >
+                  {draftOpen ? 'Hide draft' : 'Edit draft'}
+                </button>
+                {draftOpen && (
+                  <TweetAction
+                    key={active.id}
+                    locality={locality}
+                    officials={chain}
+                    note={active.note}
+                  />
+                )}
+                <button
+                  type="button"
+                  className="loc-panel__text-btn"
+                  aria-expanded={careOpen}
+                  onClick={toggleCare}
+                >
+                  {careOpen ? 'Hide CARE links' : 'Get CARE links'}
+                </button>
+                {careOpen && (
+                  <CareLinks
+                    key={active.id}
+                    reportId={active.id}
+                    existingTicket={active.govTicketId}
+                  />
+                )}
+              </>
+            )}
+            <button
+              type="button"
+              className="loc-panel__text-btn"
+              aria-expanded={commentsOpen}
+              onClick={toggleComments}
+            >
+              {commentsOpen ? 'Hide comments' : 'Comments'}
+            </button>
+            {commentsOpen && <IssueComments key={active.id} reportId={active.id} />}
+          </div>
         </section>
       )}
 
@@ -261,6 +293,7 @@ export function LocalitySidePanel({
         onClick={() => {
           setDraftOpen(false);
           setCareOpen(false);
+          setCommentsOpen(false);
           onEscalationOpenChange(!escalationOpen);
         }}
       >

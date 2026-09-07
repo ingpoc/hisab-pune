@@ -167,7 +167,7 @@ Daylight ledger tokens — treat as frozen unless this file changes:
 1. **Select place → see ledger.** Selecting a locality clears report focus so Open/Closed list is primary.
 2. **Select issue → add L0 strip;** do not auto-open L1.
 3. **Escalate** may open X immediately; draft editor stays L1.
-4. **One expand at a time** preferred in the sidebar (ladder *or* draft), not both fighting for height.
+4. **One expand at a time** preferred in the sidebar (ladder, draft, CARE, or comments), not both fighting for height.
 5. Dense lists scroll inside a **capped** region; the page/sidebar does not grow without bound.
 6. Empty states are one line (“No open issues here yet”) — not illustrations.
 
@@ -213,7 +213,7 @@ Before calling a UI “done”:
 | --- | --- | --- |
 | Find place | Search → map locality head + counts | — |
 | Scan issues | Open/Closed list | — |
-| Act on one issue | Note, status, Escalate | Draft, CARE, ladder contacts |
+| Act on one issue | Note, status, Escalate | Draft, CARE, comments, ladder contacts |
 | Understand who | Summary “N contacts” | Expanded ladder |
 | Learn product | How link | How page |
 

@@ -219,7 +219,7 @@ export type ApiComment = {
 };
 
 export async function fetchComments(reportId: string): Promise<ApiComment[]> {
-  const res = await apiRequest(`/v1/reports/${reportId}/comments`);
+  const res = await apiRequest(`/v1/reports/${encodeURIComponent(reportId)}/comments`);
   const data = (await res.json()) as { comments: ApiComment[] };
   return data.comments;
 }
@@ -230,7 +230,7 @@ export async function postComment(
   publishAs: PublishAs = 'anonymous',
 ): Promise<ApiComment> {
   await ensureSession();
-  const res = await apiRequest(`/v1/reports/${reportId}/comments`, {
+  const res = await apiRequest(`/v1/reports/${encodeURIComponent(reportId)}/comments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
