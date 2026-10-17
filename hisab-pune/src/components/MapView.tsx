@@ -280,7 +280,7 @@ export function MapView({
     };
 
     let styleTimer = 0;
-    const useFallback = () => {
+    const fallBackStyle = () => {
       if (fellBack || styleReady) return;
       fellBack = true;
       window.clearTimeout(styleTimer);
@@ -304,9 +304,9 @@ export function MapView({
       if (styleReady || fellBack) return;
       const message = event.error instanceof Error ? event.error.message : String(event.error ?? '');
       if (/shader|webgl|program failed to link|could not compile/i.test(message)) return;
-      useFallback();
+      fallBackStyle();
     });
-    styleTimer = window.setTimeout(useFallback, STYLE_TIMEOUT_MS);
+    styleTimer = window.setTimeout(fallBackStyle, STYLE_TIMEOUT_MS);
 
     return () => {
       window.clearTimeout(styleTimer);
