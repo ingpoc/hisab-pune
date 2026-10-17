@@ -28,7 +28,8 @@ export async function waitForLocalityCamera(page: Page, id: string, heading: Reg
       if (!Number.isFinite(lng) || !Number.isFinite(lat)) return false;
       const map = canvas.__hisabMap;
       const center = map.getCenter();
-      if (Math.abs(map.getZoom() - 13.4) > 0.05) return false;
+      const expectedZoom = window.innerWidth < 700 ? 11.8 : 11.2;
+      if (Math.abs(map.getZoom() - expectedZoom) > 0.05) return false;
       if (Math.abs(center.lng - lng) > 0.002 || Math.abs(center.lat - lat) > 0.002) return false;
       const projected = map.project([lng, lat]);
       const origin = canvas.getBoundingClientRect();

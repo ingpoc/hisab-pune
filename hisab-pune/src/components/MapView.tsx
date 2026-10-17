@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { Map, Marker, NavigationControl, type MapMouseEvent, type StyleSpecification } from 'maplibre-gl';
+import { Map, Marker, NavigationControl, setWorkerUrl, type MapMouseEvent, type StyleSpecification } from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url';
 import 'maplibre-gl/dist/maplibre-gl.css';
+
+// The library asks for a sibling worker file Vite does not emit, so vector
+// tiles never draw and the canvas stays the positron paper colour.
+setWorkerUrl(maplibreWorkerUrl);
 import type { Locality, Report } from '../data/types';
 import { localities as allLocalities } from '../data/localities';
 import { electoralWards } from '../data/electoralWards';
@@ -48,8 +53,9 @@ const OSM_FALLBACK_STYLE: StyleSpecification = {
     { id: 'osm', type: 'raster', source: 'osm' },
   ],
 };
-const LOCALITY_ZOOM = 13.4;
-const MARKER_PX = 46;
+/** Pre-#40 city frame. Phones sit slightly closer so the zoom control stays clear. */
+const DESKTOP_ZOOM = 11.2;
+const NARROW_ZOOM = 11.8;
 
 function controlRect(el: Element | null): DOMRect | null {
   if (!el) return null;
@@ -60,57 +66,27 @@ function controlRect(el: Element | null): DOMRect | null {
   return rect;
 }
 
+function localityZoom(container: HTMLElement) {
+  return container.clientWidth < 700 ? NARROW_ZOOM : DESKTOP_ZOOM;
+}
+
 /**
- * Keep the selected locality in the map area that is not under chrome.
- * Bottom clearance is the sheet handle plus one marker. Top and side
- * clearance is the control's intrusion plus one marker.
+ * Desktop keeps a short left and bottom inset so a marker on the logo
+ * clears it without shifting the city. A phone clears the zoom control
+ * from the right. A tall top pad pushes other markers onto that control.
  */
 function chromeCameraPadding(container: HTMLElement) {
   const width = container.clientWidth;
   const height = container.clientHeight;
   if (width < 80 || height < 80) return { top: 0, right: 0, bottom: 0, left: 0 };
+  if (width >= 700) return { top: 0, right: 0, bottom: 32, left: 24 };
 
   const canvas = container.getBoundingClientRect();
   const zoom = controlRect(container.querySelector('.maplibregl-ctrl-top-right'));
   const attrib = controlRect(container.querySelector('.maplibregl-ctrl-bottom-right'));
-  const logo = controlRect(container.querySelector('.maplibregl-ctrl-bottom-left'));
-  const handle = controlRect(document.querySelector('.map-page__sheet-handle'));
-
-  const intoTop = (rect: DOMRect | null) => (rect ? Math.max(0, rect.bottom - canvas.top) : 0);
   const intoRight = (rect: DOMRect | null) => (rect ? Math.max(0, canvas.right - rect.left) : 0);
-  const intoBottom = (rect: DOMRect | null) => (rect ? Math.max(0, canvas.bottom - rect.top) : 0);
-  const intoLeft = (rect: DOMRect | null) => (rect ? Math.max(0, rect.right - canvas.left) : 0);
-
-  let top = (zoom ? intoTop(zoom) : 0) + (zoom ? MARKER_PX : 0);
-  let right = Math.max(intoRight(zoom), intoRight(attrib));
-  if (right > 0) right += MARKER_PX;
-  let left = intoLeft(logo);
-  if (left > 0) left += MARKER_PX;
-  const handlePad = handle ? handle.height + MARKER_PX : 0;
-  let bottom = Math.max(intoBottom(attrib) + (attrib ? MARKER_PX : 0), intoBottom(logo) + (logo ? MARKER_PX : 0), handlePad);
-
-  const minFree = 80;
-  // Wide maps have spare width. Shift the usable centre right so a neighbour
-  // that would sit on the zoom or attribution corner clears those controls.
-  const spareX = width - minFree - (left + right);
-  if (spareX > 0) left += Math.min(60, spareX);
-  if (top + bottom > height - minFree) {
-    const scale = (height - minFree) / Math.max(1, top + bottom);
-    top *= scale;
-    bottom *= scale;
-  }
-  if (left + right > width - minFree) {
-    const scale = (width - minFree) / Math.max(1, left + right);
-    left *= scale;
-    right *= scale;
-  }
-
-  return {
-    top: Math.round(top),
-    right: Math.round(right),
-    bottom: Math.round(bottom),
-    left: Math.round(left),
-  };
+  const right = Math.max(intoRight(zoom), intoRight(attrib), 80);
+  return { top: 0, right: Math.round(right), bottom: 0, left: 0 };
 }
 
 function wardDisplayName(wardId: number, geoName?: unknown): string {
@@ -171,7 +147,7 @@ export function MapView({
       const token = ++flight;
       map.flyTo({
         center: [target.lng, target.lat],
-        zoom: LOCALITY_ZOOM,
+        zoom: localityZoom(container),
         essential: true,
         padding: chromeCameraPadding(container),
       });
