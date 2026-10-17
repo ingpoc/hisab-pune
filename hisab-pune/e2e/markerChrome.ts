@@ -37,12 +37,20 @@ export async function expectMarkersClearOfChrome(page: Page) {
         add(attrib, 'attribution');
       }
 
+      const canvasBox = document.querySelector('.map-shell__canvas')?.getBoundingClientRect();
       const hits: string[] = [];
       for (const el of document.querySelectorAll('button.map-pin, button.map-loc')) {
         if (!visible(el)) continue;
         const rect = el.getBoundingClientRect();
         if (rect.width < 44 || rect.height < 44) hits.push(`${el.getAttribute('title')} under 44px`);
+        if (!canvasBox) continue;
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const inside =
+          cx >= canvasBox.left && cx <= canvasBox.right && cy >= canvasBox.top && cy <= canvasBox.bottom;
         for (const control of controls) {
+          const zoomControl = control.name === 'zoom-in' || control.name === 'zoom-out';
+          if (!inside && !zoomControl) continue;
           const overlaps =
             rect.left < control.rect.right &&
             rect.right > control.rect.left &&

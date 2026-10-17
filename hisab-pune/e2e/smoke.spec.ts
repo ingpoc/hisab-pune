@@ -183,6 +183,62 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     expect(carto).toEqual([]);
   });
 
+  test('Baner camera shows positron roads, ward polygons, and at least 20 markers', async ({ page }) => {
+    await page.goto('/map?loc=baner');
+    await expect(page.locator('button.map-loc.is-active')).toBeVisible({ timeout: 15_000 });
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() => {
+            const host = document.querySelector('.map-shell__canvas') as
+              | (HTMLElement & {
+                  __hisabMap?: {
+                    getZoom: () => number;
+                    queryRenderedFeatures: (geometry?: unknown, options?: { layers?: string[] }) => Array<{
+                      source?: string;
+                      sourceLayer?: string;
+                      layer?: { id?: string };
+                    }>;
+                  };
+                })
+              | null;
+            const map = host?.__hisabMap;
+            if (!map || Math.abs(map.getZoom() - 11.2) > 0.05) return null;
+            const origin = host!.getBoundingClientRect();
+            const features = map.queryRenderedFeatures();
+            const basemap = features.some(
+              (feature) =>
+                feature.source === 'openmaptiles' &&
+                (feature.sourceLayer === 'transportation' ||
+                  feature.sourceLayer === 'water' ||
+                  /road|label|water/i.test(feature.layer?.id || '')),
+            );
+            const wards = features.some(
+              (feature) => feature.layer?.id === 'wards-fill' || feature.layer?.id === 'wards-line',
+            );
+            const markers = [...document.querySelectorAll('button.map-pin, button.map-loc')].filter((el) => {
+              const rect = el.getBoundingClientRect();
+              const cx = rect.left + rect.width / 2;
+              const cy = rect.top + rect.height / 2;
+              return cx >= origin.left && cx <= origin.right && cy >= origin.top && cy <= origin.bottom;
+            }).length;
+            return { basemap, wards, markers };
+          }),
+        { timeout: 20_000 },
+      )
+      .toEqual(expect.objectContaining({ basemap: true, wards: true }));
+    const markers = await page.evaluate(() => {
+      const origin = document.querySelector('.map-shell__canvas')!.getBoundingClientRect();
+      return [...document.querySelectorAll('button.map-pin, button.map-loc')].filter((el) => {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        return cx >= origin.left && cx <= origin.right && cy >= origin.top && cy <= origin.bottom;
+      }).length;
+    });
+    expect(markers).toBeGreaterThanOrEqual(20);
+  });
+
   test('map still renders wards and markers when OpenFreeMap is blocked', async ({ page }) => {
     await page.route(/tiles\.openfreemap\.org/i, (route) => route.abort());
     await page.goto('/map?loc=baner');
