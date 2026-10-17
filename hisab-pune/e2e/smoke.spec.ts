@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { expectMarkersOnProjectedPoints } from './markerAnchor';
+import { expectMarkersClearOfChrome } from './markerChrome';
 
 /**
  * Encodes browser-QA findings as deterministic DOM assertions.
@@ -156,6 +157,30 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
 
   test('map markers sit on their projected points', async ({ page }) => {
     await expectMarkersOnProjectedPoints(page);
+  });
+
+  test('map markers stay clear of chrome at locality cameras', async ({ page }) => {
+    await expectMarkersClearOfChrome(page);
+  });
+
+  test('basemap is OpenFreeMap positron and never calls CARTO', async ({ page }) => {
+    const carto: string[] = [];
+    page.on('request', (req) => {
+      if (/cartocdn/i.test(req.url())) carto.push(req.url());
+    });
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1, name: /Hisab/i })).toBeVisible();
+    const style = page.waitForResponse(
+      (res) => res.url().includes('tiles.openfreemap.org/styles/positron') && res.ok(),
+    );
+    await page.goto('/map?loc=baner');
+    await style;
+    await expect(page.locator('button.map-loc.is-active')).toBeVisible({ timeout: 15_000 });
+    const text = await page.locator('.maplibregl-ctrl-attrib').evaluate((el) => el.textContent || '');
+    expect(text).toContain('© OpenMapTiles');
+    expect(text).toContain('© OpenStreetMap contributors');
+    expect(text).toContain('OpenFreeMap');
+    expect(carto).toEqual([]);
   });
 
   test('map locality ledger shows Baner without auto-expanded ladder', async ({ page }) => {

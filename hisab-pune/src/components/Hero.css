@@ -24,12 +24,7 @@
   position: absolute;
   inset: 0;
   opacity: 0.22;
-  background-image:
-    linear-gradient(180deg, var(--paper) 8%, transparent 38%, var(--paper) 92%),
-    url('https://basemaps.cartocdn.com/light_all/12/2907/1709@2x.png');
-  background-size: cover, 420px 420px;
-  background-position: center, center;
-  filter: grayscale(0.35) contrast(0.92);
+  background-image: linear-gradient(180deg, var(--paper) 8%, transparent 38%, var(--paper) 92%);
 }
 
 .hero__grid {

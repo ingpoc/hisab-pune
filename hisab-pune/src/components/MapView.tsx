@@ -30,12 +30,71 @@ type MapCanvas = HTMLDivElement & {
   __hisabMap?: Map;
 };
 
-/** Mobile sheet sits under the map. Shift the camera so the focal point stays above it. */
-function sheetCameraPadding() {
-  if (window.matchMedia('(max-width: 960px)').matches) {
-    return { top: 0, bottom: 56, left: 0, right: 0 };
+const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/positron';
+const MAP_ATTRIBUTION = '© OpenMapTiles / © OpenStreetMap contributors / OpenFreeMap';
+const LOCALITY_ZOOM = 13.4;
+const MARKER_PX = 46;
+
+function controlRect(el: Element | null): DOMRect | null {
+  if (!el) return null;
+  const cs = getComputedStyle(el);
+  if (cs.display === 'none' || cs.visibility === 'hidden') return null;
+  const rect = el.getBoundingClientRect();
+  if (rect.width < 1 || rect.height < 1) return null;
+  return rect;
+}
+
+/**
+ * Keep the selected locality in the map area that is not under chrome.
+ * Bottom clearance is the sheet handle plus one marker. Top and side
+ * clearance is the control's intrusion plus one marker.
+ */
+function chromeCameraPadding(container: HTMLElement) {
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  if (width < 80 || height < 80) return { top: 0, right: 0, bottom: 0, left: 0 };
+
+  const canvas = container.getBoundingClientRect();
+  const zoom = controlRect(container.querySelector('.maplibregl-ctrl-top-right'));
+  const attrib = controlRect(container.querySelector('.maplibregl-ctrl-bottom-right'));
+  const logo = controlRect(container.querySelector('.maplibregl-ctrl-bottom-left'));
+  const handle = controlRect(document.querySelector('.map-page__sheet-handle'));
+
+  const intoTop = (rect: DOMRect | null) => (rect ? Math.max(0, rect.bottom - canvas.top) : 0);
+  const intoRight = (rect: DOMRect | null) => (rect ? Math.max(0, canvas.right - rect.left) : 0);
+  const intoBottom = (rect: DOMRect | null) => (rect ? Math.max(0, canvas.bottom - rect.top) : 0);
+  const intoLeft = (rect: DOMRect | null) => (rect ? Math.max(0, rect.right - canvas.left) : 0);
+
+  let top = (zoom ? intoTop(zoom) : 0) + (zoom ? MARKER_PX : 0);
+  let right = Math.max(intoRight(zoom), intoRight(attrib));
+  if (right > 0) right += MARKER_PX;
+  let left = intoLeft(logo);
+  if (left > 0) left += MARKER_PX;
+  const handlePad = handle ? handle.height + MARKER_PX : 0;
+  let bottom = Math.max(intoBottom(attrib) + (attrib ? MARKER_PX : 0), intoBottom(logo) + (logo ? MARKER_PX : 0), handlePad);
+
+  const minFree = 80;
+  // Wide maps have spare width. Shift the usable centre right so a neighbour
+  // that would sit on the zoom or attribution corner clears those controls.
+  const spareX = width - minFree - (left + right);
+  if (spareX > 0) left += Math.min(60, spareX);
+  if (top + bottom > height - minFree) {
+    const scale = (height - minFree) / Math.max(1, top + bottom);
+    top *= scale;
+    bottom *= scale;
   }
-  return { top: 0, bottom: 0, left: 0, right: 0 };
+  if (left + right > width - minFree) {
+    const scale = (width - minFree) / Math.max(1, left + right);
+    left *= scale;
+    right *= scale;
+  }
+
+  return {
+    top: Math.round(top),
+    right: Math.round(right),
+    bottom: Math.round(bottom),
+    left: Math.round(left),
+  };
 }
 
 function wardDisplayName(wardId: number, geoName?: unknown): string {
@@ -59,6 +118,9 @@ export function MapView({
   const mapRef = useRef<Map | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const localityMarkersRef = useRef<Marker[]>([]);
+  const focusRef = useRef(focus);
+  focusRef.current = focus;
+  const flyRef = useRef<() => void>(() => {});
   const selectRef = useRef(onSelectLocality);
   selectRef.current = onSelectLocality;
   const unmappedRef = useRef(onUnmappedWard);
@@ -69,43 +131,60 @@ export function MapView({
 
     const map = new Map({
       container: containerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: 'raster',
-            tiles: [
-              'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-              'https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-            ],
-            tileSize: 256,
-            attribution: '© OpenStreetMap © CARTO',
-          },
-        },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-      },
+      style: OPENFREEMAP_STYLE,
       center: [73.8567, 18.5204],
       zoom: 11.2,
-      attributionControl: {},
+      attributionControl: {
+        compact: true,
+        customAttribution: MAP_ATTRIBUTION,
+      },
+      maplibreLogo: true,
     });
 
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
     mapRef.current = map;
     (containerRef.current as MapCanvas).__hisabMap = map;
-    map.setPadding(sheetCameraPadding());
     // Narrow maps open the attribution bar immediately. Leave the 46px info button.
     const collapseAttrib = () => {
       map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
     };
     collapseAttrib();
+    map.on('styledata', collapseAttrib);
+
+    let flight = 0;
+    const flyToFocus = () => {
+      const container = containerRef.current;
+      const target = focusRef.current;
+      if (!container || !target) return;
+      const token = ++flight;
+      map.flyTo({
+        center: [target.lng, target.lat],
+        zoom: LOCALITY_ZOOM,
+        essential: true,
+        padding: chromeCameraPadding(container),
+      });
+      map.once('moveend', () => {
+        if (token !== flight || !containerRef.current) return;
+        const padding = chromeCameraPadding(containerRef.current);
+        const current = map.getPadding();
+        const drift =
+          Math.abs((current.top ?? 0) - padding.top) +
+          Math.abs((current.right ?? 0) - padding.right) +
+          Math.abs((current.bottom ?? 0) - padding.bottom) +
+          Math.abs((current.left ?? 0) - padding.left);
+        if (drift > 1) map.setPadding(padding);
+      });
+    };
+    flyRef.current = flyToFocus;
+    map.on('resize', () => {
+      if (!containerRef.current || map.isMoving()) return;
+      map.setPadding(chromeCameraPadding(containerRef.current));
+    });
     map.on('load', () => {
       collapseAttrib();
-      map.setPadding(sheetCameraPadding());
+      flyToFocus();
     });
-    map.on('resize', () => {
-      map.setPadding(sheetCameraPadding());
-    });
+    flyToFocus();
 
     map.on('load', async () => {
       try {
@@ -238,13 +317,7 @@ export function MapView({
   }, [reports, onSelectLocality, onSelectReport]);
 
   useEffect(() => {
-    if (!focus || !mapRef.current) return;
-    mapRef.current.flyTo({
-      center: [focus.lng, focus.lat],
-      zoom: 13.4,
-      essential: true,
-      padding: sheetCameraPadding(),
-    });
+    flyRef.current();
   }, [focus]);
 
   return (
