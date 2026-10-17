@@ -1,6 +1,11 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
+/** MapLibre and its worker stay off the initial modulepreload graph. */
+function isMapLibrePreload(file: string): boolean {
+  return /maplibre|gl-worker/i.test(file);
+}
+
 /**
  * Direct visits to a lazy route otherwise wait for the entry module to discover
  * the chunk. Start that chunk (and its CSS) from index.html when the URL matches.
@@ -21,7 +26,9 @@ function preloadLazyRoutes(): Plugin {
       handler(html, ctx) {
         const bundle = ctx.bundle;
         if (!bundle) return html;
-        const files = Object.values(bundle).map((item) => item.fileName);
+        const files = Object.values(bundle)
+          .map((item) => item.fileName)
+          .filter((file) => !isMapLibrePreload(file));
         const pick = (name: string, ext: string) =>
           files.find((file) => file.includes(`/${name}-`) && file.endsWith(ext));
         const branches = routes
@@ -44,6 +51,13 @@ function preloadLazyRoutes(): Plugin {
 
 export default defineConfig({
   plugins: [react(), preloadLazyRoutes()],
+  build: {
+    modulePreload: {
+      resolveDependencies(_filename, deps) {
+        return deps.filter((dep) => !isMapLibrePreload(dep));
+      },
+    },
+  },
   server: {
     host: '0.0.0.0',
     proxy: {
