@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getCategory } from '../data/categories';
 import { getElectoralWard } from '../data/electoralWards';
@@ -45,6 +45,10 @@ export function LocalitySidePanel({
   escalationOpen,
   onEscalationOpenChange,
 }: Props) {
+  const tabsId = useId();
+  const openTabId = `${tabsId}-open`;
+  const closedTabId = `${tabsId}-closed`;
+  const panelId = `${tabsId}-panel`;
   const [tab, setTab] = useState<IssueTab>('open');
   const [draftOpen, setDraftOpen] = useState(false);
   const [careOpen, setCareOpen] = useState(false);
@@ -133,7 +137,9 @@ export function LocalitySidePanel({
         <button
           type="button"
           role="tab"
+          id={openTabId}
           aria-selected={tab === 'open'}
+          aria-controls={panelId}
           className={tab === 'open' ? 'is-active' : undefined}
           onClick={() => setTab('open')}
         >
@@ -143,7 +149,9 @@ export function LocalitySidePanel({
         <button
           type="button"
           role="tab"
+          id={closedTabId}
           aria-selected={tab === 'closed'}
+          aria-controls={panelId}
           className={tab === 'closed' ? 'is-active' : undefined}
           onClick={() => setTab('closed')}
         >
@@ -152,7 +160,13 @@ export function LocalitySidePanel({
         </button>
       </div>
 
-      <ul className="loc-panel__issues" role="tabpanel">
+      <div
+        id={panelId}
+        className="loc-panel__issues-panel"
+        role="tabpanel"
+        aria-labelledby={tab === 'open' ? openTabId : closedTabId}
+      >
+        <ul className="loc-panel__issues">
         {visible.length === 0 ? (
           <li className="loc-panel__empty">
             {tab === 'open'
@@ -183,7 +197,8 @@ export function LocalitySidePanel({
             );
           })
         )}
-      </ul>
+        </ul>
+      </div>
 
       {active && activeCat && (
         <section className="loc-panel__focus" aria-label="Selected issue">

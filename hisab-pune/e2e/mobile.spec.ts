@@ -280,6 +280,54 @@ test.describe('Mobile Chrome 390×844', () => {
     await shot(page, 'report_modal');
   });
 
+  test('map markers and attribution are 44px and the info control clears the sheet', async ({
+    page,
+  }) => {
+    await page.goto('/map?loc=baner');
+    await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('button.map-loc').first()).toBeVisible({ timeout: 15_000 });
+
+    const markers = await page.locator('button.map-loc, button.map-pin').evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { w: r.width, h: r.height, display: getComputedStyle(el).display };
+      }),
+    );
+    const shown = markers.filter((m) => m.display !== 'none');
+    expect(shown.length).toBeGreaterThan(0);
+    for (const m of shown) {
+      // Subpixel layout can report 43.999 for a 44px box.
+      expect(Math.round(m.w)).toBeGreaterThanOrEqual(44);
+      expect(Math.round(m.h)).toBeGreaterThanOrEqual(44);
+    }
+
+    const summary = page.locator('summary.maplibregl-ctrl-attrib-button');
+    await expect(summary).toBeVisible({ timeout: 15_000 });
+    const box = await summary.boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+
+    const clear = await page.evaluate(() => {
+      const btn = document.querySelector('summary.maplibregl-ctrl-attrib-button');
+      const sheet = document.querySelector('.map-page__side');
+      if (!btn || !sheet) return null;
+      const b = btn.getBoundingClientRect();
+      const s = sheet.getBoundingClientRect();
+      const cx = b.left + b.width / 2;
+      const cy = b.top + b.height / 2;
+      const hit = document.elementFromPoint(cx, cy);
+      return {
+        aboveSheet: b.bottom <= s.top + 1,
+        hitIsButton: hit === btn || btn.contains(hit),
+      };
+    });
+    expect(clear).not.toBeNull();
+    expect(clear!.aboveSheet).toBe(true);
+    expect(clear!.hitIsButton).toBe(true);
+  });
+
   test('map legend sits above the locality sheet seam', async ({ page }) => {
     await page.goto('/map?loc=baner');
     await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({

@@ -60,7 +60,7 @@
   cursor: pointer;
   font-size: 0.88rem;
   font-weight: 600;
-  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   display: inline-flex;
@@ -88,6 +88,10 @@
 }
 
 /* Issues take priority space, but only as tall as needed (cap for long lists). */
+.loc-panel__issues-panel {
+  min-height: 0;
+}
+
 .loc-panel__issues {
   list-style: none;
   margin: 0;
@@ -103,7 +107,7 @@
 .loc-panel__empty {
   padding: 0.85rem 0.2rem;
   font-size: 0.9rem;
-  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
 }
 
 .loc-panel__issue {
@@ -143,7 +147,7 @@
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
   align-self: center;
 }
 
@@ -160,7 +164,7 @@
 .loc-panel__issue-meta {
   grid-area: meta;
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--ink) 50%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
   display: flex;
   gap: 0.55rem;
 }
@@ -189,7 +193,7 @@
   font-size: 0.9rem;
   line-height: 1;
   padding: 0.2rem 0.35rem;
-  color: color-mix(in srgb, var(--ink) 50%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
 }
 
 .loc-panel__dismiss:hover {
@@ -209,13 +213,13 @@
   gap: 0.45rem 0.65rem;
   font-size: 0.78rem;
   font-weight: 600;
-  color: color-mix(in srgb, var(--ink) 60%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
 }
 
 .loc-panel__focus-author {
   margin: 0;
   font-size: 0.78rem;
-  color: color-mix(in srgb, var(--ink) 50%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
 }
 
 .loc-panel__focus-photo {
@@ -326,7 +330,7 @@
   content: '+';
   float: right;
   font-weight: 700;
-  color: color-mix(in srgb, var(--ink) 45%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
 }
 
 .loc-panel__disclose[open] > summary::before {
@@ -341,7 +345,7 @@
   display: block;
   font-size: 0.75rem;
   font-weight: 500;
-  color: color-mix(in srgb, var(--ink) 50%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
 }
 
 .loc-panel__disclose > :not(summary) {
@@ -382,7 +386,7 @@
   font-size: 0.72rem;
   font-weight: 500;
   line-height: 1.35;
-  color: color-mix(in srgb, var(--ink) 52%, transparent);
+  color: color-mix(in srgb, var(--ink) 65%, transparent);
 }
 
 .loc-panel__disclose .tweet {

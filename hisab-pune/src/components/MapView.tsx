@@ -194,14 +194,14 @@ export function MapView({
         const el = document.createElement('button');
         el.type = 'button';
         el.className = 'map-pin';
-        el.style.background = STATUS_COLOR[report.status];
+        el.style.setProperty('--pin', STATUS_COLOR[report.status]);
         el.title = report.note;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
           onSelectLocality(report.localityId);
           onSelectReport?.(report.id);
         });
-        return new Marker({ element: el, anchor: 'bottom' })
+        return new Marker({ element: el, anchor: 'center' })
           .setLngLat([report.lng, report.lat])
           .addTo(map);
       });

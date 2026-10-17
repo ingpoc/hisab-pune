@@ -59,29 +59,53 @@
   border-radius: 50%;
 }
 
-.map-pin {
-  width: 16px;
-  height: 16px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
+.map-pin,
+.map-loc {
+  position: relative;
+  width: 44px;
+  height: 44px;
   padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  box-shadow: none;
 }
 
-.map-loc {
+.map-pin::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  margin-top: -8px;
+  border-radius: 50% 50% 50% 0;
+  border: 2px solid white;
+  background: var(--pin, var(--brand));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  /* Tip of the rotated pin sits on the button center (the map anchor). */
+  transform: translateY(-11.31px) rotate(-45deg);
+  pointer-events: none;
+}
+
+.map-loc::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
   width: 12px;
   height: 12px;
+  margin-left: -6px;
+  margin-top: -6px;
   border-radius: 50%;
   border: 2px solid var(--ink);
   background: color-mix(in srgb, var(--paper) 70%, transparent);
-  cursor: pointer;
-  padding: 0;
   transition: transform 0.15s ease, background 0.15s ease;
+  pointer-events: none;
 }
 
-.map-loc.is-active {
+.map-loc.is-active::before {
   background: var(--brand);
   transform: scale(1.35);
   border-color: var(--ink);
@@ -89,4 +113,32 @@
 
 .maplibregl-ctrl-attrib {
   font-size: 10px;
+}
+
+.map-shell .maplibregl-ctrl-attrib.maplibregl-compact {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 44px 0 0;
+}
+
+.map-shell .maplibregl-ctrl-attrib.maplibregl-compact.maplibregl-compact-show {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
+
+.map-shell .maplibregl-ctrl-attrib summary.maplibregl-ctrl-attrib-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 24px 24px;
+}
+
+@media (max-width: 960px) {
+  /* The locality sheet overlaps the map by 12px. Keep the info control above it. */
+  .map-shell .maplibregl-ctrl-bottom-right {
+    bottom: 16px;
+  }
 }

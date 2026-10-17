@@ -203,6 +203,35 @@ describe('Hisab API', () => {
     fs.rmSync(tmp, { recursive: true, force: true });
   });
 
+  it('serves robots.txt as text/plain instead of the SPA shell', async () => {
+    const shipped = fs.readFileSync(path.resolve(__dirname, '../../public/robots.txt'), 'utf8');
+    assert.match(shipped, /User-agent:\s*\*/);
+    assert.match(shipped, /Allow:\s*\//);
+    assert.doesNotMatch(shipped, /<!doctype html>/i);
+
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'hisab-robots-'));
+    fs.writeFileSync(path.join(tmp, 'index.html'), '<!doctype html><title>Hisab</title>');
+    fs.writeFileSync(path.join(tmp, 'robots.txt'), shipped);
+    const db = await openDatabase({ sqlitePath: rootDb });
+    const app = createApp(db);
+    mountSpa(app, tmp);
+
+    const res = await app.request('http://local/robots.txt');
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type') ?? '', /text\/plain/);
+    const body = await res.text();
+    assert.match(body, /User-agent:\s*\*/);
+    assert.match(body, /Allow:\s*\//);
+    assert.doesNotMatch(body, /<!doctype html>/i);
+
+    const spa = await app.request('http://local/wards');
+    assert.equal(spa.status, 200);
+    assert.match(await spa.text(), /<!doctype html>/i);
+
+    await db.close();
+    fs.rmSync(tmp, { recursive: true, force: true });
+  });
+
   it('escalates a report on the public ledger without a session', async () => {
     const db = await openDatabase({ sqlitePath: rootDb });
     await migrate(db);

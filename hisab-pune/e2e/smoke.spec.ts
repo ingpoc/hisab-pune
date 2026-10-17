@@ -82,6 +82,67 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     await expect(page.getByText(/photo \(optional\)/i)).toBeVisible();
   });
 
+  test('locality search aria-controls targets a real listbox and Enter selects', async ({
+    page,
+  }) => {
+    const googleFonts: string[] = [];
+    page.on('request', (req) => {
+      if (/fonts\.(googleapis|gstatic)\.com/.test(req.url())) googleFonts.push(req.url());
+    });
+    await page.goto('/');
+    const input = page.getByPlaceholder(/Baner, Kothrud, Hadapsar/i);
+    expect(await input.getAttribute('aria-controls')).toBeNull();
+
+    await input.fill('Baner');
+    const listId = await input.getAttribute('aria-controls');
+    expect(listId).toBeTruthy();
+    const list = page.locator(`[id="${listId}"]`);
+    await expect(list).toHaveCount(1);
+    await expect(list).toHaveAttribute('role', 'listbox');
+    await expect(page.locator('.loc-search--hero')).toHaveAttribute('aria-controls', listId!);
+    await expect(page.locator('.loc-search__item--active')).toContainText('Baner');
+    await input.press('Enter');
+    await expect(page).toHaveURL(/\/map\?loc=baner/);
+    expect(googleFonts).toEqual([]);
+  });
+
+  test('issue tabs expose a tabpanel that is not the list itself', async ({ page }) => {
+    await page.goto('/map?loc=baner');
+    const open = page.getByRole('tab', { name: /Open/i });
+    await expect(open).toBeVisible({ timeout: 15_000 });
+    const panelId = await open.getAttribute('aria-controls');
+    expect(panelId).toBeTruthy();
+    const panel = page.locator(`[id="${panelId}"]`);
+    await expect(panel).toHaveAttribute('role', 'tabpanel');
+    await expect(panel).toHaveAttribute('aria-labelledby', (await open.getAttribute('id'))!);
+    await expect(panel.locator('ul.loc-panel__issues')).toHaveCount(1);
+    await expect(panel.locator('ul.loc-panel__issues')).not.toHaveAttribute('role', 'tabpanel');
+    await expect(page.locator('ul.loc-panel__issues[role="tabpanel"]')).toHaveCount(0);
+
+    const closed = page.getByRole('tab', { name: /Closed/i });
+    await expect(closed).toHaveAttribute('aria-controls', panelId!);
+    await closed.click();
+    await expect(panel).toHaveAttribute('aria-labelledby', (await closed.getAttribute('id'))!);
+  });
+
+  test('self-hosted display and body faces load without Google Fonts', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('link[href*="fonts.googleapis.com"]')).toHaveCount(0);
+    const ready = await page.evaluate(async () => {
+      await document.fonts.ready;
+      return {
+        display: document.fonts.check("800 64px 'Bricolage Grotesque'"),
+        body: document.fonts.check("400 16px 'IBM Plex Sans'"),
+        bodyMid: document.fonts.check("600 16px 'IBM Plex Sans'"),
+        brand: getComputedStyle(document.querySelector('.hero__brand')!).fontFamily,
+      };
+    });
+    expect(ready.display).toBe(true);
+    expect(ready.body).toBe(true);
+    expect(ready.bodyMid).toBe(true);
+    expect(ready.brand).toMatch(/Bricolage Grotesque/);
+  });
+
   test('hero locality search opens the map ledger', async ({ page }) => {
     await page.goto('/');
     await page.getByPlaceholder(/Baner, Kothrud, Hadapsar/i).fill('Baner');
