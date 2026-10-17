@@ -206,11 +206,10 @@
     border-bottom: 0;
   }
 
-  /* Half of a 46px marker, plus slack, so a pin centred on the
-     canvas edge still sits above the sheet. */
+  /* Leave room under the canvas so a 46px pin centred on the
+     bottom edge stays above the sheet handle. */
   .map-page__map .map-shell__canvas {
     height: calc(100% - 32px);
-    overflow: visible;
   }
 
   .map-page__side {

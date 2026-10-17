@@ -63,12 +63,12 @@
 
 .map-pin,
 .map-loc {
-  /* Absolute so the button stays on the projected point.
-     Relative would override MapLibre and flow the pins down over the sheet. */
+  /* This button is the MapLibre marker node (not a child of a wrapper).
+     top/left 0 matches .maplibregl-marker so anchor:center's
+     translate(-50%, -50%) centres a real 46px box on map.project(). */
   position: absolute;
   top: 0;
   left: 0;
-  /* 46px so subpixel layout still reports at least 44. */
   width: 46px;
   height: 46px;
   padding: 0;

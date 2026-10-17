@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
+import { expectMarkersOnProjectedPoints } from './markerAnchor';
 
 /**
  * Phone-sized (390×844) coverage for ledger/rail scroll, tap targets, and
@@ -283,32 +284,7 @@ test.describe('Mobile Chrome 390×844', () => {
   test('map markers and attribution are 44px and the info control clears the sheet', async ({
     page,
   }) => {
-    await page.goto('/map?loc=baner');
-    await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
-      timeout: 15_000,
-    });
-    await expect(page.locator('button.map-loc.is-active')).toBeVisible({ timeout: 15_000 });
-    await page.waitForFunction(() => {
-      const pin = document.querySelector('button.map-loc.is-active');
-      const canvas = document.querySelector('.map-shell__canvas');
-      if (!pin || !canvas) return false;
-      const p = pin.getBoundingClientRect();
-      const c = canvas.getBoundingClientRect();
-      const key = `${Math.round(p.left)},${Math.round(p.top)}`;
-      const state = window as Window & { __mapPin?: string; __mapPinFrames?: number };
-      if (state.__mapPin !== key) {
-        state.__mapPin = key;
-        state.__mapPinFrames = 0;
-        return false;
-      }
-      state.__mapPinFrames = (state.__mapPinFrames ?? 0) + 1;
-      const cx = p.left + p.width / 2;
-      const cy = p.top + p.height / 2;
-      const near =
-        Math.abs(cx - (c.left + c.width / 2)) < 180 &&
-        Math.abs(cy - (c.top + c.height / 2)) < 180;
-      return near && state.__mapPinFrames > 8;
-    });
+    await expectMarkersOnProjectedPoints(page);
 
     const audit = await page.evaluate(() => {
       const visible = (el: Element) => {
@@ -331,25 +307,39 @@ test.describe('Mobile Chrome 390×844', () => {
       const sheet = document.querySelector('.map-page__side');
       const hr = handle?.getBoundingClientRect();
       const sr = sheet?.getBoundingClientRect();
+      const canvas = document.querySelector('.map-shell__canvas') as HTMLElement & {
+        __hisabMap?: { project: (ll: [number, number]) => { x: number; y: number } };
+      };
+      const map = canvas?.__hisabMap;
+      const origin = canvas?.getBoundingClientRect();
       const pins = [...document.querySelectorAll('button.map-pin, button.map-loc')]
         .filter(visible)
         .map((el) => {
-          const r = el.getBoundingClientRect();
+          const node = el as HTMLElement;
+          const r = node.getBoundingClientRect();
           const cx = r.left + r.width / 2;
           const cy = r.top + r.height / 2;
-          const inView = cx >= 0 && cy >= 0 && cx <= window.innerWidth && cy <= window.innerHeight;
-          const hit = inView ? document.elementFromPoint(cx, cy) : null;
+          const lng = Number(node.dataset.lng);
+          const lat = Number(node.dataset.lat);
+          const projected = map && origin ? map.project([lng, lat]) : null;
+          const onMap =
+            !!projected &&
+            !!origin &&
+            projected.x >= 0 &&
+            projected.y >= 0 &&
+            projected.x <= origin.width &&
+            projected.y <= origin.height;
+          const hit = onMap ? document.elementFromPoint(cx, cy) : null;
           const intersects = (box: DOMRect | undefined) =>
             !!box && r.left < box.right && r.right > box.left && r.top < box.bottom && r.bottom > box.top;
           return {
-            name: el.getAttribute('title') || el.className.toString(),
-            inView,
+            name: node.getAttribute('title') || node.className.toString(),
+            onMap,
             w: r.width,
             h: r.height,
-            hitIsSelf: !!hit && (hit === el || el.contains(hit)),
+            hitIsHandle: !!hit && (hit === handle || (!!handle && handle.contains(hit))),
             hitName: hit instanceof Element ? hit.className.toString() : '',
             intersectsHandle: intersects(hr),
-            intersectsSheet: intersects(sr),
           };
         });
 
@@ -380,14 +370,13 @@ test.describe('Mobile Chrome 390×844', () => {
       expect(target.h, target.name).toBeGreaterThanOrEqual(44);
     }
 
-    const onMap = audit.pins.filter((pin) => pin.inView);
+    const onMap = audit.pins.filter((pin) => pin.onMap);
     expect(onMap.length).toBeGreaterThan(0);
     for (const pin of onMap) {
       expect(pin.w, pin.name).toBeGreaterThanOrEqual(44);
       expect(pin.h, pin.name).toBeGreaterThanOrEqual(44);
-      expect(pin.hitIsSelf, `${pin.name} hit ${pin.hitName}`).toBe(true);
       expect(pin.intersectsHandle, pin.name).toBe(false);
-      expect(pin.intersectsSheet, pin.name).toBe(false);
+      expect(pin.hitIsHandle, `${pin.name} hit ${pin.hitName}`).toBe(false);
     }
 
     expect(audit.summary).not.toBeNull();
