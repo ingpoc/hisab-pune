@@ -26,6 +26,63 @@ const STATUS_COLOR: Record<Report['status'], string> = {
   resolved: '#2a7d5a',
 };
 
+const MARKER_BOX = 46;
+const MARKER_GAP = MARKER_BOX + 4;
+
+function syncMarkerVisibility(map: Map, markers: Marker[]) {
+  const width = map.getContainer().clientWidth;
+  const height = map.getContainer().clientHeight;
+  const placed: { x: number; y: number }[] = [];
+  for (const marker of markers) {
+    const point = map.project(marker.getLngLat());
+    const el = marker.getElement();
+    const onCanvas =
+      point.x >= 0 && point.y >= 0 && point.x <= width && point.y <= height;
+    if (!onCanvas) {
+      el.style.visibility = 'hidden';
+      continue;
+    }
+    let dx = 0;
+    let dy = 0;
+    let placedOk = false;
+    for (let step = 0; step < 36; step++) {
+      if (step > 0) {
+        const ring = Math.ceil(step / 6);
+        const angle = ((step - 1) % 6) * (Math.PI / 3) + ring * 0.4;
+        dx = Math.cos(angle) * MARKER_GAP * ring;
+        dy = Math.sin(angle) * MARKER_GAP * ring;
+      } else {
+        dx = 0;
+        dy = 0;
+      }
+      const x = point.x + dx;
+      const y = point.y + dy;
+      const inSafe =
+        x >= MARKER_BOX / 2 &&
+        y >= MARKER_BOX / 2 &&
+        x <= width - MARKER_BOX / 2 &&
+        y <= height - MARKER_BOX / 2 &&
+        !(x > width - 72 && y < 120) &&
+        !(x > width - 72 && y > height - 80);
+      const clear = placed.every(
+        (other) => (other.x - x) ** 2 + (other.y - y) ** 2 >= MARKER_GAP ** 2,
+      );
+      if (inSafe && clear) {
+        placedOk = true;
+        placed.push({ x, y });
+        break;
+      }
+    }
+    if (!placedOk) {
+      el.style.visibility = 'hidden';
+      continue;
+    }
+    const offset = marker.getOffset();
+    if (offset.x !== dx || offset.y !== dy) marker.setOffset([dx, dy]);
+    el.style.visibility = '';
+  }
+}
+
 function wardDisplayName(wardId: number, geoName?: unknown): string {
   const roster = electoralWards.find((w) => w.id === wardId);
   if (roster?.name) return roster.name;
@@ -80,6 +137,19 @@ export function MapView({
 
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
     mapRef.current = map;
+    // Narrow maps open the attribution bar immediately. Leave the 46px info button.
+    const collapseAttrib = () => {
+      map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
+    };
+    collapseAttrib();
+    map.on('load', collapseAttrib);
+
+    const hideOffCanvasMarkers = () => {
+      syncMarkerVisibility(map, [...localityMarkersRef.current, ...markersRef.current]);
+    };
+    map.on('move', hideOffCanvasMarkers);
+    map.on('resize', hideOffCanvasMarkers);
+    map.on('idle', hideOffCanvasMarkers);
 
     map.on('load', async () => {
       try {
@@ -181,6 +251,7 @@ export function MapView({
         .setLngLat([loc.lng, loc.lat])
         .addTo(map);
     });
+    syncMarkerVisibility(map, [...localityMarkersRef.current, ...markersRef.current]);
   }, [localities, selectedId, onSelectLocality]);
 
   useEffect(() => {
@@ -205,6 +276,7 @@ export function MapView({
           .setLngLat([report.lng, report.lat])
           .addTo(map);
       });
+    syncMarkerVisibility(map, [...localityMarkersRef.current, ...markersRef.current]);
   }, [reports, onSelectLocality, onSelectReport]);
 
   useEffect(() => {
