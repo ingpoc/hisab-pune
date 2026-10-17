@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
+import { expectMarkersOnProjectedPoints } from './markerAnchor';
 
 /**
  * Phone-sized (390×844) coverage for ledger/rail scroll, tap targets, and
@@ -283,49 +284,116 @@ test.describe('Mobile Chrome 390×844', () => {
   test('map markers and attribution are 44px and the info control clears the sheet', async ({
     page,
   }) => {
-    await page.goto('/map?loc=baner');
-    await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
-      timeout: 15_000,
-    });
-    await expect(page.locator('button.map-loc').first()).toBeVisible({ timeout: 15_000 });
+    await expectMarkersOnProjectedPoints(page);
 
-    const markers = await page.locator('button.map-loc, button.map-pin').evaluateAll((els) =>
-      els.map((el) => {
+    const audit = await page.evaluate(() => {
+      const visible = (el: Element) => {
+        const cs = getComputedStyle(el);
         const r = el.getBoundingClientRect();
-        return { w: r.width, h: r.height, display: getComputedStyle(el).display };
-      }),
-    );
-    const shown = markers.filter((m) => m.display !== 'none');
-    expect(shown.length).toBeGreaterThan(0);
-    for (const m of shown) {
-      // Subpixel layout can report 43.999 for a 44px box.
-      expect(Math.round(m.w)).toBeGreaterThanOrEqual(44);
-      expect(Math.round(m.h)).toBeGreaterThanOrEqual(44);
-    }
+        return cs.display !== 'none' && cs.visibility !== 'hidden' && r.width > 0 && r.height > 0;
+      };
+      const targets = [...document.querySelectorAll('.map-shell button, .map-shell summary, .map-shell a')]
+        .filter(visible)
+        .map((el) => {
+          const r = el.getBoundingClientRect();
+          return {
+            name: el.getAttribute('aria-label') || el.className.toString(),
+            w: r.width,
+            h: r.height,
+          };
+        });
 
-    const summary = page.locator('summary.maplibregl-ctrl-attrib-button');
-    await expect(summary).toBeVisible({ timeout: 15_000 });
-    const box = await summary.boundingBox();
-    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
-
-    const clear = await page.evaluate(() => {
-      const btn = document.querySelector('summary.maplibregl-ctrl-attrib-button');
+      const handle = document.querySelector('.map-page__sheet-handle');
       const sheet = document.querySelector('.map-page__side');
-      if (!btn || !sheet) return null;
-      const b = btn.getBoundingClientRect();
-      const s = sheet.getBoundingClientRect();
-      const cx = b.left + b.width / 2;
-      const cy = b.top + b.height / 2;
-      const hit = document.elementFromPoint(cx, cy);
+      const hr = handle?.getBoundingClientRect();
+      const sr = sheet?.getBoundingClientRect();
+      const canvas = document.querySelector('.map-shell__canvas') as HTMLElement & {
+        __hisabMap?: { project: (ll: [number, number]) => { x: number; y: number } };
+      };
+      const map = canvas?.__hisabMap;
+      const origin = canvas?.getBoundingClientRect();
+      const pins = [...document.querySelectorAll('button.map-pin, button.map-loc')]
+        .filter(visible)
+        .map((el) => {
+          const node = el as HTMLElement;
+          const r = node.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          const lng = Number(node.dataset.lng);
+          const lat = Number(node.dataset.lat);
+          const projected = map && origin ? map.project([lng, lat]) : null;
+          const onMap =
+            !!projected &&
+            !!origin &&
+            projected.x >= 0 &&
+            projected.y >= 0 &&
+            projected.x <= origin.width &&
+            projected.y <= origin.height;
+          const hit = onMap ? document.elementFromPoint(cx, cy) : null;
+          const intersects = (box: DOMRect | undefined) =>
+            !!box && r.left < box.right && r.right > box.left && r.top < box.bottom && r.bottom > box.top;
+          return {
+            name: node.getAttribute('title') || node.className.toString(),
+            onMap,
+            w: r.width,
+            h: r.height,
+            hitIsHandle: !!hit && (hit === handle || (!!handle && handle.contains(hit))),
+            hitName: hit instanceof Element ? hit.className.toString() : '',
+            intersectsHandle: intersects(hr),
+          };
+        });
+
+      const ctrl = document.querySelector('.maplibregl-ctrl');
+      const font = ctrl ? getComputedStyle(ctrl).fontFamily : '';
+      const summary = document.querySelector('summary.maplibregl-ctrl-attrib-button');
+      const zoomIn = document.querySelector('.maplibregl-ctrl-zoom-in');
+      const zoomOut = document.querySelector('.maplibregl-ctrl-zoom-out');
+      const boxOf = (el: Element | null) => {
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return { w: r.width, h: r.height, bottom: r.bottom };
+      };
       return {
-        aboveSheet: b.bottom <= s.top + 1,
-        hitIsButton: hit === btn || btn.contains(hit),
+        targets,
+        pins,
+        font,
+        summary: boxOf(summary),
+        sheetTop: sr?.top ?? null,
+        zoomIn: boxOf(zoomIn),
+        zoomOut: boxOf(zoomOut),
       };
     });
-    expect(clear).not.toBeNull();
-    expect(clear!.aboveSheet).toBe(true);
-    expect(clear!.hitIsButton).toBe(true);
+
+    expect(audit.targets.length).toBeGreaterThan(0);
+    for (const target of audit.targets) {
+      expect(target.w, target.name).toBeGreaterThanOrEqual(44);
+      expect(target.h, target.name).toBeGreaterThanOrEqual(44);
+    }
+
+    const onMap = audit.pins.filter((pin) => pin.onMap);
+    expect(onMap.length).toBeGreaterThan(0);
+    for (const pin of onMap) {
+      expect(pin.w, pin.name).toBeGreaterThanOrEqual(44);
+      expect(pin.h, pin.name).toBeGreaterThanOrEqual(44);
+      expect(pin.intersectsHandle, pin.name).toBe(false);
+      expect(pin.hitIsHandle, `${pin.name} hit ${pin.hitName}`).toBe(false);
+    }
+
+    expect(audit.summary).not.toBeNull();
+    expect(audit.summary!.w).toBeGreaterThanOrEqual(44);
+    expect(audit.summary!.h).toBeGreaterThanOrEqual(44);
+    expect(audit.sheetTop).not.toBeNull();
+    expect(audit.summary!.bottom).toBeLessThanOrEqual(audit.sheetTop! + 1);
+
+    expect(audit.zoomIn).not.toBeNull();
+    expect(audit.zoomIn!.w).toBeGreaterThanOrEqual(44);
+    expect(audit.zoomIn!.h).toBeGreaterThanOrEqual(44);
+    expect(audit.zoomOut).not.toBeNull();
+    expect(audit.zoomOut!.w).toBeGreaterThanOrEqual(44);
+    expect(audit.zoomOut!.h).toBeGreaterThanOrEqual(44);
+
+    expect(audit.font).toContain('IBM Plex Sans');
+    expect(audit.font.toLowerCase()).not.toContain('helvetica');
   });
 
   test('map legend sits above the locality sheet seam', async ({ page }) => {

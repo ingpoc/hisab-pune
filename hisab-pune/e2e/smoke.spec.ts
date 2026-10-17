@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { expectMarkersOnProjectedPoints } from './markerAnchor';
 
 /**
  * Encodes browser-QA findings as deterministic DOM assertions.
@@ -151,6 +152,10 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
       timeout: 15_000,
     });
+  });
+
+  test('map markers sit on their projected points', async ({ page }) => {
+    await expectMarkersOnProjectedPoints(page);
   });
 
   test('map locality ledger shows Baner without auto-expanded ladder', async ({ page }) => {

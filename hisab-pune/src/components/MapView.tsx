@@ -26,6 +26,18 @@ const STATUS_COLOR: Record<Report['status'], string> = {
   resolved: '#2a7d5a',
 };
 
+type MapCanvas = HTMLDivElement & {
+  __hisabMap?: Map;
+};
+
+/** Mobile sheet sits under the map. Shift the camera so the focal point stays above it. */
+function sheetCameraPadding() {
+  if (window.matchMedia('(max-width: 960px)').matches) {
+    return { top: 0, bottom: 56, left: 0, right: 0 };
+  }
+  return { top: 0, bottom: 0, left: 0, right: 0 };
+}
+
 function wardDisplayName(wardId: number, geoName?: unknown): string {
   const roster = electoralWards.find((w) => w.id === wardId);
   if (roster?.name) return roster.name;
@@ -80,6 +92,20 @@ export function MapView({
 
     map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
     mapRef.current = map;
+    (containerRef.current as MapCanvas).__hisabMap = map;
+    map.setPadding(sheetCameraPadding());
+    // Narrow maps open the attribution bar immediately. Leave the 46px info button.
+    const collapseAttrib = () => {
+      map.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
+    };
+    collapseAttrib();
+    map.on('load', () => {
+      collapseAttrib();
+      map.setPadding(sheetCameraPadding());
+    });
+    map.on('resize', () => {
+      map.setPadding(sheetCameraPadding());
+    });
 
     map.on('load', async () => {
       try {
@@ -173,6 +199,8 @@ export function MapView({
       el.type = 'button';
       el.className = `map-loc ${selectedId === loc.id ? 'is-active' : ''}`;
       el.title = loc.name;
+      el.dataset.lng = String(loc.lng);
+      el.dataset.lat = String(loc.lat);
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         onSelectLocality(loc.id);
@@ -196,6 +224,8 @@ export function MapView({
         el.className = 'map-pin';
         el.style.setProperty('--pin', STATUS_COLOR[report.status]);
         el.title = report.note;
+        el.dataset.lng = String(report.lng);
+        el.dataset.lat = String(report.lat);
         el.addEventListener('click', (e) => {
           e.stopPropagation();
           onSelectLocality(report.localityId);
@@ -213,6 +243,7 @@ export function MapView({
       center: [focus.lng, focus.lat],
       zoom: 13.4,
       essential: true,
+      padding: sheetCameraPadding(),
     });
   }, [focus]);
 
