@@ -154,7 +154,7 @@ export function LocalitySearch({
       role="combobox"
       aria-expanded={showing}
       aria-haspopup="listbox"
-      aria-controls={listId}
+      aria-controls={showing ? listId : undefined}
     >
       <label className="loc-search__label" htmlFor={`${listId}-input`}>
         <span className="sr-only">Search locality</span>
@@ -186,7 +186,7 @@ export function LocalitySearch({
           placeholder={placeholder}
           value={query}
           aria-autocomplete="list"
-          aria-controls={listId}
+          aria-controls={showing ? listId : undefined}
           aria-activedescendant={
             showing && results[active]
               ? `${listId}-opt-${results[active].id}`

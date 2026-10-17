@@ -1,9 +1,31 @@
+/* Latin subsets, SIL OFL. Same faces and weights as the previous Google CSS. */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/bricolage-grotesque-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-sans-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   --ink: #0e1c18;
   --ink-soft: #1a2f29;
   --paper: #f4f6f4;
   --paper-2: #e8ece9;
-  --mist: #6b7a74;
+  /* #5f6d68 is 4.99:1 on --paper. Previous #6b7a74 was 4.15:1. */
+  --mist: #5f6d68;
   --brand: #c62828;
   --alert: #c62828;
   --signal: #a67c00;
@@ -77,6 +99,12 @@ img {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* Matches a full route under the nav so a lazy chunk cannot collapse the page. */
+.route-fallback {
+  min-height: calc(100vh - var(--nav-h));
+  background: var(--paper);
 }
 
 /* Shared buttons — vermillion is the only filled action accent */
