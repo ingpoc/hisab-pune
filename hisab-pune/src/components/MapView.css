@@ -12,6 +12,8 @@
 .map-shell__canvas {
   width: 100%;
   height: 100%;
+  /* Paper frame paints before MapLibre loads. The shell shows the same colour. */
+  background: var(--paper-2);
 }
 
 .map-shell__legend {

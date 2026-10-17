@@ -32,6 +32,7 @@ export function MapPage() {
   const [escalateError, setEscalateError] = useState<string | null>(null);
   const [escalateBusy, setEscalateBusy] = useState(false);
   const [escalateTargetId, setEscalateTargetId] = useState<string | null>(null);
+  const [bootReady, setBootReady] = useState(false);
   const { retryNonce } = useWakeStatus();
   const sheetDrag = useRef<{ y: number; id: number } | null>(null);
   const skipSheetClick = useRef(false);
@@ -47,9 +48,12 @@ export function MapPage() {
         for (const r of apiReports) byId.set(r.id, r);
         for (const r of local) byId.set(r.id, r);
         setReports([...byId.values()]);
+        setBootReady(true);
       })
       .catch(() => {
-        if (!cancelled) setLoadError(REPORTS_LOAD_ERROR);
+        if (cancelled) return;
+        setLoadError(REPORTS_LOAD_ERROR);
+        setBootReady(true);
       });
     return () => {
       cancelled = true;
@@ -243,6 +247,7 @@ export function MapPage() {
           onUnmappedWard={onUnmappedWard}
           onSelectReport={setActiveReportId}
           focus={focus}
+          bootReady={bootReady}
         />
       </div>
 
