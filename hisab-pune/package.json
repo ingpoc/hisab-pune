@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "concurrently -k -n web,api -c cyan,magenta \"vite\" \"tsx server/src/index.ts\"",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/check-map-bundle.mjs",
     "start": "tsx server/src/index.ts",
     "lint": "oxlint",
     "preview": "vite preview",
