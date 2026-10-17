@@ -2,6 +2,7 @@ import { existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { expectMarkersOnProjectedPoints } from './markerAnchor';
+import { expectMarkersClearOfChrome } from './markerChrome';
 
 /**
  * Phone-sized (390×844) coverage for ledger/rail scroll, tap targets, and
@@ -279,6 +280,10 @@ test.describe('Mobile Chrome 390×844', () => {
     ).toBeVisible();
     await expect(page.getByText(/photo \(optional\)/i)).toBeVisible();
     await shot(page, 'report_modal');
+  });
+
+  test('map markers stay clear of chrome at locality cameras', async ({ page }) => {
+    await expectMarkersClearOfChrome(page);
   });
 
   test('map markers and attribution are 44px and the info control clears the sheet', async ({
