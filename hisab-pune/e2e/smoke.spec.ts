@@ -183,6 +183,34 @@ test.describe('Hisab smoke (browser QA regressions)', () => {
     expect(carto).toEqual([]);
   });
 
+  test('map still renders wards and markers when OpenFreeMap is blocked', async ({ page }) => {
+    await page.route(/tiles\.openfreemap\.org/i, (route) => route.abort());
+    await page.goto('/map?loc=baner');
+    await expect(page.locator('.maplibregl-canvas')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('button.map-loc.is-active')).toBeVisible();
+    await expect(page.locator('button.map-pin').first()).toBeVisible();
+    await expect
+      .poll(
+        () =>
+          page.evaluate(() => {
+            const host = document.querySelector('.map-shell__canvas') as
+              | (HTMLElement & {
+                  __hisabMap?: { getLayer: (id: string) => unknown };
+                })
+              | null;
+            const map = host?.__hisabMap;
+            return {
+              paper: !!map?.getLayer('paper'),
+              fill: !!map?.getLayer('wards-fill'),
+              line: !!map?.getLayer('wards-line'),
+              selected: !!map?.getLayer('wards-selected'),
+            };
+          }),
+        { timeout: 20_000 },
+      )
+      .toEqual({ paper: true, fill: true, line: true, selected: true });
+  });
+
   test('map locality ledger shows Baner without auto-expanded ladder', async ({ page }) => {
     await page.goto('/map?loc=baner');
     await expect(page.getByRole('heading', { level: 1, name: /Baner/i })).toBeVisible({
